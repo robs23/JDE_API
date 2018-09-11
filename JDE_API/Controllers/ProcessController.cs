@@ -110,6 +110,107 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
+        [Route("GetProcessesExt")]
+        public IHttpActionResult GetProcessesExt(string token, bool active = true, int page = 0, int total = 0)
+        {
+
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = (from p in db.JDE_Processes
+                                 join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
+                                 from fin in finished.DefaultIfEmpty()
+                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                                 join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
+                                 join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
+                                 from star in started.DefaultIfEmpty()
+                                 join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join s in db.JDE_Sets on pl.SetId equals s.SetId
+                                 join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId
+                                 orderby p.CreatedOn descending
+                                 select new
+                                 {
+                                     ProcessId = p.ProcessId,
+                                     Description = p.Description,
+                                     StartedOn = p.StartedOn,
+                                     StartedBy = p.StartedBy,
+                                     StartedByName = star.Name + " " + star.Surname,
+                                     FinishedOn = p.FinishedOn,
+                                     FinishedBy = p.FinishedBy,
+                                     FinishedByName = fin.Name + " " + fin.Surname,
+                                     ActionTypeId = p.ActionTypeId,
+                                     ActionTypeName = at.Name,
+                                     IsActive = p.IsActive,
+                                     IsFrozen = p.IsFrozen,
+                                     IsCompleted = p.IsCompleted,
+                                     IsSuccessfull = p.IsSuccessfull,
+                                     PlaceId = p.PlaceId,
+                                     PlaceName = pl.Name,
+                                     AreaId = a.AreaId,
+                                     AreaName = a.Name,
+                                     SetId = s.SetId,
+                                     SetName = s.Name,
+                                     Output = p.Output,
+                                     TenantId = p.TenantId,
+                                     TenantName = t.TenantName,
+                                     CreatedOn = p.CreatedOn,
+                                     CreatedBy = p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname
+                                 });
+                    if (items.Any())
+                    {
+                        if (active)
+                        {
+                            items = items.Where(i => i.IsCompleted != true && i.IsSuccessfull != true);
+                        }
+                        if (total == 0 && page > 0)
+                        {
+                            int pageSize = RuntimeSettings.PageSize;
+                            var skip = pageSize * (page - 1);
+                            if (skip < items.Count())
+                            {
+                                items = items.Skip(skip).Take(pageSize);
+                                return Ok(items);
+                            }
+                            else
+                            {
+                                return NotFound();
+                            }
+                        }
+                        else if (total > 0 && page == 0)
+                        {
+                            items = items.Take(total);
+                            return Ok(items);
+                        }
+                        else
+                        {
+                            return Ok(items);
+                        }
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+
+        }
+
+        [HttpGet]
         [Route("GetProcesses")]
         public IHttpActionResult GetProcesses(string token, string PlaceToken, bool active = false)
         {
