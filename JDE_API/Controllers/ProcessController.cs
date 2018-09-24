@@ -11,6 +11,7 @@ using System.Web.Http.Description;
 using System.Web.Script.Serialization;
 using JDE_API.Models;
 using JDE_API.Static;
+using System.Linq.Dynamic;
 
 namespace JDE_API.Controllers
 {
@@ -20,7 +21,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcesses")]
-        public IHttpActionResult GetProcesses(string token, int page=0, int total=0)
+        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
         {
 
             if (token != null && token.Length > 0)
@@ -28,6 +29,9 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
+                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.StartedOn).Value;
+                    dTo = dTo ?? db.JDE_Processes.Max(x => x.StartedOn).Value;
+
                     var items = (from p in db.JDE_Processes
                                  join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
                                  from fin in finished.DefaultIfEmpty()
@@ -37,7 +41,7 @@ namespace JDE_API.Controllers
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.StartedOn >= dFrom && p.StartedOn <= dTo
                                  orderby p.CreatedOn descending
                                  select new
                                  {
@@ -66,6 +70,10 @@ namespace JDE_API.Controllers
                                  });
                     if (items.Any())
                     {
+                        if (query != null)
+                        {
+                            items = items.Where(query);
+                        }
                         if (total == 0 && page > 0)
                         {
                             int pageSize = RuntimeSettings.PageSize;
@@ -107,6 +115,12 @@ namespace JDE_API.Controllers
                 return NotFound();
             }
 
+        }
+
+        private List<object> FilterProcesses(List<object> items, string query)
+        {
+            items = (List<object>)db.JDE_Processes.Where(query);
+            return items;
         }
 
         [HttpGet]
@@ -449,7 +463,19 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
                     if (items.Any())
                     {
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                        item.CreatedOn = items.FirstOrDefault().CreatedOn;
+                        if(items.FirstOrDefault().StartedOn != null)
+                        {
+                            item.StartedOn = items.FirstOrDefault().StartedOn;
+                        }
+                        string descr = "Edycja zgłoszenia";
+                        if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
+                        {
+                            //this has just been finished. Replace user's finish time with server time
+                            item.FinishedOn = DateTime.Now;
+                            descr = "Zamknięcie zgłoszenia";
+                        }
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description =descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
                         try
@@ -486,6 +512,11 @@ namespace JDE_API.Controllers
                 if (tenants.Any())
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
+                    item.CreatedOn = DateTime.Now;
+                    if (item.StartedOn != null)
+                    {
+                        item.StartedOn = DateTime.Now;
+                    }
                     db.JDE_Processes.Add(item);
                     db.SaveChanges();
                     JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
