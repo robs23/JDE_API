@@ -21,97 +21,30 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetLogs")]
-        public IHttpActionResult GetLogs(string token, int page=0, int total=0)
+        public IHttpActionResult GetLogs(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from l in db.JDE_Logs
-                                 join u in db.JDE_Users on l.UserId equals u.UserId
-                                 join t in db.JDE_Tenants on l.TenantId equals t.TenantId
-                                 where l.TenantId == tenants.FirstOrDefault().TenantId
-                                 orderby l.Timestamp descending
-                                 select new
-                                 {
-                                     LogId = l.LogId,
-                                     Timestamp = l.Timestamp,
-                                     TenantId = t.TenantId,
-                                     TenantName = t.TenantName,
-                                     UserId = l.UserId,
-                                     UserName = u.Name + " " + u.Surname,
-                                     Descripiton = l.Description,
-                                     OldValue = l.OldValue,
-                                     NewValue = l.NewValue
-                                 });
-                    if (items.Any())
-                    {
+                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.StartedOn).Value;
+                    dTo = dTo ?? db.JDE_Processes.Max(x => x.StartedOn).Value;
 
-                        if(total==0 && page > 0)
-                        {
-                            int pageSize = RuntimeSettings.PageSize;
-                            var skip = pageSize * (page - 1);
-                            if (skip < items.Count())
-                            {
-                                items = items.Skip(skip).Take(pageSize);
-                                return Ok(items);
-                            }
-                            else
-                            {
-                                return NotFound();
-                            }
-                        }else if(total>0 && page == 0)
-                        {
-                            items = items.Take(total);
-                            return Ok(items);
-                        }
-                        else
-                        {
-                            return Ok(items);
-                        }
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
-
-                }
-                else
-                {
-                    return NotFound();
-                }
-
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
-        [HttpGet]
-        [Route("GetLogsExt")]
-        public IHttpActionResult GetLogsExt(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
-        {
-            if (token != null && token.Length > 0)
-            {
-                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
-                if (tenants.Any())
-                {
                     var items = (from l in db.JDE_Logs
                                  join u in db.JDE_Users on l.UserId equals u.UserId
                                  join t in db.JDE_Tenants on l.TenantId equals t.TenantId
                                  where l.TenantId == tenants.FirstOrDefault().TenantId && l.Timestamp >= dFrom && l.Timestamp <= dTo
                                  orderby l.Timestamp descending
-                                 select new
+                                 select new ExtLog
                                  {
                                      LogId = l.LogId,
-                                     Timestamp = l.Timestamp,
+                                     TimeStamp = l.Timestamp,
                                      TenantId = t.TenantId,
                                      TenantName = t.TenantName,
                                      UserId = l.UserId,
                                      UserName = u.Name + " " + u.Surname,
-                                     Descripiton = l.Description,
+                                     Description = l.Description,
                                      OldValue = l.OldValue,
                                      NewValue = l.NewValue
                                  });
@@ -119,6 +52,7 @@ namespace JDE_API.Controllers
                     {
                         if (query != null)
                         {
+                            //query = "@newValue.Contains(\"ProcessId\":764)";
                             items = items.Where(query);
                         }
 
@@ -129,28 +63,7 @@ namespace JDE_API.Controllers
                             if (skip < items.Count())
                             {
                                 items = items.Skip(skip).Take(pageSize);
-                                List<object> nItems = new List<object>();
-                                int ind = 0;
-                                //try to get more details
-                                foreach(var i in items)
-                                {
-                                    string desc = GetLogDescription(i.NewValue, i.OldValue, i.Descripiton);
-                                    var nItem = new
-                                    {
-                                        LogId = i.LogId,
-                                        Timestamp = i.Timestamp,
-                                        TenantId = i.TenantId,
-                                        TenantName = i.TenantName,
-                                        UserId = i.UserId,
-                                        UserName = i.UserName,
-                                        Descripiton = i.Descripiton,
-                                        OldValue = i.OldValue,
-                                        NewValue = i.NewValue,
-                                        ExtDescription = desc
-                                    };
-                                    nItems.Add(nItem);
-                                }
-                                return Ok(nItems);
+                                return Ok(items);
                             }
                             else
                             {
@@ -183,92 +96,6 @@ namespace JDE_API.Controllers
             {
                 return NotFound();
             }
-        }
-
-        private string GetLogDescription(string newValue, string oldValue, string type)
-        {
-            string res = "";
-
-            if (type.Equals("Utworzenie zgłoszenia"))
-            {
-                try
-                {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    dynamic p = js.DeserializeObject(newValue);
-                    int processId = p["ProcessId"];
-                    int at = p["ActionTypeId"];
-                    int pl = p["PlaceId"];
-                    res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name);
-                }
-                catch (Exception ex)
-                {
-                    res = "Deserializacja nie powiodła się";
-                }
-
-            }else if(type.Equals("Edycja zgłoszenia"))
-            {
-                try
-                {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    dynamic nv = js.DeserializeObject(newValue);
-                    dynamic ov = js.DeserializeObject(oldValue);
-                    int processId = nv["ProcessId"];
-                    int at = nv["ActionTypeId"];
-                    int pl = nv["PlaceId"];
-                    string comment = "";
-                    if(((bool)nv["IsCompleted"] || (bool)nv["IsSuccessfull"]) && ((bool)ov["IsCompleted"]==false && (bool)ov["IsSuccessfull"]==false))
-                    {
-                        comment = "Zgłoszenie zostało zamknięte";
-                    }else if((bool)nv["IsFrozen"] && (bool)ov["IsFrozen"] == false)
-                    {
-                        comment = "Zgłoszenie zostało wstrzymane";
-                    }
-                    else if ((bool)nv["IsFrozen"]==false && (bool)ov["IsFrozen"])
-                    {
-                        comment = "Zgłoszenie zostało wznowione";
-                    }
-                    res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}, {4}",processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name,nv["Output"], comment);
-                }
-                catch (Exception ex)
-                {
-                    res = "Deserializacja nie powiodła się";
-                }
-            }
-            else if (type.Equals("Zamknięcie zgłoszenia"))
-            {
-                try
-                {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    dynamic nv = js.DeserializeObject(newValue);
-                    dynamic ov = js.DeserializeObject(oldValue);
-                    int processId = nv["ProcessId"];
-                    int at = nv["ActionTypeId"];
-                    int pl = nv["PlaceId"];
-                    res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"]);
-                }
-                catch (Exception ex)
-                {
-                    res = "Deserializacja nie powiodła się";
-                }
-            }
-            else if (type.Equals("Usunięcie zgłoszenia"))
-            {
-                try
-                {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    dynamic ov = js.DeserializeObject(oldValue);
-                    int processId = ov["ProcessId"];
-                    int at = ov["ActionTypeId"];
-                    int pl = ov["PlaceId"];
-                    res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, ov["Output"]);
-                }
-                catch (Exception ex)
-                {
-                    res = "Deserializacja nie powiodła się";
-                }
-            }
-
-            return res;
         }
 
         [HttpGet]
@@ -392,5 +219,164 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Logs.Count(e => e.LogId == id) > 0;
         }
+    }
+
+    public class ExtLog
+    {
+        public int LogId { get; set; }
+        public DateTime? TimeStamp { get; set; }
+        public int TenantId { get; set; }
+        public string TenantName { get; set; }
+        public int? UserId { get; set; }
+        public string UserName { get; set; }
+        public string Description { get; set; }
+        public string OldValue { get; set; }
+        public string NewValue { get; set; }
+        public string ExtDescription { get
+            {
+                 Models.DbModel db = new Models.DbModel();
+
+                string res = "";
+
+                if (this.Description.Equals("Utworzenie zgłoszenia"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic p = js.DeserializeObject(this.NewValue);
+                        int processId = p["ProcessId"];
+                        int at = p["ActionTypeId"];
+                        int pl = p["PlaceId"];
+                        res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+
+                }
+                else if (this.Description.Equals("Edycja zgłoszenia"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic nv = js.DeserializeObject(this.NewValue);
+                        dynamic ov = js.DeserializeObject(this.OldValue);
+                        int processId = nv["ProcessId"];
+                        int at = nv["ActionTypeId"];
+                        int pl = nv["PlaceId"];
+                        string comment = "";
+                        if (((bool)nv["IsCompleted"] || (bool)nv["IsSuccessfull"]) && ((bool)ov["IsCompleted"] == false && (bool)ov["IsSuccessfull"] == false))
+                        {
+                            comment = "Zgłoszenie zostało zamknięte";
+                        }
+                        else if ((bool)nv["IsFrozen"] && (bool)ov["IsFrozen"] == false)
+                        {
+                            comment = "Zgłoszenie zostało wstrzymane";
+                        }
+                        else if ((bool)nv["IsFrozen"] == false && (bool)ov["IsFrozen"])
+                        {
+                            comment = "Zgłoszenie zostało wznowione";
+                        }
+                        res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}, {4}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"], comment);
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+                else if (this.Description.Equals("Zamknięcie zgłoszenia"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic nv = js.DeserializeObject(this.NewValue);
+                        dynamic ov = js.DeserializeObject(this.OldValue);
+                        int processId = nv["ProcessId"];
+                        int at = nv["ActionTypeId"];
+                        int pl = nv["PlaceId"];
+                        res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"]);
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+                else if (this.Description.Equals("Usunięcie zgłoszenia"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic ov = js.DeserializeObject(this.OldValue);
+                        int processId = ov["ProcessId"];
+                        int at = ov["ActionTypeId"];
+                        int pl = ov["PlaceId"];
+                        res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, ov["Output"]);
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+                else if (this.Description.Equals("Utworzenie użytkownika") || this.Description.Equals("Edycja użytkownika"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic nv = js.DeserializeObject(this.NewValue);
+                        res = "ID użytkownika: " + nv["UserId"] + ", imię i nazwisko: " + nv["Name"] + " " + nv["Surname"];
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+                else if (this.Description.Equals("Usunięcie użytkownika"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic nv = js.DeserializeObject(this.OldValue);
+                        res = "ID użytkownika: " + nv["UserId"] + ", imię i nazwisko: " + nv["Name"] + " " + nv["Surname"];
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+                else if (this.Description.Equals("Utworzenie zasobu") || this.Description.Equals("Edycja zasobu"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic nv = js.DeserializeObject(this.NewValue);
+                        int setId = nv["SetId"];
+                        int areaId = nv["AreaId"];
+                        res = "ID zasobu: " + nv["PlaceId"] + ", nazwa: " + nv["Name"] + ", instalacja: " + db.JDE_Sets.Where(s => s.SetId == setId).FirstOrDefault().Name + ", obszar: " + db.JDE_Areas.Where(a => a.AreaId == areaId).FirstOrDefault().Name;
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+                else if (this.Description.Equals("Usunięcie zasobu"))
+                {
+                    try
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        dynamic nv = js.DeserializeObject(this.OldValue);
+                        int setId = nv["SetId"];
+                        int areaId = nv["AreaId"];
+                        res = "ID zasobu: " + nv["PlaceId"] + ", nazwa: " + nv["Name"] + ", instalacja: " + db.JDE_Sets.Where(s => s.SetId == setId).FirstOrDefault().Name + ", obszar: " + db.JDE_Areas.Where(a => a.AreaId == areaId).FirstOrDefault().Name;
+                    }
+                    catch (Exception ex)
+                    {
+                        res = "Deserializacja nie powiodła się";
+                    }
+                }
+
+
+                return res;
+            } }
     }
 }
