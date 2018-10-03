@@ -12,6 +12,8 @@ using System.Web.Script.Serialization;
 using JDE_API.Models;
 using JDE_API.Static;
 using System.Linq.Dynamic;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace JDE_API.Controllers
 {
@@ -21,7 +23,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcesses")]
-        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
+        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null)
         {
 
             if (token != null && token.Length > 0)
@@ -43,7 +45,7 @@ namespace JDE_API.Controllers
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.StartedOn >= dFrom && p.StartedOn <= dTo
                                  orderby p.CreatedOn descending
-                                 select new
+                                 select new Process
                                  {
                                      ProcessId = p.ProcessId,
                                      Description = p.Description,
@@ -74,28 +76,60 @@ namespace JDE_API.Controllers
                         {
                             items = items.Where(query);
                         }
-                        if (total == 0 && page > 0)
+                        
+                        if (length != null)
                         {
-                            int pageSize = RuntimeSettings.PageSize;
-                            var skip = pageSize * (page - 1);
-                            if (skip < items.Count())
+                            var nItems = items.ToList();
+                            nItems = FilterByLength(nItems, length);
+                            if (total == 0 && page > 0)
                             {
-                                items = items.Skip(skip).Take(pageSize);
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < nItems.Count())
+                                {
+                                    nItems = nItems.Skip(skip).Take(pageSize).ToList();
+                                    return Ok(nItems);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                nItems = nItems.Take(total).ToList();
+                                return Ok(nItems);
+                            }
+                            else
+                            {
+                                return Ok(nItems);
+                            }
+                        }
+                        else
+                        {
+                            if (total == 0 && page > 0)
+                            {
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < items.Count())
+                                {
+                                    items = items.Skip(skip).Take(pageSize);
+                                    return Ok(items);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                items = items.Take(total);
                                 return Ok(items);
                             }
                             else
                             {
-                                return NotFound();
+                                return Ok(items);
                             }
-                        }
-                        else if (total > 0 && page == 0)
-                        {
-                            items = items.Take(total);
-                            return Ok(items);
-                        }
-                        else
-                        {
-                            return Ok(items);
                         }
                     }
                     else
@@ -117,10 +151,38 @@ namespace JDE_API.Controllers
 
         }
 
-        private List<object> FilterProcesses(List<object> items, string query)
+        private List<Process> FilterByLength(List<Process> nItems, string length)
         {
-            items = (List<object>)db.JDE_Processes.Where(query);
-            return items;
+            var min = Regex.Match(length, @"\d+").Value;
+            int mins = 0;
+            int.TryParse(min, out mins);
+            var sign = length.Substring(0, length.Length - min.Length);
+            if ((sign.Equals(">") || sign.Equals("<") || sign.Equals("=<") || sign.Equals("<=") || sign.Equals("=>") || sign.Equals(">=") || sign.Equals("=")) && mins >= 0)
+            {
+                // don't do anything unless you've got both min and sign
+                if (sign.Equals("="))
+                {
+                    nItems = nItems.Where(i => i.Length == mins).ToList();
+                }
+                else if (sign.Equals("<=") || sign.Equals("=<"))
+                {
+                    nItems = nItems.Where(i => i.Length <= mins).ToList();
+                }
+                else if (sign.Equals(">=") || sign.Equals("=>"))
+                {
+                    nItems = nItems.Where(i => i.Length >= mins).ToList();
+                }
+                else if (sign.Equals(">"))
+                {
+                    nItems = nItems.Where(i => i.Length > mins).ToList();
+                }
+                else if (sign.Equals("<"))
+                {
+                    nItems = nItems.Where(i => i.Length < mins).ToList();
+                }
+
+            }
+            return nItems;
         }
 
         [HttpGet]
@@ -585,5 +647,50 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Processes.Count(e => e.ProcessId == id) > 0;
         }
+    }
+
+    public class Process
+    {
+        public int ProcessId { get; set; }
+        public string Description { get; set; }
+        public DateTime? StartedOn { get; set; }
+        public int? StartedBy { get; set; }
+        public string StartedByName { get; set; }
+        public DateTime? FinishedOn { get; set; }
+        public int? FinishedBy { get; set; }
+        public string FinishedByName { get; set; }
+        public int? ActionTypeId { get; set; }
+        public string ActionTypeName { get; set; }
+        public bool? IsActive { get; set; }
+        public bool? IsFrozen { get; set; }
+        public bool? IsCompleted { get; set; }
+        public bool? IsSuccessfull { get; set; }
+        public int? PlaceId { get; set; }
+        public string PlaceName { get; set; }
+        public string Output { get; set; }
+        public int? TenantId { get; set; }
+        public string TenantName { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public int? CreatedBy { get; set; }
+        public string CreatedByName { get; set; }
+        public int? Length { get
+            {
+                if(StartedOn == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    if(FinishedOn == null)
+                    {
+                        return (int)DateTime.Now.Subtract((DateTime)StartedOn).TotalMinutes;
+                    }
+                    else
+                    {
+                        return (int)((DateTime)FinishedOn).Subtract((DateTime)StartedOn).TotalMinutes;
+                    }
+                }
+            } }
+
     }
 }
