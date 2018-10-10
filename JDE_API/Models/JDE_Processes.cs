@@ -30,5 +30,10 @@ namespace JDE_API.Models
         public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public string MesId { get; set; }
+        public string InitialDiagnosis { get; set; }
+        public string RepairActions { get; set; }
+        public string Reason { get; set; }
+        public Nullable<System.DateTime> MesDate { get; set; }
     }
 }

@@ -45,7 +45,8 @@ namespace JDE_API.Controllers
                                      CreatedOn = us.CreatedOn,
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LastLoggedOn = us.lastLoggedOn
+                                     LastLoggedOn = us.lastLoggedOn,
+                                     MesLogin = us.MesLogin
                                  });
                     if (users.Any())
                     {
@@ -99,7 +100,8 @@ namespace JDE_API.Controllers
                                      CreatedOn = us.CreatedOn,
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LastLoggedOn = us.lastLoggedOn
+                                     LastLoggedOn = us.lastLoggedOn,
+                                     MesLogin = us.MesLogin
                                  });
                     if (users.Any())
                     {
@@ -157,7 +159,8 @@ namespace JDE_API.Controllers
                                      CreatedOn = us.CreatedOn,
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LastLoggedOn = us.lastLoggedOn
+                                     LastLoggedOn = us.lastLoggedOn,
+                                     MesLogin = us.MesLogin
                                  });
                     if (users.Any())
                     {
@@ -208,7 +211,8 @@ namespace JDE_API.Controllers
                                      CreatedOn = us.CreatedOn,
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LastLoggedOn = us.lastLoggedOn
+                                     LastLoggedOn = us.lastLoggedOn,
+                                     MesLogin = us.MesLogin
                                  });
                     if (users.Any())
                     {

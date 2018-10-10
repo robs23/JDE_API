@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -136,6 +137,51 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetActionTypeByName")]
+        [ResponseType(typeof(JDE_ActionTypes))]
+        public IHttpActionResult GetActionTypeByName(string token, string name, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    if (JDE_ActionTypesExists(name))
+                    {
+                        //there's action type of given name, return it
+                        var item = db.JDE_ActionTypes.Where(i => i.Name.Equals(name.Trim())).FirstOrDefault();
+                        return Ok(item);
+                    }
+                    else
+                    {
+                        //there's NO action type of given name, create it and return it
+                        JDE_ActionTypes nAt = new JDE_ActionTypes
+                        {
+                            Name = name.Trim(),
+                            Description = null,
+                            CreatedBy = UserId,
+                            CreatedOn = DateTime.Now,
+                            TenantId = tenants.FirstOrDefault().TenantId
+                        };
+                        db.JDE_ActionTypes.Add(nAt);
+                        db.SaveChanges();
+                        return Ok(nAt);
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         [HttpPut]
         [Route("EditActionType")]
         [ResponseType(typeof(void))]
@@ -254,6 +300,11 @@ namespace JDE_API.Controllers
         private bool JDE_ActionTypesExists(int id)
         {
             return db.JDE_ActionTypes.Count(e => e.ActionTypeId == id) > 0;
+        }
+
+        private bool JDE_ActionTypesExists(string name)
+        {
+            return db.JDE_ActionTypes.Count(e => e.Name.Equals(name.Trim())) > 0;
         }
     }
 }

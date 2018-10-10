@@ -68,7 +68,12 @@ namespace JDE_API.Controllers
                                      TenantName = t.TenantName,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
-                                     CreatedByName = u.Name + " " + u.Surname
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     MesId = p.MesId,
+                                     InitialDiagnosis = p.InitialDiagnosis,
+                                     RepairActions = p.RepairActions,
+                                     Reason = p.Reason,
+                                     MesDate = p.MesDate
                                  });
                     if (items.Any())
                     {
@@ -235,7 +240,12 @@ namespace JDE_API.Controllers
                                      TenantName = t.TenantName,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
-                                     CreatedByName = u.Name + " " + u.Surname
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     MesId = p.MesId,
+                                     InitialDiagnosis = p.InitialDiagnosis,
+                                     RepairActions = p.RepairActions,
+                                     Reason = p.Reason,
+                                     MesDate = p.MesDate
                                  });
                     if (items.Any())
                     {
@@ -329,7 +339,12 @@ namespace JDE_API.Controllers
                                      TenantName = t.TenantName,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
-                                     CreatedByName = u.Name + " " + u.Surname
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     MesId = p.MesId,
+                                     InitialDiagnosis = p.InitialDiagnosis,
+                                     RepairActions = p.RepairActions,
+                                     Reason = p.Reason,
+                                     MesDate = p.MesDate
                                  });
                     if (items.Any())
                     {
@@ -408,7 +423,12 @@ namespace JDE_API.Controllers
                                      TenantName = t.TenantName,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
-                                     CreatedByName = u.Name + " " + u.Surname
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     MesId = p.MesId,
+                                     InitialDiagnosis = p.InitialDiagnosis,
+                                     RepairActions = p.RepairActions,
+                                     Reason = p.Reason,
+                                     MesDate = p.MesDate
                                  });
                     if (items.Any())
                     {
@@ -487,7 +507,12 @@ namespace JDE_API.Controllers
                                      TenantName = t.TenantName,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
-                                     CreatedByName = u.Name + " " + u.Surname
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     MesId = p.MesId,
+                                     InitialDiagnosis = p.InitialDiagnosis,
+                                     RepairActions = p.RepairActions,
+                                     Reason = p.Reason,
+                                     MesDate = p.MesDate
                                  });
                     if (items.Any())
                     {
@@ -691,6 +716,11 @@ namespace JDE_API.Controllers
                     }
                 }
             } }
+        public string MesId { get; set; }
+        public string InitialDiagnosis { get; set; }
+        public string RepairActions { get; set; }
+        public string Reason { get; set; }
+        public DateTime? MesDate { get; set; }
 
     }
 }

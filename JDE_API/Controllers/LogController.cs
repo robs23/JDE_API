@@ -36,7 +36,7 @@ namespace JDE_API.Controllers
                                  join t in db.JDE_Tenants on l.TenantId equals t.TenantId
                                  where l.TenantId == tenants.FirstOrDefault().TenantId && l.Timestamp >= dFrom && l.Timestamp <= dTo
                                  orderby l.Timestamp descending
-                                 select new ExtLog
+                                 select new //ExtLog
                                  {
                                      LogId = l.LogId,
                                      TimeStamp = l.Timestamp,
@@ -52,7 +52,8 @@ namespace JDE_API.Controllers
                     {
                         if (query != null)
                         {
-                            //query = "@newValue.Contains(\"ProcessId\":764)";
+                            //query = "newValue.Contains(\"ProcessId\":904)";
+                            query = "@NewValue.Contains(\"904,)\")";
                             items = items.Where(query);
                         }
 

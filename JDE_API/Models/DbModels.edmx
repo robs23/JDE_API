@@ -27,11 +27,13 @@
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'robs23_testowa.dbo.JDE_Errors' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="JDE_Errors">
           <Key>
             <PropertyRef Name="ErrorId" />
           </Key>
-          <Property Name="ErrorId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ErrorId" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="TenantId" Type="int" />
           <Property Name="UserId" Type="int" />
           <Property Name="Time" Type="datetime" />
@@ -40,11 +42,13 @@
           <Property Name="Class" Type="nvarchar" MaxLength="200" />
           <Property Name="Message" Type="nvarchar(max)" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="JDE_Files">
           <Key>
             <PropertyRef Name="FileId" />
           </Key>
-          <Property Name="FileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FileId" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="nvarchar" MaxLength="150" />
           <Property Name="Description" Type="nvarchar" MaxLength="150" />
           <Property Name="Link" Type="nvarchar" MaxLength="200" />
@@ -72,8 +76,8 @@
           <Property Name="PlaceId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Number1" Type="nvarchar" MaxLength="20" />
           <Property Name="Number2" Type="nvarchar" MaxLength="20" />
-          <Property Name="Name" Type="nvarchar" MaxLength="50" />
-          <Property Name="Description" Type="nvarchar" MaxLength="150" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" />
+          <Property Name="Description" Type="nvarchar" MaxLength="250" />
           <Property Name="AreaId" Type="int" />
           <Property Name="SetId" Type="int" />
           <Property Name="Priority" Type="nchar" MaxLength="1" />
@@ -102,6 +106,11 @@
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="MesId" Type="nvarchar" MaxLength="25" />
+          <Property Name="InitialDiagnosis" Type="nvarchar" MaxLength="1000" />
+          <Property Name="RepairActions" Type="nvarchar" MaxLength="1000" />
+          <Property Name="Reason" Type="nvarchar" MaxLength="1000" />
+          <Property Name="MesDate" Type="datetime" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
@@ -137,18 +146,41 @@
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="MesLogin" Type="nvarchar" MaxLength="25" />
         </EntityType>
         <EntityContainer Name="robs23ModelStoreContainer">
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Places" EntityType="Self.JDE_Places" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Processes" EntityType="Self.JDE_Processes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [JDE_Errors].[ErrorId] AS [ErrorId], 
+    [JDE_Errors].[TenantId] AS [TenantId], 
+    [JDE_Errors].[UserId] AS [UserId], 
+    [JDE_Errors].[Time] AS [Time], 
+    [JDE_Errors].[App] AS [App], 
+    [JDE_Errors].[Method] AS [Method], 
+    [JDE_Errors].[Class] AS [Class], 
+    [JDE_Errors].[Message] AS [Message]
+    FROM [dbo].[JDE_Errors] AS [JDE_Errors]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [JDE_Files].[FileId] AS [FileId], 
+    [JDE_Files].[Name] AS [Name], 
+    [JDE_Files].[Description] AS [Description], 
+    [JDE_Files].[Link] AS [Link], 
+    [JDE_Files].[ProcessId] AS [ProcessId], 
+    [JDE_Files].[CreatedOn] AS [CreatedOn], 
+    [JDE_Files].[CreatedBy] AS [CreatedBy], 
+    [JDE_Files].[TenantId] AS [TenantId]
+    FROM [dbo].[JDE_Files] AS [JDE_Files]</DefiningQuery>
+          </EntitySet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -196,8 +228,8 @@
           <Property Name="PlaceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Number1" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="Number2" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="AreaId" Type="Int32" />
           <Property Name="SetId" Type="Int32" />
           <Property Name="Priority" Type="String" MaxLength="1" FixedLength="true" Unicode="true" />
@@ -226,6 +258,11 @@
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="MesId" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="InitialDiagnosis" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="RepairActions" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Reason" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="MesDate" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
@@ -261,6 +298,7 @@
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="MesLogin" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityContainer Name="DbModel" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" />
@@ -364,6 +402,11 @@
           <EntitySetMapping Name="JDE_Processes">
             <EntityTypeMapping TypeName="robs23Model.JDE_Processes">
               <MappingFragment StoreEntitySet="JDE_Processes">
+                <ScalarProperty Name="MesDate" ColumnName="MesDate" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="RepairActions" ColumnName="RepairActions" />
+                <ScalarProperty Name="InitialDiagnosis" ColumnName="InitialDiagnosis" />
+                <ScalarProperty Name="MesId" ColumnName="MesId" />
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
@@ -409,6 +452,7 @@
           <EntitySetMapping Name="JDE_Users">
             <EntityTypeMapping TypeName="robs23Model.JDE_Users">
               <MappingFragment StoreEntitySet="JDE_Users">
+                <ScalarProperty Name="MesLogin" ColumnName="MesLogin" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Surname" ColumnName="Surname" />
