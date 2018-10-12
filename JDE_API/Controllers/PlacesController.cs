@@ -6,6 +6,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Script.Serialization;
@@ -202,7 +203,7 @@ namespace JDE_API.Controllers
             }
         }
 
-
+        
         [HttpPut]
         [Route("EditPlace")]
         [ResponseType(typeof(void))]
@@ -323,5 +324,25 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Places.Count(e => e.PlaceId == id) > 0;
         }
+    }
+
+    public class Place
+    {
+        public int PlaceId { get; set; }
+        public string Number1 { get; set; }
+        public string Number2 { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int AreaId { get; set; }
+        public string AreaName { get; set; }
+        public int SetId { get; set; }
+        public string SetName { get; set; }
+        public string Priority { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public int? CreatedBy { get; set; }
+        public string CreatedByName { get; set; }
+        public int TenantId { get; set; }
+        public string TenantName { get; set; }
+        public string PlaceToken { get; set; }
     }
 }

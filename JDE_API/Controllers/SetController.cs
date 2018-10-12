@@ -6,6 +6,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Script.Serialization;
@@ -177,6 +178,154 @@ namespace JDE_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [HttpGet]
+        [Route("GetPlacesBySetName")]
+        public IHttpActionResult GetPlacesBySetName(string token, string name, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    object returned = JDE_SetsExists(name, false);
+                    if (Type.GetTypeCode(returned.GetType()) == TypeCode.Int32)
+                    {
+                        //there's set of given name, return its places
+                        var items = (from pl in db.JDE_Places
+                                     join st in db.JDE_Sets on pl.SetId equals st.SetId
+                                     join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
+                                     join us in db.JDE_Users on pl.CreatedBy equals us.UserId
+                                     join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
+                                     where t.TenantId == tenants.FirstOrDefault().TenantId && st.SetId == (int)returned
+                                        orderby pl.CreatedOn descending
+                                        select new
+                                        {
+                                            PlaceId = pl.PlaceId,
+                                            Number1 = pl.Number1,
+                                            Number2 = pl.Number2,
+                                            Name = pl.Name,
+                                            Description = pl.Description,
+                                            AreaId = ar.AreaId,
+                                            AreaName = ar.Name,
+                                            SetId = st.SetId,
+                                            SetName = st.Name,
+                                            Priority = pl.Priority,
+                                            CreatedOn = pl.CreatedOn,
+                                            CreatedBy = us.UserId,
+                                            CreatedByName = us.Name + " " + us.Surname,
+                                            TenantId = t.TenantId,
+                                            TenantName = t.TenantName,
+                                            PlaceToken = pl.PlaceToken
+                                        }
+                            );
+                        return Ok(items);
+                    }
+                    else
+                    {
+                        //there's NO set of given name, create it
+                        //But first you have to assign it to "Nieokreślone" Area (create if have to)
+                        JDE_Areas nArea;
+                        JDE_Sets nSet;
+                        JDE_Logs Log;
+
+                        if (!db.JDE_Areas.Where(a => a.Name.Equals("Nieokreślone")).Any())
+                        {
+                            //no are like that, let's create it.
+                            nArea = new JDE_Areas
+                            {
+                                Name = "Nieokreślone",
+                                Description = "Trafia tu wszystko co zostaje utworzone bez jasno określonego docelowego obszaru",
+                                TenantId = tenants.FirstOrDefault().TenantId,
+                                CreatedBy = UserId,
+                                CreatedOn = DateTime.Now
+                            };
+                            db.JDE_Areas.Add(nArea);
+                            db.SaveChanges();
+                            Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie obszaru", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(nArea) };
+                            db.JDE_Logs.Add(Log);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            //it exists, ret
+                            nArea = db.JDE_Areas.Where(a => a.Name.Equals("Nieokreślone")).FirstOrDefault();
+                        }
+
+                        nSet = new JDE_Sets
+                        {
+                            Name = name.Trim(),
+                            Description = null,
+                            CreatedBy = UserId,
+                            CreatedOn = DateTime.Now,
+                            TenantId = tenants.FirstOrDefault().TenantId
+                        };
+                        db.JDE_Sets.Add(nSet);
+                        db.SaveChanges();
+                        Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie instalacji", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(nSet) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
+
+
+                        JDE_Places nPlace = new JDE_Places
+                        {
+                            Name = name.Trim(),
+                            Description = null,
+                            PlaceToken = Utilities.uniqueToken(),
+                            AreaId = nArea.AreaId,
+                            SetId = nSet.SetId,
+                            CreatedBy = UserId,
+                            CreatedOn = DateTime.Now,
+                            TenantId = tenants.FirstOrDefault().TenantId
+                        };
+                        db.JDE_Places.Add(nPlace);
+                        db.SaveChanges();
+                        Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie zasobu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(nPlace) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
+
+                        var items = (from pl in db.JDE_Places
+                                     join st in db.JDE_Sets on pl.SetId equals st.SetId
+                                     join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
+                                     join us in db.JDE_Users on pl.CreatedBy equals us.UserId
+                                     join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
+                                     where t.TenantId == tenants.FirstOrDefault().TenantId && st.SetId == nSet.SetId
+                                     orderby pl.CreatedOn descending
+                                     select new
+                                     {
+                                         PlaceId = pl.PlaceId,
+                                         Number1 = pl.Number1,
+                                         Number2 = pl.Number2,
+                                         Name = pl.Name,
+                                         Description = pl.Description,
+                                         AreaId = ar.AreaId,
+                                         AreaName = ar.Name,
+                                         SetId = st.SetId,
+                                         SetName = st.Name,
+                                         Priority = pl.Priority,
+                                         CreatedOn = pl.CreatedOn,
+                                         CreatedBy = us.UserId,
+                                         CreatedByName = us.Name + " " + us.Surname,
+                                         TenantId = t.TenantId,
+                                         TenantName = t.TenantName,
+                                         PlaceToken = pl.PlaceToken
+                                     }
+                            );
+
+                        return Ok(items);
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
 
         [HttpPost]
         [Route("CreateSet")]
@@ -257,5 +406,41 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Sets.Count(e => e.SetId == id) > 0;
         }
+
+        private object JDE_SetsExists(string name, bool exact)
+        {
+            if (exact)
+            {
+                return db.JDE_Sets.Count(e => e.Name.Equals(name.Trim())) > 0;
+            }
+            else
+            {
+                if (db.JDE_Sets.Where(p => p.Name.Equals(name.Trim())).Any())
+                {
+                    //maybe given name is exact after all?
+                    return db.JDE_Sets.Where(p => p.Name.Equals(name.Trim())).FirstOrDefault().SetId;
+                }
+                if (db.JDE_Sets.Where(p => p.Name.Equals(Utilities.ToAscii(name.Trim()))).Any())
+                {
+                    //check Ascii version of the name e.g. 'Mlyn 01' instead of 'Młyn 01'
+                    return db.JDE_Sets.Where(p => p.Name.Equals(Utilities.ToAscii(name.Trim()))).FirstOrDefault().SetId;
+                }
+                return false;
+            }
+
+        }
+    }
+
+    public class Set
+    {
+        public int SetId { get; set; }
+        public string Number { get; set; }
+        public string Description { get; set; }
+        public string Name { get; set; }
+        public int TenantId { get; set; }
+        public string TenantName { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public int CreatedBy { get; set; }
+        public string CreatedByName { get; set; }
     }
 }

@@ -166,6 +166,9 @@ namespace JDE_API.Controllers
                         };
                         db.JDE_ActionTypes.Add(nAt);
                         db.SaveChanges();
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie typu złoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(nAt) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
                         return Ok(nAt);
                     }
 
