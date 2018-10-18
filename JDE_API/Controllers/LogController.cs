@@ -21,7 +21,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetLogs")]
-        public IHttpActionResult GetLogs(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
+        public IHttpActionResult GetLogs(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string id = null)
         {
             if (token != null && token.Length > 0)
             {
@@ -36,7 +36,7 @@ namespace JDE_API.Controllers
                                  join t in db.JDE_Tenants on l.TenantId equals t.TenantId
                                  where l.TenantId == tenants.FirstOrDefault().TenantId && l.Timestamp >= dFrom && l.Timestamp <= dTo
                                  orderby l.Timestamp descending
-                                 select new //ExtLog
+                                 select new ExtLog
                                  {
                                      LogId = l.LogId,
                                      TimeStamp = l.Timestamp,
@@ -50,10 +50,13 @@ namespace JDE_API.Controllers
                                  });
                     if (items.Any())
                     {
+                        if (id != null)
+                        {
+                            items = items.Where(i => i.NewValue.Contains(id) || i.OldValue.Contains(id));
+                        }
+
                         if (query != null)
                         {
-                            //query = "newValue.Contains(\"ProcessId\":904)";
-                            query = "@NewValue.Contains(\"904,)\")";
                             items = items.Where(query);
                         }
 
@@ -279,7 +282,25 @@ namespace JDE_API.Controllers
                         {
                             comment = "Zgłoszenie zostało wznowione";
                         }
-                        res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}, {4}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"], comment);
+                        string initDiag = "";
+                        string ar = "";
+                        try
+                        {
+                            initDiag = nv["InitialDiagnosis"];
+                            ar = nv["RepairActions"];
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                        if (initDiag.Length > 0 || ar.Length > 0)
+                        {
+                            res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Wstępne rozpoznanie: {3}, Czynności naprawcze: {4}, {5}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, initDiag, ar, comment);
+                        }
+                        else
+                        {
+                            res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}, {4}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"], comment);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -296,7 +317,24 @@ namespace JDE_API.Controllers
                         int processId = nv["ProcessId"];
                         int at = nv["ActionTypeId"];
                         int pl = nv["PlaceId"];
-                        res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"]);
+                        string initDiag = "";
+                        string ar = "";
+                        try
+                        {
+                            initDiag = nv["InitialDiagnosis"];
+                            ar = nv["RepairActions"];
+                        }catch(Exception ex)
+                        {
+
+                        }
+                        if(initDiag.Length > 0 || ar.Length > 0)
+                        {
+                            res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Wstępne rozpoznanie: {3}, Czynności naprawcze: {4}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, initDiag, ar);
+                        }
+                        else
+                        {
+                            res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Rezultat: {3}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, nv["Output"]);
+                        }
                     }
                     catch (Exception ex)
                     {

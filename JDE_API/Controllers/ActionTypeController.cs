@@ -38,6 +38,8 @@ namespace JDE_API.Controllers
                                      ActionTypeId = at.ActionTypeId,
                                      Name = at.Name,
                                      Description = at.Description,
+                                     MesSync = at.MesSync,
+                                     ShowInPlanning = at.ShowInPlanning,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -109,6 +111,8 @@ namespace JDE_API.Controllers
                                      ActionTypeId = at.ActionTypeId,
                                      Name = at.Name,
                                      Description = at.Description,
+                                     MesSync = at.MesSync,
+                                     ShowInPlanning = at.ShowInPlanning,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -160,6 +164,8 @@ namespace JDE_API.Controllers
                         {
                             Name = name.Trim(),
                             Description = null,
+                            MesSync = true,
+                            ShowInPlanning = false,
                             CreatedBy = UserId,
                             CreatedOn = DateTime.Now,
                             TenantId = tenants.FirstOrDefault().TenantId

@@ -20,5 +20,7 @@ namespace JDE_API.Models
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public Nullable<bool> MesSync { get; set; }
+        public Nullable<bool> ShowInPlanning { get; set; }
     }
 }
