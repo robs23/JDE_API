@@ -153,9 +153,9 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Sets.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.SetId == id);
                     if (items.Any())
                     {
+                        db.Entry(item).State = EntityState.Modified;
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja instalacji", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
-                        db.Entry(item).State = EntityState.Modified;
                         try
                         {
                             db.SaveChanges();
