@@ -17,6 +17,7 @@
           <Property Name="TenantId" Type="int" />
           <Property Name="MesSync" Type="bit" />
           <Property Name="ShowInPlanning" Type="bit" />
+          <Property Name="RequireInitialDiagnosis" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -200,6 +201,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <Property Name="TenantId" Type="Int32" />
           <Property Name="MesSync" Type="Boolean" />
           <Property Name="ShowInPlanning" Type="Boolean" />
+          <Property Name="RequireInitialDiagnosis" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -350,6 +352,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <EntitySetMapping Name="JDE_ActionTypes">
             <EntityTypeMapping TypeName="robs23Model.JDE_ActionTypes">
               <MappingFragment StoreEntitySet="JDE_ActionTypes">
+                <ScalarProperty Name="RequireInitialDiagnosis" ColumnName="RequireInitialDiagnosis" />
                 <ScalarProperty Name="ShowInPlanning" ColumnName="ShowInPlanning" />
                 <ScalarProperty Name="MesSync" ColumnName="MesSync" />
                 <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
