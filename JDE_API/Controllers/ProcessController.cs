@@ -483,7 +483,79 @@ namespace JDE_API.Controllers
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.ProcessId==id
+                                 select new
+                                 {
+                                     ProcessId = p.ProcessId,
+                                     Description = p.Description,
+                                     StartedOn = p.StartedOn,
+                                     StartedBy = p.StartedBy,
+                                     StartedByName = star.Name + " " + star.Surname,
+                                     FinishedOn = p.FinishedOn,
+                                     FinishedBy = p.FinishedBy,
+                                     FinishedByName = fin.Name + " " + fin.Surname,
+                                     ActionTypeId = p.ActionTypeId,
+                                     ActionTypeName = at.Name,
+                                     IsActive = p.IsActive,
+                                     IsFrozen = p.IsFrozen,
+                                     IsCompleted = p.IsCompleted,
+                                     IsSuccessfull = p.IsSuccessfull,
+                                     PlaceId = p.PlaceId,
+                                     PlaceName = pl.Name,
+                                     Output = p.Output,
+                                     TenantId = p.TenantId,
+                                     TenantName = t.TenantName,
+                                     CreatedOn = p.CreatedOn,
+                                     CreatedBy = p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     MesId = p.MesId,
+                                     InitialDiagnosis = p.InitialDiagnosis,
+                                     RepairActions = p.RepairActions,
+                                     Reason = p.Reason,
+                                     MesDate = p.MesDate
+                                 });
+                    if (items.Any())
+                    {
+                        return Ok(items.FirstOrDefault());
+                    }
+                    else
+                    {
+                        return StatusCode(HttpStatusCode.NoContent);
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetProcess")]
+        [ResponseType(typeof(JDE_Processes))]
+        public IHttpActionResult GetProcess(string token, string mesId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = (from p in db.JDE_Processes
+                                 join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
+                                 from fin in finished.DefaultIfEmpty()
+                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                                 join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
+                                 join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
+                                 from star in started.DefaultIfEmpty()
+                                 join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.MesId.Equals(mesId)
                                  select new
                                  {
                                      ProcessId = p.ProcessId,
