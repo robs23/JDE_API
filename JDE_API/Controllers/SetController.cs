@@ -433,34 +433,43 @@ namespace JDE_API.Controllers
                     string[] str = Regex.Split(name, " ");
                     if(str.Length > 1)
                     {
-                        if(int.Parse(str[1]) < 10 && int.Parse(str[1]) > 0 && int.Parse(str[1]).ToString() != str[1])
+                        //make sure it contains number value in str[1]
+                        int x;
+                        bool IsNumber = int.TryParse(str[1], out x);
+                        if (IsNumber)
                         {
-                            //given name contains extra 0, that set in db might not have. check without the extra 0
-                            string nName = str[0] + " " + int.Parse(str[1]).ToString();
-                            string nNameA = Utilities.ToAscii(str[0]) + " " + int.Parse(str[1]).ToString(); //Ascii version
-                            if (db.JDE_Sets.Where(p => p.Name.Equals(nName)).Any())
+                            if (int.Parse(str[1]) < 10 && int.Parse(str[1]) > 0 && int.Parse(str[1]).ToString() != str[1])
                             {
-                                return db.JDE_Sets.Where(p => p.Name.Equals(nName)).FirstOrDefault().SetId;
-                            }else if(db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).Any())
-                            {
-                                //check ascii version too
-                                return db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).FirstOrDefault().SetId;
+                                //given name contains extra 0, that set in db might not have. check without the extra 0
+                                string nName = str[0] + " " + int.Parse(str[1]).ToString();
+                                string nNameA = Utilities.ToAscii(str[0]) + " " + int.Parse(str[1]).ToString(); //Ascii version
+                                if (db.JDE_Sets.Where(p => p.Name.Equals(nName)).Any())
+                                {
+                                    return db.JDE_Sets.Where(p => p.Name.Equals(nName)).FirstOrDefault().SetId;
+                                }
+                                else if (db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).Any())
+                                {
+                                    //check ascii version too
+                                    return db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).FirstOrDefault().SetId;
+                                }
                             }
-                        }else if(int.Parse(str[1]) < 10 && int.Parse(str[1]) > 0 && int.Parse(str[1]).ToString() == str[1])
-                        {
-                            //given name doesn't contain extra 0, that set in db might have. check with the extra 0
-                            string nName = str[0] + " 0" + str[1];
-                            string nNameA = Utilities.ToAscii(str[0]) + " 0" + str[1]; //Ascii version
-                            if (db.JDE_Sets.Where(p => p.Name.Equals(nName)).Any())
+                            else if (int.Parse(str[1]) < 10 && int.Parse(str[1]) > 0 && int.Parse(str[1]).ToString() == str[1])
                             {
-                                return db.JDE_Sets.Where(p => p.Name.Equals(nName)).FirstOrDefault().SetId;
-                            }
-                            else if (db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).Any())
-                            {
-                                //check ascii version too
-                                return db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).FirstOrDefault().SetId;
+                                //given name doesn't contain extra 0, that set in db might have. check with the extra 0
+                                string nName = str[0] + " 0" + str[1];
+                                string nNameA = Utilities.ToAscii(str[0]) + " 0" + str[1]; //Ascii version
+                                if (db.JDE_Sets.Where(p => p.Name.Equals(nName)).Any())
+                                {
+                                    return db.JDE_Sets.Where(p => p.Name.Equals(nName)).FirstOrDefault().SetId;
+                                }
+                                else if (db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).Any())
+                                {
+                                    //check ascii version too
+                                    return db.JDE_Sets.Where(p => p.Name.Equals(nNameA)).FirstOrDefault().SetId;
+                                }
                             }
                         }
+                        
                     }
                 }
                 return false;
