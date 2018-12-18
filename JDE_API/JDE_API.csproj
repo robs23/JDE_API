@@ -230,6 +230,9 @@
     <Compile Include="Models\JDE_Files.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\JDE_Handlings.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\JDE_Logs.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
@@ -261,8 +264,8 @@
     <Content Include="Global.asax" />
     <Content Include="Models\DbModels.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DbModels.Context.cs</LastGenOutput>
       <DependentUpon>DbModels.edmx</DependentUpon>
+      <LastGenOutput>DbModels.Context.cs</LastGenOutput>
     </Content>
     <Content Include="Models\DbModels.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
