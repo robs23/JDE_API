@@ -191,6 +191,7 @@
     <Compile Include="Controllers\ActionTypeController.cs" />
     <Compile Include="Controllers\AreaController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\HandlingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\PlacesController.cs" />
