@@ -73,7 +73,9 @@ namespace JDE_API.Controllers
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
-                                     MesDate = p.MesDate
+                                     MesDate = p.MesDate,
+                                     PlannedStart = p.PlannedStart,
+                                     PlannedFinish = p.PlannedFinish
                                  });
                     if (items.Any())
                     {
@@ -245,7 +247,9 @@ namespace JDE_API.Controllers
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
-                                     MesDate = p.MesDate
+                                     MesDate = p.MesDate,
+                                     PlannedStart = p.PlannedStart,
+                                     PlannedFinish = p.PlannedFinish
                                  });
                     if (items.Any())
                     {
@@ -344,7 +348,9 @@ namespace JDE_API.Controllers
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
-                                     MesDate = p.MesDate
+                                     MesDate = p.MesDate,
+                                     PlannedStart = p.PlannedStart,
+                                     PlannedFinish = p.PlannedFinish
                                  });
                     if (items.Any())
                     {
@@ -428,7 +434,9 @@ namespace JDE_API.Controllers
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
-                                     MesDate = p.MesDate
+                                     MesDate = p.MesDate,
+                                     PlannedStart = p.PlannedStart,
+                                     PlannedFinish = p.PlannedFinish
                                  });
                     if (items.Any())
                     {
@@ -512,7 +520,9 @@ namespace JDE_API.Controllers
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
-                                     MesDate = p.MesDate
+                                     MesDate = p.MesDate,
+                                     PlannedStart = p.PlannedStart,
+                                     PlannedFinish = p.PlannedFinish
                                  });
                     if (items.Any())
                     {
@@ -584,7 +594,9 @@ namespace JDE_API.Controllers
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
-                                     MesDate = p.MesDate
+                                     MesDate = p.MesDate,
+                                     PlannedStart = p.PlannedStart,
+                                     PlannedFinish = p.PlannedFinish
                                  });
                     if (items.Any())
                     {
@@ -793,6 +805,7 @@ namespace JDE_API.Controllers
         public string RepairActions { get; set; }
         public string Reason { get; set; }
         public DateTime? MesDate { get; set; }
-
+        public DateTime? PlannedStart { get; set; }
+        public DateTime? PlannedFinish { get; set; }
     }
 }

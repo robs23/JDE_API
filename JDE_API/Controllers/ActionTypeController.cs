@@ -41,6 +41,7 @@ namespace JDE_API.Controllers
                                      MesSync = at.MesSync,
                                      ShowInPlanning = at.ShowInPlanning,
                                      RequireInitialDiagnosis = at.RequireInitialDiagnosis,
+                                     AllowDuplicates = at.AllowDuplicates,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -115,6 +116,7 @@ namespace JDE_API.Controllers
                                      MesSync = at.MesSync,
                                      ShowInPlanning = at.ShowInPlanning,
                                      RequireInitialDiagnosis = at.RequireInitialDiagnosis,
+                                     AllowDuplicates = at.AllowDuplicates,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -169,6 +171,7 @@ namespace JDE_API.Controllers
                             MesSync = true,
                             RequireInitialDiagnosis = true,
                             ShowInPlanning = false,
+                            AllowDuplicates = true,
                             CreatedBy = UserId,
                             CreatedOn = DateTime.Now,
                             TenantId = tenants.FirstOrDefault().TenantId

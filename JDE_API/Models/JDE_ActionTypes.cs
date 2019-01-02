@@ -23,5 +23,6 @@ namespace JDE_API.Models
         public Nullable<bool> MesSync { get; set; }
         public Nullable<bool> ShowInPlanning { get; set; }
         public Nullable<bool> RequireInitialDiagnosis { get; set; }
+        public Nullable<bool> AllowDuplicates { get; set; }
     }
 }

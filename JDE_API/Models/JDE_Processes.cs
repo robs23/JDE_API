@@ -35,5 +35,7 @@ namespace JDE_API.Models
         public string RepairActions { get; set; }
         public string Reason { get; set; }
         public Nullable<System.DateTime> MesDate { get; set; }
+        public Nullable<System.DateTime> PlannedStart { get; set; }
+        public Nullable<System.DateTime> PlannedFinish { get; set; }
     }
 }

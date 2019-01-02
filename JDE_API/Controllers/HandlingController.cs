@@ -45,6 +45,7 @@ namespace JDE_API.Controllers
                         if (db.JDE_Handlings.Any())
                         {
                             dTo = db.JDE_Handlings.Max(x => x.StartedOn).Value;
+                            
                         }
                         else
                         {
