@@ -31,8 +31,8 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.StartedOn).Value;
-                    dTo = dTo ?? db.JDE_Processes.Max(x => x.StartedOn).Value;
+                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.CreatedOn).Value;
+                    dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value;
 
                     var items = (from p in db.JDE_Processes
                                  join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
@@ -43,7 +43,7 @@ namespace JDE_API.Controllers
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.StartedOn >= dFrom && p.StartedOn <= dTo
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                                  orderby p.CreatedOn descending
                                  select new Process
                                  {
