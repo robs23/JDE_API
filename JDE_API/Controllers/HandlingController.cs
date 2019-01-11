@@ -381,7 +381,7 @@ namespace JDE_API.Controllers
             return nItems;
         }
 
-        [HttpPut]
+        [HttpGet]
         [Route("CompleteUsersHandlings")]
         [ResponseType(typeof(void))]
         public IHttpActionResult CompleteUsersHandlings(string token, int UserId)
@@ -430,13 +430,13 @@ namespace JDE_API.Controllers
                         }
                         catch (Exception ex)
                         {
-
+                            return StatusCode(HttpStatusCode.InternalServerError);
                         }
                     }
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
         }
 
 
