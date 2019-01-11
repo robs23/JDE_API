@@ -82,7 +82,7 @@ namespace JDE_API.Controllers
                                      SetName = s.Name,
                                      AreaId = pl.AreaId,
                                      AreaName = a.Name,
-                                     Output = p.Output,
+                                     Output = h.Output,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -283,7 +283,7 @@ namespace JDE_API.Controllers
 
         [HttpPost]
         [Route("CreateHandling")]
-        [ResponseType(typeof(JDE_Processes))]
+        [ResponseType(typeof(JDE_Handlings))]
         public IHttpActionResult CreateHandling(string token, JDE_Handlings item, int UserId)
         {
             if (token != null && token.Length > 0)
@@ -380,6 +380,65 @@ namespace JDE_API.Controllers
             }
             return nItems;
         }
+
+        [HttpPut]
+        [Route("CompleteUsersHandlings")]
+        [ResponseType(typeof(void))]
+        public IHttpActionResult CompleteUsersHandlings(string token, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    string descr = string.Empty;
+                    var items = db.JDE_Handlings.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.UserId == UserId && u.IsCompleted==false);
+                    if (items.Any())
+                    {
+                        foreach(var item in items)
+                        {
+                            //this has just been finished. Replace user's finish time with server time
+                            item.FinishedOn = DateTime.Now;
+                            item.IsActive = false;
+                            item.IsFrozen = false;
+                            item.IsCompleted = true;
+                            item.Output = "Obsługa została zakończona automatycznie przy otwarciu kolejnej obsługi";
+                            descr = "Zakończenie obsługi";
+                            var processes = db.JDE_Processes.AsNoTracking().Where(u => u.ProcessId == item.ProcessId && u.IsCompleted == false);
+                            if (processes.Any())
+                            {
+                                //is the process of this handling completed? If not, put it on ice
+                                //but only if there are no other open handlings for that process
+                                var hands = db.JDE_Handlings.AsNoTracking().Where(u => u.ProcessId == processes.FirstOrDefault().ProcessId && u.IsCompleted == false && u.HandlingId != item.HandlingId);
+                                if (!hands.Any())
+                                {
+                                    var process = processes.FirstOrDefault();
+                                    string OldValue = new JavaScriptSerializer().Serialize(process);
+                                    process.IsFrozen = true;
+                                    db.Entry(process).State = EntityState.Modified;
+                                    JDE_Logs Log2 = new JDE_Logs { UserId = UserId, Description = "Edycja zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue = new JavaScriptSerializer().Serialize(process) };
+                                    db.JDE_Logs.Add(Log2);
+                                }
+                            }
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            db.JDE_Logs.Add(Log);
+                            db.Entry(item).State = EntityState.Modified;
+                        }
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
 
         protected override void Dispose(bool disposing)
         {

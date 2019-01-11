@@ -293,7 +293,7 @@ namespace JDE_API.Controllers
                         {
 
                         }
-                        if (initDiag.Length > 0 || ar.Length > 0)
+                        if (string.IsNullOrEmpty(initDiag) || string.IsNullOrEmpty(ar))
                         {
                             res = string.Format("Nr zgłoszenia: {0}, Typ: {1}, Zasób: {2}, Wstępne rozpoznanie: {3}, Czynności naprawcze: {4}, {5}", processId, db.JDE_ActionTypes.Where(t => t.ActionTypeId == at).FirstOrDefault().Name, db.JDE_Places.Where(pla => pla.PlaceId == pl).FirstOrDefault().Name, initDiag, ar, comment);
                         }
