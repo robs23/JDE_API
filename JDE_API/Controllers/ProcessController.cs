@@ -743,6 +743,119 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetProcessHistory")]
+        public IHttpActionResult GetProcessHistory(string token, int id)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = (from l in db.JDE_Logs
+                                 join u in db.JDE_Users on l.UserId equals u.UserId
+                                 join t in db.JDE_Tenants on l.TenantId equals t.TenantId
+                                 where l.TenantId == tenants.FirstOrDefault().TenantId
+                                 orderby l.Timestamp descending
+                                 select new ExtLog
+                                 {
+                                     LogId = l.LogId,
+                                     TimeStamp = l.Timestamp,
+                                     TenantId = t.TenantId,
+                                     TenantName = t.TenantName,
+                                     UserId = l.UserId,
+                                     UserName = u.Name + " " + u.Surname,
+                                     Description = l.Description,
+                                     OldValue = l.OldValue,
+                                     NewValue = l.NewValue
+                                 });
+                    if (items.Any())
+                    {
+                        string tId = "ProcessId\":" + id;
+                        items = items.Where(i => i.NewValue.Contains(tId) || i.OldValue.Contains(tId));
+                        List<ProcessHisotryItem> nItems = new List<ProcessHisotryItem>();
+                        if (items.Any())
+                        {
+
+                            foreach (var item in items)
+                            {
+                                if(item.Description=="Utworzenie zgłoszenia" || item.Description=="Edycja zgłoszenia" || item.Description == "Zamknięcie zgłoszenia")
+                                {
+                                    ProcessHisotryItem hItem = new ProcessHisotryItem
+                                    {
+                                        LogiId = item.LogId,
+                                        UserId = item.UserId,
+                                        UserName = item.UserName,
+                                        Timestamp = item.TimeStamp,
+                                        ProcessId = id
+                                    };
+                                    if (item.Description.Equals("Edycja zgłoszenia"))
+                                    {
+                                        hItem.Description = GetProcessChange(item.OldValue, item.NewValue);
+                                    }
+                                    else
+                                    {
+                                        hItem.Description = item.Description;
+                                    }
+                                    nItems.Add(hItem);
+                                }
+                            }
+                            return Ok(nItems);
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        private string GetProcessChange(string OldValue, string NewValue)
+        {
+            Models.DbModel db = new Models.DbModel();
+
+            string res = "";
+
+            try
+            {
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                dynamic nv = js.DeserializeObject(NewValue);
+                dynamic ov = js.DeserializeObject(OldValue);
+                if (((bool)nv["IsCompleted"] || (bool)nv["IsSuccessfull"]) && ((bool)ov["IsCompleted"] == false && (bool)ov["IsSuccessfull"] == false))
+                {
+                    res = "Zamknięcie zgłoszenia";
+                }
+                else if ((bool)nv["IsFrozen"] && (bool)ov["IsFrozen"] == false)
+                {
+                    res = "Wstrzymanie zgłoszenia";
+                }
+                else if ((bool)nv["IsFrozen"] == false && (bool)ov["IsFrozen"])
+                {
+                    res = "Wznowienie zgłoszenia";
+                }
+            }
+            catch (Exception ex)
+            {
+                res = "Deserializacja nie powiodła się";
+            }
+            
+            return res;
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -756,6 +869,16 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Processes.Count(e => e.ProcessId == id) > 0;
         }
+    }
+    
+    public class ProcessHisotryItem
+    {
+        public int LogiId { get; set; }
+        public int ProcessId { get; set; }
+        public DateTime? Timestamp { get; set; }
+        public int? UserId { get; set; }
+        public string UserName{ get; set; }
+        public string Description { get; set; }
     }
 
     public class Process

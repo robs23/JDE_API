@@ -12,6 +12,7 @@ using System.Web.Script.Serialization;
 using JDE_API.Models;
 using JDE_API.Static;
 using System.Linq.Dynamic;
+using System.Text.RegularExpressions;
 
 namespace JDE_API.Controllers
 {
@@ -52,7 +53,19 @@ namespace JDE_API.Controllers
                     {
                         if (id != null)
                         {
-                            items = items.Where(i => i.NewValue.Contains(id) || i.OldValue.Contains(id));
+                            //transform id from input form (ProcessId=959) to Json storing form (ProcessId\":959)
+                            int dId;
+                            string[] subs = Regex.Split(id, "=");
+                            bool parsable = int.TryParse(subs[1], out dId);
+                            if (parsable)
+                            {
+                                id = subs[0] + "\":" + subs[1]; 
+                                items = items.Where(i => i.NewValue.Contains(id) || i.OldValue.Contains(id));
+                            }
+                            else
+                            {
+                                return StatusCode(HttpStatusCode.BadRequest);
+                            }
                         }
 
                         if (query != null)
