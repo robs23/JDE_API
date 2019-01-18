@@ -787,7 +787,9 @@ namespace JDE_API.Controllers
                                         UserId = item.UserId,
                                         UserName = item.UserName,
                                         Timestamp = item.TimeStamp,
-                                        ProcessId = id
+                                        ProcessId = id,
+                                        TenantId = item.TenantId,
+                                        TenantName = item.TenantName
                                     };
                                     if (item.Description.Equals("Edycja zgłoszenia"))
                                     {
