@@ -879,6 +879,8 @@ namespace JDE_API.Controllers
         public int? UserId { get; set; }
         public string UserName{ get; set; }
         public string Description { get; set; }
+        public int? TenantId { get; set; }
+        public string TenantName { get; set; }
     }
 
     public class Process
