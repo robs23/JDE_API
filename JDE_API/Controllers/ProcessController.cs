@@ -779,28 +779,26 @@ namespace JDE_API.Controllers
 
                             foreach (var item in items)
                             {
-                                if(item.Description=="Utworzenie zgłoszenia" || item.Description=="Edycja zgłoszenia" || item.Description == "Zamknięcie zgłoszenia")
+
+                                ProcessHisotryItem hItem = new ProcessHisotryItem
                                 {
-                                    ProcessHisotryItem hItem = new ProcessHisotryItem
-                                    {
-                                        LogiId = item.LogId,
-                                        UserId = item.UserId,
-                                        UserName = item.UserName,
-                                        Timestamp = item.TimeStamp,
-                                        ProcessId = id,
-                                        TenantId = item.TenantId,
-                                        TenantName = item.TenantName
-                                    };
-                                    if (item.Description.Equals("Edycja zgłoszenia"))
-                                    {
-                                        hItem.Description = GetProcessChange(item.OldValue, item.NewValue);
-                                    }
-                                    else
-                                    {
-                                        hItem.Description = item.Description;
-                                    }
-                                    nItems.Add(hItem);
+                                    LogId = item.LogId,
+                                    UserId = item.UserId,
+                                    UserName = item.UserName,
+                                    Timestamp = item.TimeStamp,
+                                    ProcessId = id,
+                                    TenantId = item.TenantId,
+                                    TenantName = item.TenantName
+                                };
+                                if (item.Description.Equals("Edycja zgłoszenia"))
+                                {
+                                    hItem.Description = GetProcessChange(item.OldValue, item.NewValue);
                                 }
+                                else
+                                {
+                                    hItem.Description = item.Description;
+                                }
+                                nItems.Add(hItem);
                             }
                             return Ok(nItems);
                         }
@@ -875,7 +873,7 @@ namespace JDE_API.Controllers
     
     public class ProcessHisotryItem
     {
-        public int LogiId { get; set; }
+        public int LogId { get; set; }
         public int ProcessId { get; set; }
         public DateTime? Timestamp { get; set; }
         public int? UserId { get; set; }
