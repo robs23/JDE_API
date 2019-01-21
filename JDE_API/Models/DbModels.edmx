@@ -132,6 +132,9 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <Property Name="MesDate" Type="datetime" />
           <Property Name="PlannedStart" Type="datetime" />
           <Property Name="PlannedFinish" Type="datetime" />
+          <Property Name="LastStatus" Type="int" />
+          <Property Name="LastStatusBy" Type="int" />
+          <Property Name="LastStatusOn" Type="datetime" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
@@ -278,34 +281,6 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <Property Name="TenantId" Type="Int32" />
           <Property Name="PlaceToken" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="JDE_Processes">
-          <Key>
-            <PropertyRef Name="ProcessId" />
-          </Key>
-          <Property Name="ProcessId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="StartedOn" Type="DateTime" Precision="3" />
-          <Property Name="StartedBy" Type="Int32" />
-          <Property Name="FinishedOn" Type="DateTime" Precision="3" />
-          <Property Name="FinishedBy" Type="Int32" />
-          <Property Name="ActionTypeId" Type="Int32" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="IsFrozen" Type="Boolean" />
-          <Property Name="IsCompleted" Type="Boolean" />
-          <Property Name="IsSuccessfull" Type="Boolean" />
-          <Property Name="PlaceId" Type="Int32" />
-          <Property Name="Output" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="MesId" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
-          <Property Name="InitialDiagnosis" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="RepairActions" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="Reason" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="MesDate" Type="DateTime" Precision="3" />
-          <Property Name="PlannedStart" Type="DateTime" Precision="3" />
-          <Property Name="PlannedFinish" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
             <PropertyRef Name="SetId" />
@@ -374,13 +349,44 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <EntitySet Name="JDE_Handlings" EntityType="Self.JDE_Handlings" />
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" />
           <EntitySet Name="JDE_Places" EntityType="Self.JDE_Places" />
-          <EntitySet Name="JDE_Processes" EntityType="Self.JDE_Processes" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" />
           <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" />
+          <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
         </EntityContainer>
+        <EntityType Name="JDE_Processes">
+          <Key>
+            <PropertyRef Name="ProcessId" />
+          </Key>
+          <Property Name="ProcessId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="StartedOn" Type="DateTime" Precision="3" />
+          <Property Name="StartedBy" Type="Int32" />
+          <Property Name="FinishedOn" Type="DateTime" Precision="3" />
+          <Property Name="FinishedBy" Type="Int32" />
+          <Property Name="ActionTypeId" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="IsFrozen" Type="Boolean" />
+          <Property Name="IsCompleted" Type="Boolean" />
+          <Property Name="IsSuccessfull" Type="Boolean" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="Output" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="MesId" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="InitialDiagnosis" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="RepairActions" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Reason" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="MesDate" Type="DateTime" Precision="3" />
+          <Property Name="PlannedStart" Type="DateTime" Precision="3" />
+          <Property Name="PlannedFinish" Type="DateTime" Precision="3" />
+          <Property Name="LastStatus" Type="Int32" />
+          <Property Name="LastStatusBy" Type="Int32" />
+          <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -462,35 +468,6 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Processes">
-            <EntityTypeMapping TypeName="DbModels.JDE_Processes">
-              <MappingFragment StoreEntitySet="JDE_Processes">
-                <ScalarProperty Name="PlannedFinish" ColumnName="PlannedFinish" />
-                <ScalarProperty Name="PlannedStart" ColumnName="PlannedStart" />
-                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
-                <ScalarProperty Name="StartedBy" ColumnName="StartedBy" />
-                <ScalarProperty Name="FinishedOn" ColumnName="FinishedOn" />
-                <ScalarProperty Name="FinishedBy" ColumnName="FinishedBy" />
-                <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="IsFrozen" ColumnName="IsFrozen" />
-                <ScalarProperty Name="IsCompleted" ColumnName="IsCompleted" />
-                <ScalarProperty Name="IsSuccessfull" ColumnName="IsSuccessfull" />
-                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
-                <ScalarProperty Name="Output" ColumnName="Output" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="MesId" ColumnName="MesId" />
-                <ScalarProperty Name="InitialDiagnosis" ColumnName="InitialDiagnosis" />
-                <ScalarProperty Name="RepairActions" ColumnName="RepairActions" />
-                <ScalarProperty Name="Reason" ColumnName="Reason" />
-                <ScalarProperty Name="MesDate" ColumnName="MesDate" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="JDE_Sets">
             <EntityTypeMapping TypeName="DbModels.JDE_Sets">
               <MappingFragment StoreEntitySet="JDE_Sets">
@@ -555,6 +532,38 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
                 <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Processes">
+            <EntityTypeMapping TypeName="DbModels.JDE_Processes">
+              <MappingFragment StoreEntitySet="JDE_Processes">
+                <ScalarProperty Name="LastStatusOn" ColumnName="LastStatusOn" />
+                <ScalarProperty Name="LastStatusBy" ColumnName="LastStatusBy" />
+                <ScalarProperty Name="LastStatus" ColumnName="LastStatus" />
+                <ScalarProperty Name="PlannedFinish" ColumnName="PlannedFinish" />
+                <ScalarProperty Name="PlannedStart" ColumnName="PlannedStart" />
+                <ScalarProperty Name="MesDate" ColumnName="MesDate" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="RepairActions" ColumnName="RepairActions" />
+                <ScalarProperty Name="InitialDiagnosis" ColumnName="InitialDiagnosis" />
+                <ScalarProperty Name="MesId" ColumnName="MesId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Output" ColumnName="Output" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="IsSuccessfull" ColumnName="IsSuccessfull" />
+                <ScalarProperty Name="IsCompleted" ColumnName="IsCompleted" />
+                <ScalarProperty Name="IsFrozen" ColumnName="IsFrozen" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
+                <ScalarProperty Name="FinishedBy" ColumnName="FinishedBy" />
+                <ScalarProperty Name="FinishedOn" ColumnName="FinishedOn" />
+                <ScalarProperty Name="StartedBy" ColumnName="StartedBy" />
+                <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

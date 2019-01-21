@@ -30,11 +30,11 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Handlings> JDE_Handlings { get; set; }
         public virtual DbSet<JDE_Logs> JDE_Logs { get; set; }
         public virtual DbSet<JDE_Places> JDE_Places { get; set; }
-        public virtual DbSet<JDE_Processes> JDE_Processes { get; set; }
         public virtual DbSet<JDE_Sets> JDE_Sets { get; set; }
         public virtual DbSet<JDE_Tenants> JDE_Tenants { get; set; }
         public virtual DbSet<JDE_Users> JDE_Users { get; set; }
         public virtual DbSet<JDE_Errors> JDE_Errors { get; set; }
         public virtual DbSet<JDE_Files> JDE_Files { get; set; }
+        public virtual DbSet<JDE_Processes> JDE_Processes { get; set; }
     }
 }

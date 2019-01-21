@@ -75,7 +75,10 @@ namespace JDE_API.Controllers
                                      Reason = p.Reason,
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish
+                                     PlannedFinish = p.PlannedFinish,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?) null :(ProcessStatus) p.LastStatus, // Nullable enums handled
+                                     LastStatusBy = p.LastStatusBy,
+                                     LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
                     {
@@ -249,7 +252,10 @@ namespace JDE_API.Controllers
                                      Reason = p.Reason,
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish
+                                     PlannedFinish = p.PlannedFinish,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     LastStatusBy = p.LastStatusBy,
+                                     LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
                     {
@@ -350,7 +356,10 @@ namespace JDE_API.Controllers
                                      Reason = p.Reason,
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish
+                                     PlannedFinish = p.PlannedFinish,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     LastStatusBy = p.LastStatusBy,
+                                     LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
                     {
@@ -436,7 +445,10 @@ namespace JDE_API.Controllers
                                      Reason = p.Reason,
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish
+                                     PlannedFinish = p.PlannedFinish,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     LastStatusBy = p.LastStatusBy,
+                                     LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
                     {
@@ -522,7 +534,10 @@ namespace JDE_API.Controllers
                                      Reason = p.Reason,
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish
+                                     PlannedFinish = p.PlannedFinish,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     LastStatusBy = p.LastStatusBy,
+                                     LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
                     {
@@ -596,7 +611,10 @@ namespace JDE_API.Controllers
                                      Reason = p.Reason,
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish
+                                     PlannedFinish = p.PlannedFinish,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     LastStatusBy = p.LastStatusBy,
+                                     LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
                     {
@@ -932,5 +950,18 @@ namespace JDE_API.Controllers
         public DateTime? MesDate { get; set; }
         public DateTime? PlannedStart { get; set; }
         public DateTime? PlannedFinish { get; set; }
+        public ProcessStatus? LastStatus { get; set; }
+        public int? LastStatusBy { get; set; }
+        public DateTime? LastStatusOn { get; set; }
+    }
+
+    public enum ProcessStatus
+    {
+        None,
+        Planned,
+        Started,
+        Paused,
+        Resumed,
+        Finished
     }
 }
