@@ -642,7 +642,7 @@ namespace JDE_API.Controllers
         [Route("EditProcess")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditProcess(string token, int id, int UserId, JDE_Processes item)
+        public IHttpActionResult EditProcess(string token, int id, int UserId, JDE_Processes item, bool UseServerDates=true)
         {
             if (token != null && token.Length > 0)
             {
@@ -657,13 +657,41 @@ namespace JDE_API.Controllers
                         {
                             item.StartedOn = items.FirstOrDefault().StartedOn;
                         }
+                        else
+                        {
+                            if (item.StartedOn != null && UseServerDates)
+                            {
+                                //this has just been started. Must have been planned before. Replace user's date
+                                item.StartedOn = DateTime.Now;
+                            }
+                        }
                         string descr = "Edycja zgłoszenia";
-                        if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
+                        if((bool)items.FirstOrDefault().IsActive && (bool)item.IsFrozen)
+                        {
+                            //was active and it no longer is. It has been paused
+                            item.LastStatus = (int)ProcessStatus.Paused;
+                        }
+                        else if((bool)items.FirstOrDefault().IsFrozen && (bool)item.IsActive)
+                        {
+                            //was paused and now it is active - it's been resumed
+                            item.LastStatus = (int)ProcessStatus.Resumed;
+                        }else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
+                        {
+                            //wasn't active and now it is - it's been started
+                            item.LastStatus = (int)ProcessStatus.Started;
+                        }else if(!(bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted)
+                        {
+                            //it's been finished
+                            item.LastStatus = (int)ProcessStatus.Finished;
+                        }
+                        if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null && UseServerDates)
                         {
                             //this has just been finished. Replace user's finish time with server time
                             item.FinishedOn = DateTime.Now;
                             descr = "Zamknięcie zgłoszenia";
                         }
+                        item.LastStatusBy = UserId;
+                        item.LastStatusOn = DateTime.Now;
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description =descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
@@ -702,6 +730,16 @@ namespace JDE_API.Controllers
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
                     item.CreatedOn = DateTime.Now;
+                    if ((bool)item.IsActive)
+                    {
+                        item.LastStatus = (int)ProcessStatus.Started;
+                    }
+                    else
+                    {
+                        item.LastStatus = (int)ProcessStatus.Planned;
+                    }
+                    item.LastStatusBy = UserId;
+                    item.LastStatusOn = DateTime.Now;
                     if (item.StartedOn != null)
                     {
                         item.StartedOn = DateTime.Now;
