@@ -42,6 +42,8 @@ namespace JDE_API.Controllers
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                                  orderby p.CreatedOn descending
@@ -78,6 +80,7 @@ namespace JDE_API.Controllers
                                      PlannedFinish = p.PlannedFinish,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?) null :(ProcessStatus) p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
                                      LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
@@ -213,6 +216,8 @@ namespace JDE_API.Controllers
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  join s in db.JDE_Sets on pl.SetId equals s.SetId
                                  join a in db.JDE_Areas on pl.AreaId equals a.AreaId
@@ -255,6 +260,7 @@ namespace JDE_API.Controllers
                                      PlannedFinish = p.PlannedFinish,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
                                      LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
@@ -323,6 +329,8 @@ namespace JDE_API.Controllers
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && pl.PlaceToken == PlaceToken
                                  orderby p.CreatedOn descending
@@ -359,6 +367,7 @@ namespace JDE_API.Controllers
                                      PlannedFinish = p.PlannedFinish,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
                                      LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
@@ -412,6 +421,8 @@ namespace JDE_API.Controllers
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && pl.PlaceId == PlaceId
                                  orderby p.CreatedOn descending
@@ -448,6 +459,7 @@ namespace JDE_API.Controllers
                                      PlannedFinish = p.PlannedFinish,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
                                      LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
@@ -502,6 +514,8 @@ namespace JDE_API.Controllers
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.ProcessId==id
                                  select new
@@ -537,6 +551,7 @@ namespace JDE_API.Controllers
                                      PlannedFinish = p.PlannedFinish,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
                                      LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
@@ -579,6 +594,8 @@ namespace JDE_API.Controllers
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
                                  from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.MesId.Equals(mesId)
                                  select new
@@ -614,6 +631,7 @@ namespace JDE_API.Controllers
                                      PlannedFinish = p.PlannedFinish,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " +lStat.Surname,
                                      LastStatusOn = p.LastStatusOn
                                  });
                     if (items.Any())
@@ -990,6 +1008,7 @@ namespace JDE_API.Controllers
         public DateTime? PlannedFinish { get; set; }
         public ProcessStatus? LastStatus { get; set; }
         public int? LastStatusBy { get; set; }
+        public string LastStatusByName { get; set; }
         public DateTime? LastStatusOn { get; set; }
     }
 
