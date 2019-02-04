@@ -821,6 +821,52 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("CompleteProcess")]
+        public IHttpActionResult CompleteProcess(string token, int id, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Processes.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
+                    if (items.Any())
+                    {
+                        var item = items.FirstOrDefault();
+                        string OldValue = new JavaScriptSerializer().Serialize(item);
+                        item.FinishedOn = DateTime.Now;
+                        item.FinishedBy = UserId;
+                        item.IsActive = false;
+                        item.IsCompleted = true;
+                        item.IsFrozen = false;
+                        item.LastStatus = (int)ProcessStatus.Finished;
+                        item.LastStatusBy = UserId;
+                        item.LastStatusOn = DateTime.Now;
+                        CompleteProcessesHandlings(item.ProcessId, UserId);
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zamknięcie zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue=new JavaScriptSerializer().Serialize(item)};
+                        db.JDE_Logs.Add(Log);
+                        db.Entry(item).State = EntityState.Modified;
+                        db.SaveChanges();
+
+                        return StatusCode(HttpStatusCode.NoContent);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         public void CompleteProcessesHandlings(int ProcessId, int UserId)
         {
             //it completes all open handlings for given process
