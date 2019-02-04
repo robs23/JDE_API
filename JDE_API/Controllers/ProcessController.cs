@@ -702,10 +702,14 @@ namespace JDE_API.Controllers
                             //it's been finished
                             item.LastStatus = (int)ProcessStatus.Finished;
                         }
-                        if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null && UseServerDates)
+                        if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
                         {
                             //this has just been finished. Replace user's finish time with server time
-                            item.FinishedOn = DateTime.Now;
+                            CompleteProcessesHandlings(item.ProcessId, UserId);
+                            if (UseServerDates)
+                            {
+                                item.FinishedOn = DateTime.Now;
+                            }
                             descr = "Zamknięcie zgłoszenia";
                         }
                         item.LastStatusBy = UserId;
@@ -814,6 +818,38 @@ namespace JDE_API.Controllers
             else
             {
                 return NotFound();
+            }
+        }
+
+        public void CompleteProcessesHandlings(int ProcessId, int UserId)
+        {
+            //it completes all open handlings for given process
+            string descr = string.Empty;
+            var items = db.JDE_Handlings.AsNoTracking().Where(p => p.ProcessId == ProcessId && p.IsCompleted==false);
+            var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
+
+            if (items.Any())
+            {
+                foreach (var item in items)
+                {
+                    item.FinishedOn = DateTime.Now;
+                    item.IsActive = false;
+                    item.IsFrozen = false;
+                    item.IsCompleted = true;
+                    item.Output = $"Obsługa została zakończona przy zamykaniu zgłoszenia przez {User.Name + " " + User.Surname}";
+                    descr = "Zakończenie obsługi";
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = User.TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                    db.JDE_Logs.Add(Log);
+                    db.Entry(item).State = EntityState.Modified;
+                }
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
 
