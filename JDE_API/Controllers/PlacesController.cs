@@ -240,7 +240,9 @@ namespace JDE_API.Controllers
                                      CreatedByName = us.Name + " " + us.Surname,
                                      TenantId = t.TenantId,
                                      TenantName = t.TenantName,
-                                     PlaceToken = pl.PlaceToken
+                                     PlaceToken = pl.PlaceToken,
+                                     VisitedAt = h.FinishedOn == null ? h.StartedOn : h.FinishedOn,
+                                     HandlingId = h.HandlingId
                                  }
                           );
                     if (!items.Any())
