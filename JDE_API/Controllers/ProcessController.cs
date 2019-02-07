@@ -25,7 +25,7 @@ namespace JDE_API.Controllers
         [Route("GetProcesses")]
         public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null)
         {
-
+            //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
@@ -45,6 +45,8 @@ namespace JDE_API.Controllers
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join s in db.JDE_Sets on pl.SetId equals s.SetId
+                                 join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                                  orderby p.CreatedOn descending
                                  select new Process
@@ -65,6 +67,10 @@ namespace JDE_API.Controllers
                                      IsSuccessfull = p.IsSuccessfull,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
+                                     SetId = s.SetId,
+                                     SetName = s.Name,
+                                     AreaId = a.AreaId,
+                                     AreaName = a.Name,
                                      Output = p.Output,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,
@@ -1057,6 +1063,10 @@ namespace JDE_API.Controllers
         public bool? IsSuccessfull { get; set; }
         public int? PlaceId { get; set; }
         public string PlaceName { get; set; }
+        public int? SetId { get; set; }
+        public string SetName { get; set; }
+        public int? AreaId { get; set; }
+        public string AreaName { get; set; }
         public string Output { get; set; }
         public int? TenantId { get; set; }
         public string TenantName { get; set; }
