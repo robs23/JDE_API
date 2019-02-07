@@ -203,7 +203,64 @@ namespace JDE_API.Controllers
             }
         }
 
-        
+        [HttpGet]
+        [Route("GetUsersLastPlaces")]
+        public IHttpActionResult GetUsersLastPlaces(string token, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                DateTime lastDate = DateTime.Now.AddDays(-1);
+
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = (from h in db.JDE_Handlings
+                                 join p in db.JDE_Processes on h.ProcessId equals p.ProcessId
+                                 join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join st in db.JDE_Sets on pl.SetId equals st.SetId
+                                 join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
+                                 join us in db.JDE_Users on pl.CreatedBy equals us.UserId
+                                 join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
+                                 where t.TenantId == tenants.FirstOrDefault().TenantId && h.UserId == UserId && h.StartedOn >= lastDate
+                                 orderby h.StartedOn
+                                 select new
+                                 {
+                                     PlaceId = pl.PlaceId,
+                                     Number1 = pl.Number1,
+                                     Number2 = pl.Number2,
+                                     Name = pl.Name,
+                                     Description = pl.Description,
+                                     AreaId = ar.AreaId,
+                                     AreaName = ar.Name,
+                                     SetId = st.SetId,
+                                     SetName = st.Name,
+                                     Priority = pl.Priority,
+                                     CreatedOn = pl.CreatedOn,
+                                     CreatedBy = us.UserId,
+                                     CreatedByName = us.Name + " " + us.Surname,
+                                     TenantId = t.TenantId,
+                                     TenantName = t.TenantName,
+                                     PlaceToken = pl.PlaceToken
+                                 }
+                          );
+                    if (!items.Any())
+                    {
+                        return NotFound();
+                    }
+
+                    return Ok(items);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         [HttpPut]
         [Route("EditPlace")]
         [ResponseType(typeof(void))]
