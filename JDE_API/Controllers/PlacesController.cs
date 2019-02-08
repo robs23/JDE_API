@@ -221,7 +221,7 @@ namespace JDE_API.Controllers
                                  join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
                                  join us in db.JDE_Users on pl.CreatedBy equals us.UserId
                                  join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
-                                 where t.TenantId == tenants.FirstOrDefault().TenantId && h.UserId == UserId && h.StartedOn >= lastDate
+                                 where t.TenantId == tenants.FirstOrDefault().TenantId && h.UserId == UserId && (h.StartedOn >= lastDate || h.FinishedOn >= lastDate)
                                  orderby h.StartedOn
                                  select new
                                  {
