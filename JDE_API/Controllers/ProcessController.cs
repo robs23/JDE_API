@@ -131,7 +131,8 @@ namespace JDE_API.Controllers
                                      LastStatusBy = grp.Key.LastStatusBy,
                                      LastStatusByName = grp.Key.LastStatusByName,
                                      LastStatusOn = grp.Key.LastStatusOn,
-                                     HandlingStatus = "Aktualnie obsługuje: " + grp.Where(ph => ph.ha.IsCompleted == null && ph.ha.HandlingId > 0).Count().ToString() + ". Wszyscy obsługujący: " + grp.Count().ToString()
+                                     OpenHandlings = grp.Where(ph => ph.ha.IsCompleted == null && ph.ha.HandlingId > 0).Count(),
+                                     AllHandlings = grp.Count()
                                  });
                     if (items.Any())
                     {
@@ -1179,7 +1180,8 @@ namespace JDE_API.Controllers
         public int? LastStatusBy { get; set; }
         public string LastStatusByName { get; set; }
         public DateTime? LastStatusOn { get; set; }
-        public string HandlingStatus { get; set; }
+        public int? OpenHandlings { get; set; }
+        public int? AllHandlings { get; set; }
     }
 
     public enum ProcessStatus
