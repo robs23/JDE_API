@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 
 Web.Debug.config
+/JDE_API/Properties/PublishProfiles/jde-test-api.robs23.hostingasp.pl - Web Deploy.pubxml

@@ -415,6 +415,9 @@ namespace JDE_API.Controllers
                                     var process = processes.FirstOrDefault();
                                     string OldValue = new JavaScriptSerializer().Serialize(process);
                                     process.IsFrozen = true;
+                                    process.LastStatus = (int)ProcessStatus.Paused;
+                                    process.LastStatusBy = UserId;
+                                    process.LastStatusOn = DateTime.Now;
                                     db.Entry(process).State = EntityState.Modified;
                                     JDE_Logs Log2 = new JDE_Logs { UserId = UserId, Description = "Edycja zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue = new JavaScriptSerializer().Serialize(process) };
                                     db.JDE_Logs.Add(Log2);

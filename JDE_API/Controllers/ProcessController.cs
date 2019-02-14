@@ -47,47 +47,91 @@ namespace JDE_API.Controllers
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  join s in db.JDE_Sets on pl.SetId equals s.SetId
                                  join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                                 join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
+                                 from ha in hans.DefaultIfEmpty()
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
-                                 orderby p.CreatedOn descending
+                                 group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
+                                 by new
+                                 {
+                                     p.ProcessId,
+                                     p.Description,
+                                     p.StartedOn,
+                                     p.StartedBy,
+                                     p.FinishedOn,
+                                     p.FinishedBy,
+                                     p.PlannedFinish,
+                                     p.PlannedStart,
+                                     p.PlaceId,
+                                     pl.SetId,
+                                     SetName = s.Name,
+                                     pl.AreaId,
+                                     AreaName = a.Name,
+                                     p.Reason,
+                                     p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     p.CreatedOn,
+                                     p.ActionTypeId,
+                                     p.Output,
+                                     p.InitialDiagnosis,
+                                     p.RepairActions,
+                                     p.TenantId,
+                                     p.MesId,
+                                     p.MesDate,
+                                     TenantName = t.TenantName,
+                                     p.IsActive,
+                                     p.IsCompleted,
+                                     p.IsFrozen,
+                                     p.IsSuccessfull,
+                                     ActionTypeName = at.Name,
+                                     FinishedByName = fin.Name + " " + fin.Surname,
+                                     StartedByName = star.Name + " " + star.Surname,
+                                     PlaceName = pl.Name,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
+                                     p.LastStatusOn
+                                 } into grp
+                                 orderby grp.Key.CreatedOn descending
                                  select new Process
                                  {
-                                     ProcessId = p.ProcessId,
-                                     Description = p.Description,
-                                     StartedOn = p.StartedOn,
-                                     StartedBy = p.StartedBy,
-                                     StartedByName = star.Name + " " + star.Surname,
-                                     FinishedOn = p.FinishedOn,
-                                     FinishedBy = p.FinishedBy,
-                                     FinishedByName = fin.Name + " " + fin.Surname,
-                                     ActionTypeId = p.ActionTypeId,
-                                     ActionTypeName = at.Name,
-                                     IsActive = p.IsActive,
-                                     IsFrozen = p.IsFrozen,
-                                     IsCompleted = p.IsCompleted,
-                                     IsSuccessfull = p.IsSuccessfull,
-                                     PlaceId = p.PlaceId,
-                                     PlaceName = pl.Name,
-                                     SetId = s.SetId,
-                                     SetName = s.Name,
-                                     AreaId = a.AreaId,
-                                     AreaName = a.Name,
-                                     Output = p.Output,
-                                     TenantId = p.TenantId,
-                                     TenantName = t.TenantName,
-                                     CreatedOn = p.CreatedOn,
-                                     CreatedBy = p.CreatedBy,
-                                     CreatedByName = u.Name + " " + u.Surname,
-                                     MesId = p.MesId,
-                                     InitialDiagnosis = p.InitialDiagnosis,
-                                     RepairActions = p.RepairActions,
-                                     Reason = p.Reason,
-                                     MesDate = p.MesDate,
-                                     PlannedStart = p.PlannedStart,
-                                     PlannedFinish = p.PlannedFinish,
-                                     LastStatus = p.LastStatus == null ? (ProcessStatus?) null :(ProcessStatus) p.LastStatus, // Nullable enums handled
-                                     LastStatusBy = p.LastStatusBy,
-                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
-                                     LastStatusOn = p.LastStatusOn
+                                     ProcessId = grp.Key.ProcessId,
+                                     Description = grp.Key.Description,
+                                     StartedOn = grp.Key.StartedOn,
+                                     StartedBy = grp.Key.StartedBy,
+                                     StartedByName = grp.Key.StartedByName,
+                                     FinishedOn = grp.Key.FinishedOn,
+                                     FinishedBy = grp.Key.FinishedBy,
+                                     FinishedByName = grp.Key.FinishedByName,
+                                     ActionTypeId = grp.Key.ActionTypeId,
+                                     ActionTypeName = grp.Key.ActionTypeName,
+                                     IsActive = grp.Key.IsActive,
+                                     IsFrozen = grp.Key.IsFrozen,
+                                     IsCompleted = grp.Key.IsCompleted,
+                                     IsSuccessfull = grp.Key.IsSuccessfull,
+                                     PlaceId = grp.Key.PlaceId,
+                                     PlaceName = grp.Key.PlaceName,
+                                     SetId = grp.Key.SetId,
+                                     SetName = grp.Key.SetName,
+                                     AreaId = grp.Key.AreaId,
+                                     AreaName = grp.Key.AreaName,
+                                     Output = grp.Key.Output,
+                                     TenantId = grp.Key.TenantId,
+                                     TenantName = grp.Key.TenantName,
+                                     CreatedOn = grp.Key.CreatedOn,
+                                     CreatedBy = grp.Key.CreatedBy,
+                                     CreatedByName = grp.Key.CreatedByName,
+                                     MesId = grp.Key.MesId,
+                                     InitialDiagnosis = grp.Key.InitialDiagnosis,
+                                     RepairActions = grp.Key.RepairActions,
+                                     Reason = grp.Key.Reason,
+                                     MesDate = grp.Key.MesDate,
+                                     PlannedStart = grp.Key.PlannedStart,
+                                     PlannedFinish = grp.Key.PlannedFinish,
+                                     LastStatus = grp.Key.LastStatus,
+                                     LastStatusBy = grp.Key.LastStatusBy,
+                                     LastStatusByName = grp.Key.LastStatusByName,
+                                     LastStatusOn = grp.Key.LastStatusOn,
+                                     HandlingStatus = "Aktualnie obsługuje: " + grp.Where(ph => ph.ha.IsCompleted == null && ph.ha.HandlingId > 0).Count().ToString() + ". Wszyscy obsługujący: " + grp.Count().ToString()
                                  });
                     if (items.Any())
                     {
@@ -95,7 +139,7 @@ namespace JDE_API.Controllers
                         {
                             items = items.Where(query);
                         }
-                        
+
                         if (length != null)
                         {
                             var nItems = items.ToList();
@@ -167,10 +211,9 @@ namespace JDE_API.Controllers
             {
                 return NotFound();
             }
-
         }
 
-        private List<Process> FilterByLength(List<Process> nItems, string length)
+        public List<Process> FilterByLength(List<Process> nItems, string length)
         {
             var min = Regex.Match(length, @"\d+").Value;
             int mins = 0;
@@ -202,6 +245,40 @@ namespace JDE_API.Controllers
 
             }
             return nItems;
+        }
+
+        public string GetHandlingStatus(int ProcessId, bool open = false)
+        {
+            IQueryable<string> handlings;
+            if (open)
+            {
+                handlings = (from h in db.JDE_Handlings
+                             join u in db.JDE_Users on h.UserId equals u.UserId
+                             where h.ProcessId==ProcessId && h.IsCompleted!=true
+                             select u.Name + " " + u.Surname);
+            }
+            else
+            {
+                handlings = (from h in db.JDE_Handlings
+                             join u in db.JDE_Users on h.UserId equals u.UserId
+                             where h.ProcessId == ProcessId
+                             select u.Name + " " + u.Surname);
+            }
+
+            if (handlings.Any())
+            {
+                string items = "Obsługiwane prze " + handlings.Aggregate((a, b) => a + ", " + b);
+                return items;
+            }
+            else
+            {
+                if (open)
+                {
+                    return "Aktualnie nikt nie obsługuje tego zgłoszenia";
+                }
+                return "Nie zarejestrowano żadnej obsługi tego zgłoszenia";
+            }
+
         }
 
         [HttpGet]
@@ -1102,6 +1179,7 @@ namespace JDE_API.Controllers
         public int? LastStatusBy { get; set; }
         public string LastStatusByName { get; set; }
         public DateTime? LastStatusOn { get; set; }
+        public string HandlingStatus { get; set; }
     }
 
     public enum ProcessStatus
