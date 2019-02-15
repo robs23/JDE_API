@@ -131,7 +131,7 @@ namespace JDE_API.Controllers
                                      LastStatusBy = grp.Key.LastStatusBy,
                                      LastStatusByName = grp.Key.LastStatusByName,
                                      LastStatusOn = grp.Key.LastStatusOn,
-                                     OpenHandlings = grp.Where(ph => ph.ha.IsCompleted == null && ph.ha.HandlingId > 0).Count(),
+                                     OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted==false)).Count(),
                                      AllHandlings = grp.Where(ph=>ph.ha.HandlingId > 0).Count()
                                  });
                     if (items.Any())
