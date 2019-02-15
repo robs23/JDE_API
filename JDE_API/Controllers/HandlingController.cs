@@ -33,7 +33,7 @@ namespace JDE_API.Controllers
                     {
                         if (db.JDE_Handlings.Any())
                         {
-                            dFrom = db.JDE_Handlings.Min(x => x.StartedOn).Value;
+                            dFrom = db.JDE_Handlings.Min(x => x.StartedOn).Value.AddDays(-1);
                         }
                         else
                         {
@@ -44,7 +44,7 @@ namespace JDE_API.Controllers
                     {
                         if (db.JDE_Handlings.Any())
                         {
-                            dTo = db.JDE_Handlings.Max(x => x.StartedOn).Value;
+                            dTo = db.JDE_Handlings.Max(x => x.StartedOn).Value.AddDays(1);
                             
                         }
                         else
