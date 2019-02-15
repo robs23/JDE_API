@@ -31,9 +31,9 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.CreatedOn).Value;
-                    dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value;
-
+                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.CreatedOn).Value.AddDays(-1);
+                    dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value.AddDays(1);
+                    db.Database.Log = Console.Write;
                     var items = (from p in db.JDE_Processes
                                  join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
                                  from fin in finished.DefaultIfEmpty()

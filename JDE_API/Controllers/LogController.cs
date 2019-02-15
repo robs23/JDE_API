@@ -29,8 +29,8 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    dFrom = dFrom ?? db.JDE_Logs.Min(x => x.Timestamp).Value;
-                    dTo = dTo ?? db.JDE_Logs.Max(x => x.Timestamp).Value;
+                    dFrom = dFrom ?? db.JDE_Logs.Min(x => x.Timestamp).Value.AddDays(-1);
+                    dTo = dTo ?? db.JDE_Logs.Max(x => x.Timestamp).Value.AddDays(1);
 
                     var items = (from l in db.JDE_Logs
                                  join u in db.JDE_Users on l.UserId equals u.UserId
