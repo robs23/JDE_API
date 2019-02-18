@@ -214,6 +214,199 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetUsersOpenProcesses")]
+        public IHttpActionResult GetUsersOpenProcesses(string token, int UserId, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null)
+        {
+            //if ext=true then there's more columns in the result sent
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.CreatedOn).Value.AddDays(-1);
+                    dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value.AddDays(1);
+                    db.Database.Log = Console.Write;
+                    var items = (from p in db.JDE_Processes
+                                 join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
+                                 from fin in finished.DefaultIfEmpty()
+                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                                 join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
+                                 join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
+                                 from star in started.DefaultIfEmpty()
+                                 join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                                 from lStat in lastStatus.DefaultIfEmpty()
+                                 join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join s in db.JDE_Sets on pl.SetId equals s.SetId
+                                 join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                                 join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
+                                 from ha in hans.DefaultIfEmpty()
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo && ha.UserId == UserId && (ha.IsCompleted == false || ha.IsCompleted == null)
+                                 group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
+                                 by new
+                                 {
+                                     p.ProcessId,
+                                     p.Description,
+                                     p.StartedOn,
+                                     p.StartedBy,
+                                     p.FinishedOn,
+                                     p.FinishedBy,
+                                     p.PlannedFinish,
+                                     p.PlannedStart,
+                                     p.PlaceId,
+                                     pl.SetId,
+                                     SetName = s.Name,
+                                     pl.AreaId,
+                                     AreaName = a.Name,
+                                     p.Reason,
+                                     p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     p.CreatedOn,
+                                     p.ActionTypeId,
+                                     p.Output,
+                                     p.InitialDiagnosis,
+                                     p.RepairActions,
+                                     p.TenantId,
+                                     p.MesId,
+                                     p.MesDate,
+                                     TenantName = t.TenantName,
+                                     p.IsActive,
+                                     p.IsCompleted,
+                                     p.IsFrozen,
+                                     p.IsSuccessfull,
+                                     ActionTypeName = at.Name,
+                                     FinishedByName = fin.Name + " " + fin.Surname,
+                                     StartedByName = star.Name + " " + star.Surname,
+                                     PlaceName = pl.Name,
+                                     LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+                                     p.LastStatusBy,
+                                     LastStatusByName = lStat.Name + " " + lStat.Surname,
+                                     p.LastStatusOn
+                                 } into grp
+                                 orderby grp.Key.CreatedOn descending
+                                 select new Process
+                                 {
+                                     ProcessId = grp.Key.ProcessId,
+                                     Description = grp.Key.Description,
+                                     StartedOn = grp.Key.StartedOn,
+                                     StartedBy = grp.Key.StartedBy,
+                                     StartedByName = grp.Key.StartedByName,
+                                     FinishedOn = grp.Key.FinishedOn,
+                                     FinishedBy = grp.Key.FinishedBy,
+                                     FinishedByName = grp.Key.FinishedByName,
+                                     ActionTypeId = grp.Key.ActionTypeId,
+                                     ActionTypeName = grp.Key.ActionTypeName,
+                                     IsActive = grp.Key.IsActive,
+                                     IsFrozen = grp.Key.IsFrozen,
+                                     IsCompleted = grp.Key.IsCompleted,
+                                     IsSuccessfull = grp.Key.IsSuccessfull,
+                                     PlaceId = grp.Key.PlaceId,
+                                     PlaceName = grp.Key.PlaceName,
+                                     SetId = grp.Key.SetId,
+                                     SetName = grp.Key.SetName,
+                                     AreaId = grp.Key.AreaId,
+                                     AreaName = grp.Key.AreaName,
+                                     Output = grp.Key.Output,
+                                     TenantId = grp.Key.TenantId,
+                                     TenantName = grp.Key.TenantName,
+                                     CreatedOn = grp.Key.CreatedOn,
+                                     CreatedBy = grp.Key.CreatedBy,
+                                     CreatedByName = grp.Key.CreatedByName,
+                                     MesId = grp.Key.MesId,
+                                     InitialDiagnosis = grp.Key.InitialDiagnosis,
+                                     RepairActions = grp.Key.RepairActions,
+                                     Reason = grp.Key.Reason,
+                                     MesDate = grp.Key.MesDate,
+                                     PlannedStart = grp.Key.PlannedStart,
+                                     PlannedFinish = grp.Key.PlannedFinish,
+                                     LastStatus = grp.Key.LastStatus,
+                                     LastStatusBy = grp.Key.LastStatusBy,
+                                     LastStatusByName = grp.Key.LastStatusByName,
+                                     LastStatusOn = grp.Key.LastStatusOn,
+                                     OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
+                                     AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count()
+                                 });
+                    if (items.Any())
+                    {
+                        if (query != null)
+                        {
+                            items = items.Where(query);
+                        }
+
+                        if (length != null)
+                        {
+                            var nItems = items.ToList();
+                            nItems = FilterByLength(nItems, length);
+                            if (total == 0 && page > 0)
+                            {
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < nItems.Count())
+                                {
+                                    nItems = nItems.Skip(skip).Take(pageSize).ToList();
+                                    return Ok(nItems);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                nItems = nItems.Take(total).ToList();
+                                return Ok(nItems);
+                            }
+                            else
+                            {
+                                return Ok(nItems);
+                            }
+                        }
+                        else
+                        {
+                            if (total == 0 && page > 0)
+                            {
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < items.Count())
+                                {
+                                    items = items.Skip(skip).Take(pageSize);
+                                    return Ok(items);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                items = items.Take(total);
+                                return Ok(items);
+                            }
+                            else
+                            {
+                                return Ok(items);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         public List<Process> FilterByLength(List<Process> nItems, string length)
         {
             var min = Regex.Match(length, @"\d+").Value;
