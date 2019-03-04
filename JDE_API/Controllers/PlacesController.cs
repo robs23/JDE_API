@@ -205,7 +205,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetUsersLastPlaces")]
-        public IHttpActionResult GetUsersLastPlaces(string token, int UserId)
+        public IHttpActionResult GetUsersLastPlaces(string token, int UserId, bool distinct = false)
         {
             if (token != null && token.Length > 0)
             {
@@ -251,6 +251,10 @@ namespace JDE_API.Controllers
                     else
                     {
                         items = items.OrderByDescending(i => i.VisitedAt);
+                        if (distinct)
+                        {
+                            items = items.GroupBy(i => i.PlaceId).Select(i => i.FirstOrDefault());
+                        }
                         return Ok(items);
                     }
 
