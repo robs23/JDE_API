@@ -957,6 +957,8 @@ namespace JDE_API.Controllers
                             {
                                 //this has just been started. Must have been planned before. Replace user's date
                                 item.StartedOn = DateTime.Now;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
                             }
                         }
                         string descr = "Edycja zgłoszenia";
@@ -964,19 +966,29 @@ namespace JDE_API.Controllers
                         {
                             //was active and it no longer is. It has been paused
                             item.LastStatus = (int)ProcessStatus.Paused;
+                            item.LastStatusBy = UserId;
+                            item.LastStatusOn = DateTime.Now;
                         }
                         else if((bool)items.FirstOrDefault().IsFrozen && (bool)item.IsActive)
                         {
                             //was paused and now it is active - it's been resumed
                             item.LastStatus = (int)ProcessStatus.Resumed;
-                        }else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
+                            item.LastStatusBy = UserId;
+                            item.LastStatusOn = DateTime.Now;
+                        }
+                        else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
                         {
                             //wasn't active and now it is - it's been started
                             item.LastStatus = (int)ProcessStatus.Started;
-                        }else if(!(bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted)
+                            item.LastStatusBy = UserId;
+                            item.LastStatusOn = DateTime.Now;
+                        }
+                        else if(!(bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted)
                         {
                             //it's been finished
                             item.LastStatus = (int)ProcessStatus.Finished;
+                            item.LastStatusBy = UserId;
+                            item.LastStatusOn = DateTime.Now;
                         }
                         if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
                         {
@@ -988,8 +1000,6 @@ namespace JDE_API.Controllers
                             }
                             descr = "Zamknięcie zgłoszenia";
                         }
-                        item.LastStatusBy = UserId;
-                        item.LastStatusOn = DateTime.Now;
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description =descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
