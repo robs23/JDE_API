@@ -218,7 +218,6 @@ namespace JDE_API.Controllers
         [Route("GetUsersOpenProcesses")]
         public IHttpActionResult GetUsersOpenProcesses(string token, int UserId, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null)
         {
-            //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
@@ -242,7 +241,7 @@ namespace JDE_API.Controllers
                                  join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                                  join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
                                  from ha in hans.DefaultIfEmpty()
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo && ha.UserId == UserId && (ha.IsCompleted == false || ha.IsCompleted == null)
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo && ((ha.UserId == UserId && (ha.IsCompleted == false || ha.IsCompleted == null)) || (p.LastStatusBy==UserId && p.IsCompleted==false))
                                  group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
                                  by new
                                  {
