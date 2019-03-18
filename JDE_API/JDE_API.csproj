@@ -299,6 +299,7 @@
     <Content Include="Models\DbModels.edmx.diagram">
       <DependentUpon>DbModels.edmx</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\jde-api.robs23.hostingasp.pl - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\jde-test-api.robs23.hostingasp.pl - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\JDE_API.pubxml" />
     <None Include="Properties\PublishProfiles\JDE_API_TEST.pubxml" />
@@ -313,6 +314,7 @@
     </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>

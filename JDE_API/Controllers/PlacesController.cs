@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -21,7 +22,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetPlaces")]
-        public IHttpActionResult GetPlaces(string token, int page = 0, int total=0)
+        public IHttpActionResult GetPlaces(string token, int page = 0, int total=0, string query = null)
         {
             if (token != null && token.Length > 0)
             {
@@ -57,6 +58,10 @@ namespace JDE_API.Controllers
                           );
                     if (items.Any())
                     {
+                        if (query != null)
+                        {
+                            items = items.Where(query);
+                        }
                         if (total == 0 && page > 0)
                         {
                             int pageSize = RuntimeSettings.PageSize;
