@@ -31,13 +31,72 @@
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
+        <EntityType Name="JDE_Boms">
+          <Key>
+            <PropertyRef Name="BomId" />
+          </Key>
+          <Property Name="BomId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="PlaceId" Type="int" />
+          <Property Name="Amount" Type="float" />
+          <Property Name="Unit" Type="nvarchar" MaxLength="50" />
+          <Property Name="ValidFrom" Type="datetime" />
+          <Property Name="ValidTo" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'robs23_testowa.dbo.JDE_Errors' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="JDE_Companies">
+          <Key>
+            <PropertyRef Name="CompanyId" />
+          </Key>
+          <Property Name="CompanyId" Type="int" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="100" />
+          <Property Name="Street" Type="nvarchar" MaxLength="100" />
+          <Property Name="Street2" Type="nvarchar" MaxLength="100" />
+          <Property Name="BuildingNo" Type="nvarchar" MaxLength="10" />
+          <Property Name="LocalNo" Type="nvarchar" MaxLength="10" />
+          <Property Name="ZipCode" Type="nvarchar" MaxLength="10" />
+          <Property Name="City" Type="nvarchar" MaxLength="100" />
+          <Property Name="Country" Type="nvarchar" MaxLength="100" />
+          <Property Name="TypeId" Type="int" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
+        <EntityType Name="JDE_Deliveries">
+          <Key>
+            <PropertyRef Name="DeliveryId" />
+          </Key>
+          <Property Name="DeliveryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DeliveredOn" Type="datetime" />
+          <Property Name="OrderId" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+        </EntityType>
+        <EntityType Name="JDE_DeliveryItems">
+          <Key>
+            <PropertyRef Name="DeliveryItemId" />
+          </Key>
+          <Property Name="DeliveryItemId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DeliveryId" Type="int" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="Amount" Type="float" />
+          <Property Name="StorageBinId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Errors">
           <Key>
             <PropertyRef Name="ErrorId" />
           </Key>
-          <Property Name="ErrorId" Type="int" Nullable="false" />
+          <Property Name="ErrorId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TenantId" Type="int" />
           <Property Name="UserId" Type="int" />
           <Property Name="Time" Type="datetime" />
@@ -46,13 +105,11 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Errors' does not have a pri
           <Property Name="Class" Type="nvarchar" MaxLength="200" />
           <Property Name="Message" Type="nvarchar(max)" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="JDE_Files">
           <Key>
             <PropertyRef Name="FileId" />
           </Key>
-          <Property Name="FileId" Type="int" Nullable="false" />
+          <Property Name="FileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="150" />
           <Property Name="Description" Type="nvarchar" MaxLength="150" />
           <Property Name="Link" Type="nvarchar" MaxLength="200" />
@@ -87,6 +144,60 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <Property Name="TenantId" Type="int" />
           <Property Name="OldValue" Type="nvarchar(max)" />
           <Property Name="NewValue" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="JDE_Orders">
+          <Key>
+            <PropertyRef Name="OrderId" />
+          </Key>
+          <Property Name="OrderId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrderNo" Type="nvarchar" MaxLength="100" />
+          <Property Name="SuppliersOrderNo" Type="nvarchar" MaxLength="100" />
+          <Property Name="OrderedOn" Type="datetime" />
+          <Property Name="DeliveryOn" Type="datetime" />
+          <Property Name="SupplierId" Type="int" />
+          <Property Name="OrderDetailsId" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
+        <EntityType Name="JDE_Parts">
+          <Key>
+            <PropertyRef Name="PartId" />
+          </Key>
+          <Property Name="PartId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" />
+          <Property Name="Description" Type="nvarchar" MaxLength="1000" />
+          <Property Name="EAN" Type="nvarchar" MaxLength="50" />
+          <Property Name="ProducerId" Type="int" />
+          <Property Name="ProducentsCode" Type="nvarchar" MaxLength="150" />
+          <Property Name="SupplierId" Type="int" />
+          <Property Name="Symbol" Type="nvarchar" MaxLength="200" />
+          <Property Name="Destination" Type="nvarchar" MaxLength="200" />
+          <Property Name="Appliance" Type="nvarchar" MaxLength="200" />
+          <Property Name="UsedOn" Type="nvarchar" MaxLength="1000" />
+          <Property Name="Token" Type="nvarchar" MaxLength="100" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
+        <EntityType Name="JDE_PartUsages">
+          <Key>
+            <PropertyRef Name="PartUsageId" />
+          </Key>
+          <Property Name="PartUsageId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="Amount" Type="float" />
+          <Property Name="PlaceId" Type="int" />
+          <Property Name="HandlingId" Type="int" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Places">
           <Key>
@@ -148,6 +259,20 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
+        <EntityType Name="JDE_Stocks">
+          <Key>
+            <PropertyRef Name="StockId" />
+          </Key>
+          <Property Name="StockId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="Amount" Type="float" />
+          <Property Name="CreatedOn" Type="date" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
+          <Property Name="StorageBinId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Tenants">
           <Key>
             <PropertyRef Name="TenantId" />
@@ -175,36 +300,40 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
         <EntityContainer Name="DbModelsStoreContainer">
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Boms" EntityType="Self.JDE_Boms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Deliveries" EntityType="Self.JDE_Deliveries" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_DeliveryItems" EntityType="Self.JDE_DeliveryItems" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Handlings" EntityType="Self.JDE_Handlings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Orders" EntityType="Self.JDE_Orders" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Parts" EntityType="Self.JDE_Parts" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_PartUsages" EntityType="Self.JDE_PartUsages" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Places" EntityType="Self.JDE_Places" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Processes" EntityType="Self.JDE_Processes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Stocks" EntityType="Self.JDE_Stocks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" store:Type="Tables" store:Schema="dbo">
+          <EntitySet Name="JDE_Companies" EntityType="Self.JDE_Companies" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
-    [JDE_Errors].[ErrorId] AS [ErrorId], 
-    [JDE_Errors].[TenantId] AS [TenantId], 
-    [JDE_Errors].[UserId] AS [UserId], 
-    [JDE_Errors].[Time] AS [Time], 
-    [JDE_Errors].[App] AS [App], 
-    [JDE_Errors].[Method] AS [Method], 
-    [JDE_Errors].[Class] AS [Class], 
-    [JDE_Errors].[Message] AS [Message]
-    FROM [dbo].[JDE_Errors] AS [JDE_Errors]</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [JDE_Files].[FileId] AS [FileId], 
-    [JDE_Files].[Name] AS [Name], 
-    [JDE_Files].[Description] AS [Description], 
-    [JDE_Files].[Link] AS [Link], 
-    [JDE_Files].[ProcessId] AS [ProcessId], 
-    [JDE_Files].[CreatedOn] AS [CreatedOn], 
-    [JDE_Files].[CreatedBy] AS [CreatedBy], 
-    [JDE_Files].[TenantId] AS [TenantId]
-    FROM [dbo].[JDE_Files] AS [JDE_Files]</DefiningQuery>
+    [JDE_Companies].[CompanyId] AS [CompanyId], 
+    [JDE_Companies].[Name] AS [Name], 
+    [JDE_Companies].[Street] AS [Street], 
+    [JDE_Companies].[Street2] AS [Street2], 
+    [JDE_Companies].[BuildingNo] AS [BuildingNo], 
+    [JDE_Companies].[LocalNo] AS [LocalNo], 
+    [JDE_Companies].[ZipCode] AS [ZipCode], 
+    [JDE_Companies].[City] AS [City], 
+    [JDE_Companies].[Country] AS [Country], 
+    [JDE_Companies].[TypeId] AS [TypeId], 
+    [JDE_Companies].[CreatedBy] AS [CreatedBy], 
+    [JDE_Companies].[CreatedOn] AS [CreatedOn], 
+    [JDE_Companies].[LmBy] AS [LmBy], 
+    [JDE_Companies].[LmOn] AS [LmOn], 
+    [JDE_Companies].[TenantId] AS [TenantId]
+    FROM [dbo].[JDE_Companies] AS [JDE_Companies]</DefiningQuery>
           </EntitySet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -355,6 +484,14 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" />
           <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" />
           <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
+          <EntitySet Name="JDE_Boms" EntityType="DbModels.JDE_Boms" />
+          <EntitySet Name="JDE_Deliveries" EntityType="DbModels.JDE_Deliveries" />
+          <EntitySet Name="JDE_DeliveryItems" EntityType="DbModels.JDE_DeliveryItems" />
+          <EntitySet Name="JDE_Orders" EntityType="DbModels.JDE_Orders" />
+          <EntitySet Name="JDE_Parts" EntityType="DbModels.JDE_Parts" />
+          <EntitySet Name="JDE_PartUsages" EntityType="DbModels.JDE_PartUsages" />
+          <EntitySet Name="JDE_Stocks" EntityType="DbModels.JDE_Stocks" />
+          <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -386,6 +523,133 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
           <Property Name="LastStatus" Type="Int32" />
           <Property Name="LastStatusBy" Type="Int32" />
           <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="JDE_Boms">
+          <Key>
+            <PropertyRef Name="BomId" />
+          </Key>
+          <Property Name="BomId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="Amount" Type="Double" />
+          <Property Name="Unit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ValidFrom" Type="DateTime" Precision="3" />
+          <Property Name="ValidTo" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Deliveries">
+          <Key>
+            <PropertyRef Name="DeliveryId" />
+          </Key>
+          <Property Name="DeliveryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DeliveredOn" Type="DateTime" Precision="3" />
+          <Property Name="OrderId" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_DeliveryItems">
+          <Key>
+            <PropertyRef Name="DeliveryItemId" />
+          </Key>
+          <Property Name="DeliveryItemId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DeliveryId" Type="Int32" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="Amount" Type="Double" />
+          <Property Name="StorageBinId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Orders">
+          <Key>
+            <PropertyRef Name="OrderId" />
+          </Key>
+          <Property Name="OrderId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrderNo" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="SuppliersOrderNo" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="OrderedOn" Type="DateTime" Precision="3" />
+          <Property Name="DeliveryOn" Type="DateTime" Precision="3" />
+          <Property Name="SupplierId" Type="Int32" />
+          <Property Name="OrderDetailsId" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Parts">
+          <Key>
+            <PropertyRef Name="PartId" />
+          </Key>
+          <Property Name="PartId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="EAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProducerId" Type="Int32" />
+          <Property Name="ProducentsCode" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="SupplierId" Type="Int32" />
+          <Property Name="Symbol" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Destination" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Appliance" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="UsedOn" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Token" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_PartUsages">
+          <Key>
+            <PropertyRef Name="PartUsageId" />
+          </Key>
+          <Property Name="PartUsageId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="Amount" Type="Double" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="HandlingId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Stocks">
+          <Key>
+            <PropertyRef Name="StockId" />
+          </Key>
+          <Property Name="StockId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="Amount" Type="Double" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="0" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="StorageBinId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Companies">
+          <Key>
+            <PropertyRef Name="CompanyId" />
+          </Key>
+          <Property Name="CompanyId" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Street" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Street2" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="BuildingNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="LocalNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="ZipCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="TypeId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -564,6 +828,141 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Files' does not have a prim
                 <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Boms">
+            <EntityTypeMapping TypeName="DbModels.JDE_Boms">
+              <MappingFragment StoreEntitySet="JDE_Boms">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="ValidTo" ColumnName="ValidTo" />
+                <ScalarProperty Name="ValidFrom" ColumnName="ValidFrom" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="BomId" ColumnName="BomId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Deliveries">
+            <EntityTypeMapping TypeName="DbModels.JDE_Deliveries">
+              <MappingFragment StoreEntitySet="JDE_Deliveries">
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="DeliveredOn" ColumnName="DeliveredOn" />
+                <ScalarProperty Name="DeliveryId" ColumnName="DeliveryId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_DeliveryItems">
+            <EntityTypeMapping TypeName="DbModels.JDE_DeliveryItems">
+              <MappingFragment StoreEntitySet="JDE_DeliveryItems">
+                <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="DeliveryId" ColumnName="DeliveryId" />
+                <ScalarProperty Name="DeliveryItemId" ColumnName="DeliveryItemId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Orders">
+            <EntityTypeMapping TypeName="DbModels.JDE_Orders">
+              <MappingFragment StoreEntitySet="JDE_Orders">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="OrderDetailsId" ColumnName="OrderDetailsId" />
+                <ScalarProperty Name="SupplierId" ColumnName="SupplierId" />
+                <ScalarProperty Name="DeliveryOn" ColumnName="DeliveryOn" />
+                <ScalarProperty Name="OrderedOn" ColumnName="OrderedOn" />
+                <ScalarProperty Name="SuppliersOrderNo" ColumnName="SuppliersOrderNo" />
+                <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Parts">
+            <EntityTypeMapping TypeName="DbModels.JDE_Parts">
+              <MappingFragment StoreEntitySet="JDE_Parts">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="UsedOn" ColumnName="UsedOn" />
+                <ScalarProperty Name="Appliance" ColumnName="Appliance" />
+                <ScalarProperty Name="Destination" ColumnName="Destination" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="SupplierId" ColumnName="SupplierId" />
+                <ScalarProperty Name="ProducentsCode" ColumnName="ProducentsCode" />
+                <ScalarProperty Name="ProducerId" ColumnName="ProducerId" />
+                <ScalarProperty Name="EAN" ColumnName="EAN" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_PartUsages">
+            <EntityTypeMapping TypeName="DbModels.JDE_PartUsages">
+              <MappingFragment StoreEntitySet="JDE_PartUsages">
+                <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="PartUsageId" ColumnName="PartUsageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Stocks">
+            <EntityTypeMapping TypeName="DbModels.JDE_Stocks">
+              <MappingFragment StoreEntitySet="JDE_Stocks">
+                <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="StockId" ColumnName="StockId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Companies">
+            <EntityTypeMapping TypeName="DbModels.JDE_Companies">
+              <MappingFragment StoreEntitySet="JDE_Companies">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+                <ScalarProperty Name="LocalNo" ColumnName="LocalNo" />
+                <ScalarProperty Name="BuildingNo" ColumnName="BuildingNo" />
+                <ScalarProperty Name="Street2" ColumnName="Street2" />
+                <ScalarProperty Name="Street" ColumnName="Street" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
