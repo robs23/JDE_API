@@ -81,6 +81,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="CreatedBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_DeliveryItems">
           <Key>
@@ -91,6 +92,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="PartId" Type="int" />
           <Property Name="Amount" Type="float" />
           <Property Name="StorageBinId" Type="int" />
+          <Property Name="TenantId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Errors">
           <Key>
@@ -552,6 +554,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_DeliveryItems">
           <Key>
@@ -562,6 +565,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="PartId" Type="Int32" />
           <Property Name="Amount" Type="Double" />
           <Property Name="StorageBinId" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Orders">
           <Key>
@@ -852,6 +856,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySetMapping Name="JDE_Deliveries">
             <EntityTypeMapping TypeName="DbModels.JDE_Deliveries">
               <MappingFragment StoreEntitySet="JDE_Deliveries">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
@@ -865,6 +870,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySetMapping Name="JDE_DeliveryItems">
             <EntityTypeMapping TypeName="DbModels.JDE_DeliveryItems">
               <MappingFragment StoreEntitySet="JDE_DeliveryItems">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="PartId" ColumnName="PartId" />

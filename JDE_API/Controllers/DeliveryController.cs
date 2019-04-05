@@ -14,13 +14,13 @@ using System.Web.Script.Serialization;
 
 namespace JDE_API.Controllers
 {
-    public class CompanyController : ApiController
+    public class DeliveryController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
 
         [HttpGet]
-        [Route("GetCompanies")]
-        public IHttpActionResult GetCompanies(string token, int page = 0, int pageSize = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
+        [Route("GetDeliveries")]
+        public IHttpActionResult GetDeliveries(string token, int page = 0, int pageSize = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null)
         {
 
             if (token != null && token.Length > 0)
@@ -30,9 +30,9 @@ namespace JDE_API.Controllers
                 {
                     if (dFrom == null)
                     {
-                        if (db.JDE_Handlings.Any())
+                        if (db.JDE_Deliveries.Any())
                         {
-                            dFrom = db.JDE_Companies.Min(x => x.CreatedOn).Value.AddDays(-1);
+                            dFrom = db.JDE_Deliveries.Min(x => x.CreatedOn).Value.AddDays(-1);
                         }
                         else
                         {
@@ -41,9 +41,9 @@ namespace JDE_API.Controllers
                     }
                     if (dTo == null)
                     {
-                        if (db.JDE_Companies.Any())
+                        if (db.JDE_Deliveries.Any())
                         {
-                            dTo = db.JDE_Companies.Max(x => x.CreatedOn).Value.AddDays(1);
+                            dTo = db.JDE_Deliveries.Max(x => x.CreatedOn).Value.AddDays(1);
 
                         }
                         else
@@ -52,30 +52,24 @@ namespace JDE_API.Controllers
                         }
                     }
 
-                    var items = (from c in db.JDE_Companies
-                                 join u in db.JDE_Users on c.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on c.LmBy equals u2.UserId
-                                 join t in db.JDE_Tenants on c.TenantId equals t.TenantId
-                                 where c.TenantId == tenants.FirstOrDefault().TenantId && c.CreatedOn >= dFrom && c.CreatedOn <= dTo
-                                 orderby c.CreatedOn descending
+                    var items = (from d in db.JDE_Deliveries
+                                 join u in db.JDE_Users on d.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on d.LmBy equals u2.UserId
+                                 join t in db.JDE_Tenants on d.TenantId equals t.TenantId
+                                 where d.TenantId == tenants.FirstOrDefault().TenantId && d.CreatedOn >= dFrom && d.CreatedOn <= dTo
+                                 orderby d.CreatedOn descending
                                  select new
                                  {
-                                     CompanyId = c.CompanyId,
-                                     Name = c.Name,
-                                     CreatedOn = c.CreatedOn,
-                                     CreatedBy = c.CreatedBy,
+                                     DeliveryId = d.DeliveryId,
+                                     DeliveredOn = d.DeliveredOn,
+                                     OrderId = d.OrderId,
+                                     CreatedOn = d.CreatedOn,
+                                     CreatedBy = d.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LmOn = c.LmOn,
-                                     LmBy = c.LmBy,
+                                     LmOn = d.LmOn,
+                                     LmBy = d.LmBy,
                                      LmByName = u2.Name + " " + u2.Surname,
-                                     Street = c.Street,
-                                     Street2 = c.Street2,
-                                     BuildingNo = c.BuildingNo,
-                                     LocalNo = c.LocalNo,
-                                     ZipCode = c.ZipCode,
-                                     City = c.City,
-                                     Country = c.Country,
-                                     TenantId = c.TenantId,
+                                     TenantId = d.TenantId,
                                      TenantName = t.TenantName
                                  });
                     if (items.Any())
@@ -112,7 +106,7 @@ namespace JDE_API.Controllers
                         {
                             return Ok(items);
                         }
-                        
+
                     }
                     else
                     {
@@ -134,39 +128,33 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetCompany")]
-        [ResponseType(typeof(JDE_Companies))]
-        public IHttpActionResult GetCompany(string token, int id)
+        [Route("GetDelivery")]
+        [ResponseType(typeof(JDE_Deliveries))]
+        public IHttpActionResult GetDelivery(string token, int id)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from c in db.JDE_Companies
-                                 join u in db.JDE_Users on c.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on c.LmBy equals u2.UserId
-                                 join t in db.JDE_Tenants on c.TenantId equals t.TenantId
-                                 where c.TenantId == tenants.FirstOrDefault().TenantId && c.CompanyId==id
-                                 orderby c.CreatedOn descending
+                    var items = (from d in db.JDE_Deliveries
+                                 join u in db.JDE_Users on d.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on d.LmBy equals u2.UserId
+                                 join t in db.JDE_Tenants on d.TenantId equals t.TenantId
+                                 where d.TenantId == tenants.FirstOrDefault().TenantId && d.DeliveryId==id
+                                 orderby d.CreatedOn descending
                                  select new
                                  {
-                                     CompanyId = c.CompanyId,
-                                     Name = c.Name,
-                                     CreatedOn = c.CreatedOn,
-                                     CreatedBy = c.CreatedBy,
+                                     DeliveryId = d.DeliveryId,
+                                     DeliveredOn = d.DeliveredOn,
+                                     OrderId = d.OrderId,
+                                     CreatedOn = d.CreatedOn,
+                                     CreatedBy = d.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LmOn = c.LmOn,
-                                     LmBy = c.LmBy,
+                                     LmOn = d.LmOn,
+                                     LmBy = d.LmBy,
                                      LmByName = u2.Name + " " + u2.Surname,
-                                     Street = c.Street,
-                                     Street2 = c.Street2,
-                                     BuildingNo = c.BuildingNo,
-                                     LocalNo = c.LocalNo,
-                                     ZipCode = c.ZipCode,
-                                     City = c.City,
-                                     Country = c.Country,
-                                     TenantId = c.TenantId,
+                                     TenantId = d.TenantId,
                                      TenantName = t.TenantName
                                  });
 
@@ -193,21 +181,21 @@ namespace JDE_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditCompany")]
+        [Route("EditDelivery")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditCompany(string token, int id, int UserId, JDE_Companies item)
+        public IHttpActionResult EditDelivery(string token, int id, int UserId, JDE_Deliveries item)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Companies.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.CompanyId == id);
+                    var items = db.JDE_Deliveries.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.DeliveryId == id);
                     if (items.Any())
                     {
-                        
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja firmy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja dostawy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
                         try
@@ -216,7 +204,7 @@ namespace JDE_API.Controllers
                         }
                         catch (DbUpdateConcurrencyException)
                         {
-                            if (!JDE_CompaniesExists(id))
+                            if (!JDE_DeliveryExists(id))
                             {
                                 return NotFound();
                             }
@@ -233,9 +221,9 @@ namespace JDE_API.Controllers
         }
 
         [HttpPost]
-        [Route("CreateCompany")]
-        [ResponseType(typeof(JDE_Companies))]
-        public IHttpActionResult CreateCompany(string token, JDE_Companies item, int UserId)
+        [Route("CreateDelivery")]
+        [ResponseType(typeof(JDE_Deliveries))]
+        public IHttpActionResult CreateDelivery(string token, JDE_Deliveries item, int UserId)
         {
             if (token != null && token.Length > 0)
             {
@@ -244,9 +232,9 @@ namespace JDE_API.Controllers
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
                     item.CreatedOn = DateTime.Now;
-                    db.JDE_Companies.Add(item);
+                    db.JDE_Deliveries.Add(item);
                     db.SaveChanges();
-                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie firmy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie dostawy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
                     db.JDE_Logs.Add(Log);
                     db.SaveChanges();
                     return Ok(item);
@@ -263,20 +251,20 @@ namespace JDE_API.Controllers
         }
 
         [HttpDelete]
-        [Route("DeleteCompany")]
-        [ResponseType(typeof(JDE_Companies))]
-        public IHttpActionResult DeleteCompany(string token, int id, int UserId)
+        [Route("DeleteDelivery")]
+        [ResponseType(typeof(JDE_Deliveries))]
+        public IHttpActionResult DeleteDelivery(string token, int id, int UserId)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Companies.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.CompanyId == id);
+                    var items = db.JDE_Deliveries.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.DeliveryId == id);
                     if (items.Any())
                     {
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie firmy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
-                        db.JDE_Companies.Remove(items.FirstOrDefault());
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie dostawy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
+                        db.JDE_Deliveries.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
 
@@ -307,9 +295,9 @@ namespace JDE_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool JDE_CompaniesExists(int id)
+        private bool JDE_DeliveryExists(int id)
         {
-            return db.JDE_Companies.Count(e => e.CompanyId == id) > 0;
+            return db.JDE_Deliveries.Count(e => e.DeliveryId == id) > 0;
         }
     }
 }

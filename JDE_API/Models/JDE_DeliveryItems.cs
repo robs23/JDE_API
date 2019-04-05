@@ -19,5 +19,6 @@ namespace JDE_API.Models
         public Nullable<int> PartId { get; set; }
         public Nullable<double> Amount { get; set; }
         public Nullable<int> StorageBinId { get; set; }
+        public Nullable<int> TenantId { get; set; }
     }
 }
