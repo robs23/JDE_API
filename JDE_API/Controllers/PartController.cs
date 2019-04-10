@@ -14,13 +14,13 @@ using System.Web.Script.Serialization;
 
 namespace JDE_API.Controllers
 {
-    public class DeliveryItemController : ApiController
+    public class PartController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
 
         [HttpGet]
-        [Route("GetDeliveryItems")]
-        public IHttpActionResult GetDeliveryItems(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
+        [Route("GetParts")]
+        public IHttpActionResult GetParts(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
         {
 
             if (token != null && token.Length > 0)
@@ -28,23 +28,36 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from di in db.JDE_DeliveryItems
-                                 join d in db.JDE_Deliveries on di.DeliveryId equals d.DeliveryId
-                                 join p in db.JDE_Parts on di.PartId equals p.PartId
-                                 join t in db.JDE_Tenants on d.TenantId equals t.TenantId
-                                 where d.TenantId == tenants.FirstOrDefault().TenantId
-                                 orderby d.CreatedOn descending
+                    var items = (from p in db.JDE_Parts
+                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId
+                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId
+                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on p.LmBy equals u2.UserId
+                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId
+                                 orderby p.CreatedOn descending
                                  select new
                                  {
-                                     DeliveryItemId = di.DeliveryItemId,
-                                     DeliveryId = d.DeliveryId,
-                                     DeliveredOn = d.DeliveredOn,
-                                     PartId = di.PartId,
-                                     PartName = p.Name,
-                                     OrderId = d.OrderId,
-                                     Amount = di.Amount,
-                                     StorageBinId = di.StorageBinId,
-                                     TenantId = d.TenantId,
+                                     PartId = p.PartId,
+                                     Name = p.Name,
+                                     Description = p.Description,
+                                     EAM = p.EAN,
+                                     ProducerId = p.ProducerId,
+                                     ProducerName = pr.Name,
+                                     SupplierId = p.SupplierId,
+                                     SupplierName = s.Name,
+                                     Symbol = p.Symbol,
+                                     Destination = p.Destination,
+                                     Appliance = p.Appliance,
+                                     UsedOn = p.UsedOn,
+                                     Token = p.Token,
+                                     CreatedOn = p.CreatedOn,
+                                     CreatedBy = p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     LmOn = p.LmOn,
+                                     LmBy = p.LmBy,
+                                     LmByName = u2.Name + " " + u2.Surname,
+                                     TenantId = p.TenantId,
                                      TenantName = t.TenantName
                                  });
                     if (items.Any())
@@ -103,32 +116,45 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetDeliveryItem")]
-        [ResponseType(typeof(JDE_DeliveryItems))]
-        public IHttpActionResult GetDeliveryItem(string token, int id)
+        [Route("GetPart")]
+        [ResponseType(typeof(JDE_Parts))]
+        public IHttpActionResult GetPart(string token, int id)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from di in db.JDE_DeliveryItems
-                                 join d in db.JDE_Deliveries on di.DeliveryId equals d.DeliveryId
-                                 join p in db.JDE_Parts on di.PartId equals p.PartId
-                                 join t in db.JDE_Tenants on d.TenantId equals t.TenantId
-                                 where d.TenantId == tenants.FirstOrDefault().TenantId && di.DeliveryItemId == id
-                                 orderby d.CreatedOn descending
+                    var items = (from p in db.JDE_Parts
+                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId
+                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId
+                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on p.LmBy equals u2.UserId
+                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.PartId ==id
+                                 orderby p.CreatedOn descending
                                  select new
                                  {
-                                     DeliveryItemId = di.DeliveryItemId,
-                                     DeliveryId = d.DeliveryId,
-                                     DeliveredOn = d.DeliveredOn,
-                                     PartId = di.PartId,
-                                     PartName = p.Name,
-                                     OrderId = d.OrderId,
-                                     Amount = di.Amount,
-                                     StorageBinId = di.StorageBinId,
-                                     TenantId = d.TenantId,
+                                     PartId = p.PartId,
+                                     Name = p.Name,
+                                     Description = p.Description,
+                                     EAM = p.EAN,
+                                     ProducerId = p.ProducerId,
+                                     ProducerName = pr.Name,
+                                     SupplierId = p.SupplierId,
+                                     SupplierName = s.Name,
+                                     Symbol = p.Symbol,
+                                     Destination = p.Destination,
+                                     Appliance = p.Appliance,
+                                     UsedOn = p.UsedOn,
+                                     Token = p.Token,
+                                     CreatedOn = p.CreatedOn,
+                                     CreatedBy = p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     LmOn = p.LmOn,
+                                     LmBy = p.LmBy,
+                                     LmByName = u2.Name + " " + u2.Surname,
+                                     TenantId = p.TenantId,
                                      TenantName = t.TenantName
                                  });
 
@@ -155,21 +181,21 @@ namespace JDE_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditDeliveryItem")]
+        [Route("EditPart")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditDeliveryItem(string token, int id, int UserId, JDE_DeliveryItems item)
+        public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_DeliveryItems.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.DeliveryItemId == id);
+                    var items = db.JDE_Parts.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
                     if (items.Any())
                     {
 
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja pozycji w dostawie", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
                         try
@@ -178,7 +204,7 @@ namespace JDE_API.Controllers
                         }
                         catch (DbUpdateConcurrencyException)
                         {
-                            if (!JDE_DeliveryItemExists(id))
+                            if (!JDE_PartExists(id))
                             {
                                 return NotFound();
                             }
@@ -195,9 +221,9 @@ namespace JDE_API.Controllers
         }
 
         [HttpPost]
-        [Route("CreateDeliveryItem")]
-        [ResponseType(typeof(JDE_DeliveryItems))]
-        public IHttpActionResult CreateDeliveryItem(string token, JDE_DeliveryItems item, int UserId)
+        [Route("CreatePart")]
+        [ResponseType(typeof(JDE_Parts))]
+        public IHttpActionResult CreatePart(string token, JDE_Parts item, int UserId)
         {
             if (token != null && token.Length > 0)
             {
@@ -205,9 +231,10 @@ namespace JDE_API.Controllers
                 if (tenants.Any())
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
-                    db.JDE_DeliveryItems.Add(item);
+                    item.CreatedOn = DateTime.Now;
+                    db.JDE_Parts.Add(item);
                     db.SaveChanges();
-                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie pozycji w dostawie", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
                     db.JDE_Logs.Add(Log);
                     db.SaveChanges();
                     return Ok(item);
@@ -224,20 +251,20 @@ namespace JDE_API.Controllers
         }
 
         [HttpDelete]
-        [Route("DeleteDeliveryItem")]
-        [ResponseType(typeof(JDE_DeliveryItems))]
-        public IHttpActionResult DeleteDeliveryItem(string token, int id, int UserId)
+        [Route("DeletePart")]
+        [ResponseType(typeof(JDE_Parts))]
+        public IHttpActionResult DeletePart(string token, int id, int UserId)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_DeliveryItems.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.DeliveryItemId == id);
+                    var items = db.JDE_Parts.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
                     if (items.Any())
                     {
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie pozycji w dostawie", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
-                        db.JDE_DeliveryItems.Remove(items.FirstOrDefault());
+                        db.JDE_Parts.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
 
@@ -268,9 +295,9 @@ namespace JDE_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool JDE_DeliveryItemExists(int id)
+        private bool JDE_PartExists(int id)
         {
-            return db.JDE_DeliveryItems.Count(e => e.DeliveryItemId == id) > 0;
+            return db.JDE_Parts.Count(e => e.PartId == id) > 0;
         }
     }
 }

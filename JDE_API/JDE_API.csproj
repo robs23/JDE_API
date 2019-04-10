@@ -192,6 +192,7 @@
     <Compile Include="Controllers\HandlingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Controllers\PartController.cs" />
     <Compile Include="Controllers\PlacesController.cs" />
     <Compile Include="Controllers\ProcessController.cs" />
     <Compile Include="Controllers\SetController.cs" />
