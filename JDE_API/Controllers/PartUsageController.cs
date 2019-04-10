@@ -14,13 +14,13 @@ using System.Web.Script.Serialization;
 
 namespace JDE_API.Controllers
 {
-    public class PartController : ApiController
+    public class PartUsageController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
 
         [HttpGet]
-        [Route("GetParts")]
-        public IHttpActionResult GetParts(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
+        [Route("GetPartUsages")]
+        public IHttpActionResult GetPartUsages(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
         {
 
             if (token != null && token.Length > 0)
@@ -28,29 +28,23 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from p in db.JDE_Parts
-                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId
-                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId
-                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on p.LmBy equals u2.UserId
-                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId
-                                 orderby p.CreatedOn descending
+                    var items = (from pu in db.JDE_PartUsages
+                                 join p in db.JDE_Parts on pu.PartId equals p.PartId
+                                 join pl in db.JDE_Places on pu.PlaceId equals pl.PlaceId
+                                 join u in db.JDE_Users on pu.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on pu.LmBy equals u2.UserId
+                                 join t in db.JDE_Tenants on pu.TenantId equals t.TenantId
+                                 where pu.TenantId == tenants.FirstOrDefault().TenantId
+                                 orderby pu.CreatedOn descending
                                  select new
                                  {
+                                     PartUsageId = pu.PartUsageId,
                                      PartId = p.PartId,
-                                     Name = p.Name,
-                                     Description = p.Description,
-                                     EAM = p.EAN,
-                                     ProducerId = p.ProducerId,
-                                     ProducerName = pr.Name,
-                                     SupplierId = p.SupplierId,
-                                     SupplierName = s.Name,
-                                     Symbol = p.Symbol,
-                                     Destination = p.Destination,
-                                     Appliance = p.Appliance,
-                                     UsedOn = p.UsedOn,
-                                     Token = p.Token,
+                                     PartName = p.Name,
+                                     PlaceId = pu.PlaceId,
+                                     PlaceName = pl.Name,
+                                     HandlingId = pu.HandlingId,
+                                     Amount = pu.Amount,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -116,38 +110,32 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetPart")]
-        [ResponseType(typeof(JDE_Parts))]
-        public IHttpActionResult GetPart(string token, int id)
+        [Route("GetPartUsage")]
+        [ResponseType(typeof(JDE_PartUsages))]
+        public IHttpActionResult GetPartUsage(string token, int id)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from p in db.JDE_Parts
-                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId
-                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId
-                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on p.LmBy equals u2.UserId
-                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.PartId ==id
-                                 orderby p.CreatedOn descending
+                    var items = (from pu in db.JDE_PartUsages
+                                 join p in db.JDE_Parts on pu.PartId equals p.PartId
+                                 join pl in db.JDE_Places on pu.PlaceId equals pl.PlaceId
+                                 join u in db.JDE_Users on pu.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on pu.LmBy equals u2.UserId
+                                 join t in db.JDE_Tenants on pu.TenantId equals t.TenantId
+                                 where pu.TenantId == tenants.FirstOrDefault().TenantId && pu.PartUsageId == id
+                                 orderby pu.CreatedOn descending
                                  select new
                                  {
+                                     PartUsageId = pu.PartUsageId,
                                      PartId = p.PartId,
-                                     Name = p.Name,
-                                     Description = p.Description,
-                                     EAM = p.EAN,
-                                     ProducerId = p.ProducerId,
-                                     ProducerName = pr.Name,
-                                     SupplierId = p.SupplierId,
-                                     SupplierName = s.Name,
-                                     Symbol = p.Symbol,
-                                     Destination = p.Destination,
-                                     Appliance = p.Appliance,
-                                     UsedOn = p.UsedOn,
-                                     Token = p.Token,
+                                     PartName = p.Name,
+                                     PlaceId = pu.PlaceId,
+                                     PlaceName = pl.Name,
+                                     HandlingId = pu.HandlingId,
+                                     Amount = pu.Amount,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -181,21 +169,21 @@ namespace JDE_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditPart")]
+        [Route("EditPartUsage")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item)
+        public IHttpActionResult EditPartUsage(string token, int id, int UserId, JDE_PartUsages item)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Parts.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
+                    var items = db.JDE_PartUsages.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartUsageId == id);
                     if (items.Any())
                     {
 
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zużycia części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
                         try
@@ -204,7 +192,7 @@ namespace JDE_API.Controllers
                         }
                         catch (DbUpdateConcurrencyException)
                         {
-                            if (!JDE_PartExists(id))
+                            if (!JDE_PartUsageExists(id))
                             {
                                 return NotFound();
                             }
@@ -221,9 +209,9 @@ namespace JDE_API.Controllers
         }
 
         [HttpPost]
-        [Route("CreatePart")]
-        [ResponseType(typeof(JDE_Parts))]
-        public IHttpActionResult CreatePart(string token, JDE_Parts item, int UserId)
+        [Route("CreatePartUsage")]
+        [ResponseType(typeof(JDE_PartUsages))]
+        public IHttpActionResult CreatePartUsage(string token, JDE_PartUsages item, int UserId)
         {
             if (token != null && token.Length > 0)
             {
@@ -232,9 +220,9 @@ namespace JDE_API.Controllers
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
                     item.CreatedOn = DateTime.Now;
-                    db.JDE_Parts.Add(item);
+                    db.JDE_PartUsages.Add(item);
                     db.SaveChanges();
-                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zużycie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
                     db.JDE_Logs.Add(Log);
                     db.SaveChanges();
                     return Ok(item);
@@ -251,20 +239,20 @@ namespace JDE_API.Controllers
         }
 
         [HttpDelete]
-        [Route("DeletePart")]
-        [ResponseType(typeof(JDE_Parts))]
-        public IHttpActionResult DeletePart(string token, int id, int UserId)
+        [Route("DeletePartUsage")]
+        [ResponseType(typeof(JDE_PartUsages))]
+        public IHttpActionResult DeletePartUsage(string token, int id, int UserId)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Parts.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
+                    var items = db.JDE_PartUsages.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartUsageId == id);
                     if (items.Any())
                     {
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
-                        db.JDE_Parts.Remove(items.FirstOrDefault());
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie zużycia częśći", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
+                        db.JDE_PartUsages.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
 
@@ -295,9 +283,9 @@ namespace JDE_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool JDE_PartExists(int id)
+        private bool JDE_PartUsageExists(int id)
         {
-            return db.JDE_Parts.Count(e => e.PartId == id) > 0;
+            return db.JDE_PartUsages.Count(e => e.PartUsageId == id) > 0;
         }
     }
 }
