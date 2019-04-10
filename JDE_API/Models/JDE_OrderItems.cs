@@ -12,17 +12,16 @@ namespace JDE_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class JDE_Orders
+    public partial class JDE_OrderItems
     {
-        public int OrderId { get; set; }
-        public string OrderNo { get; set; }
-        public string SuppliersOrderNo { get; set; }
-        public Nullable<System.DateTime> DeliveryOn { get; set; }
-        public Nullable<int> SupplierId { get; set; }
-        public Nullable<System.DateTime> CreatedOn { get; set; }
+        public int OrderItemId { get; set; }
+        public Nullable<int> OrderId { get; set; }
+        public Nullable<int> PartId { get; set; }
+        public Nullable<double> Amount { get; set; }
         public Nullable<int> CreatedBy { get; set; }
-        public Nullable<System.DateTime> LmOn { get; set; }
+        public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> LmBy { get; set; }
+        public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> TenantId { get; set; }
     }
 }
