@@ -194,6 +194,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
+    <Compile Include="Controllers\OrderItemController.cs" />
     <Compile Include="Controllers\PartController.cs" />
     <Compile Include="Controllers\PartUsageController.cs" />
     <Compile Include="Controllers\PlacesController.cs" />
