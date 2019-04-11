@@ -201,6 +201,7 @@
     <Compile Include="Controllers\ProcessController.cs" />
     <Compile Include="Controllers\SetController.cs" />
     <Compile Include="Controllers\SettingController.cs" />
+    <Compile Include="Controllers\StockController.cs" />
     <Compile Include="Controllers\TenantController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
