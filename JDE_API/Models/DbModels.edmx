@@ -70,6 +70,18 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
+        <EntityType Name="JDE_CompanyTypes">
+          <Key>
+            <PropertyRef Name="CompanyTypeId" />
+          </Key>
+          <Property Name="CompanyTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+        </EntityType>
         <EntityType Name="JDE_Deliveries">
           <Key>
             <PropertyRef Name="DeliveryId" />
@@ -315,6 +327,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Boms" EntityType="Self.JDE_Boms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_CompanyTypes" EntityType="Self.JDE_CompanyTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Deliveries" EntityType="Self.JDE_Deliveries" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_DeliveryItems" EntityType="Self.JDE_DeliveryItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" Schema="dbo" store:Type="Tables" />
@@ -508,6 +521,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
           <EntitySet Name="JDE_OrderItems" EntityType="DbModels.JDE_OrderItems" />
           <EntitySet Name="JDE_Orders" EntityType="DbModels.JDE_Orders" />
+          <EntitySet Name="JDE_CompanyTypes" EntityType="DbModels.JDE_CompanyTypes" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -680,6 +694,18 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_CompanyTypes">
+          <Key>
+            <PropertyRef Name="CompanyTypeId" />
+          </Key>
+          <Property Name="CompanyTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1008,6 +1034,19 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
                 <ScalarProperty Name="SuppliersOrderNo" ColumnName="SuppliersOrderNo" />
                 <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
                 <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_CompanyTypes">
+            <EntityTypeMapping TypeName="DbModels.JDE_CompanyTypes">
+              <MappingFragment StoreEntitySet="JDE_CompanyTypes">
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CompanyTypeId" ColumnName="CompanyTypeId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

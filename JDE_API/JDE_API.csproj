@@ -187,6 +187,7 @@
     <Compile Include="Controllers\AreaController.cs" />
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\CompanyController.cs" />
+    <Compile Include="Controllers\CompanyTypeController.cs" />
     <Compile Include="Controllers\DeliveryController.cs" />
     <Compile Include="Controllers\DeliveryItemController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -233,6 +234,9 @@
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\JDE_Companies.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JDE_CompanyTypes.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\JDE_Deliveries.cs">
