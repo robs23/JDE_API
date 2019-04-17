@@ -55,7 +55,8 @@ namespace JDE_API.Controllers
                     var items = (from c in db.JDE_Companies
                                  join ct in db.JDE_CompanyTypes on c.TypeId equals ct.CompanyTypeId
                                  join u in db.JDE_Users on c.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on c.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on c.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on c.TenantId equals t.TenantId
                                  where c.TenantId == tenants.FirstOrDefault().TenantId && c.CreatedOn >= dFrom && c.CreatedOn <= dTo
                                  orderby c.CreatedOn descending
@@ -68,7 +69,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = c.LmOn,
                                      LmBy = c.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      Street = c.Street,
                                      Street2 = c.Street2,
                                      BuildingNo = c.BuildingNo,
@@ -149,7 +150,8 @@ namespace JDE_API.Controllers
                     var items = (from c in db.JDE_Companies
                                  join ct in db.JDE_CompanyTypes on c.TypeId equals ct.CompanyTypeId
                                  join u in db.JDE_Users on c.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on c.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on c.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on c.TenantId equals t.TenantId
                                  where c.TenantId == tenants.FirstOrDefault().TenantId && c.CompanyId ==id
                                  orderby c.CreatedOn descending
@@ -162,7 +164,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = c.LmOn,
                                      LmBy = c.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      Street = c.Street,
                                      Street2 = c.Street2,
                                      BuildingNo = c.BuildingNo,
@@ -215,6 +217,8 @@ namespace JDE_API.Controllers
                         
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja firmy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
                         db.Entry(item).State = EntityState.Modified;
                         try
                         {

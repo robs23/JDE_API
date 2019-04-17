@@ -54,7 +54,8 @@ namespace JDE_API.Controllers
 
                     var items = (from d in db.JDE_Deliveries
                                  join u in db.JDE_Users on d.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on d.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on d.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on d.TenantId equals t.TenantId
                                  where d.TenantId == tenants.FirstOrDefault().TenantId && d.CreatedOn >= dFrom && d.CreatedOn <= dTo
                                  orderby d.CreatedOn descending
@@ -68,7 +69,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = d.LmOn,
                                      LmBy = d.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = d.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -139,7 +140,8 @@ namespace JDE_API.Controllers
                 {
                     var items = (from d in db.JDE_Deliveries
                                  join u in db.JDE_Users on d.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on d.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on d.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on d.TenantId equals t.TenantId
                                  where d.TenantId == tenants.FirstOrDefault().TenantId && d.DeliveryId==id
                                  orderby d.CreatedOn descending
@@ -153,7 +155,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = d.LmOn,
                                      LmBy = d.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = d.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -197,6 +199,8 @@ namespace JDE_API.Controllers
 
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja dostawy", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
                         db.Entry(item).State = EntityState.Modified;
                         try
                         {

@@ -19,8 +19,8 @@ namespace JDE_API.Controllers
         private Models.DbModel db = new Models.DbModel();
 
         [HttpGet]
-        [Route("GetBom")]
-        public IHttpActionResult GetBom(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
+        [Route("GetBoms")]
+        public IHttpActionResult GetBoms(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
         {
 
             if (token != null && token.Length > 0)
@@ -32,7 +32,8 @@ namespace JDE_API.Controllers
                                  join p in db.JDE_Parts on b.PartId equals p.PartId
                                  join pl in db.JDE_Places on b.PlaceId equals pl.PlaceId
                                  join u in db.JDE_Users on b.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on b.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on b.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on b.TenantId equals t.TenantId
                                  where b.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby b.CreatedOn descending
@@ -52,7 +53,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = b.LmOn,
                                      LmBy = b.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = b.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -125,7 +126,8 @@ namespace JDE_API.Controllers
                                  join p in db.JDE_Parts on b.PartId equals p.PartId
                                  join pl in db.JDE_Places on b.PlaceId equals pl.PlaceId
                                  join u in db.JDE_Users on b.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on b.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on b.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on b.TenantId equals t.TenantId
                                  where b.TenantId == tenants.FirstOrDefault().TenantId && b.BomId==id
                                  orderby b.CreatedOn descending
@@ -145,7 +147,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = b.LmOn,
                                      LmBy = b.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = b.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -189,6 +191,8 @@ namespace JDE_API.Controllers
 
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja BOMu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
                         db.Entry(item).State = EntityState.Modified;
                         try
                         {

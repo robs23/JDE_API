@@ -31,7 +31,8 @@ namespace JDE_API.Controllers
                     var items = (from x in db.JDE_Stocks
                                  join p in db.JDE_Parts on x.PartId equals p.PartId
                                  join u in db.JDE_Users on x.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on x.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on x.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on x.TenantId equals t.TenantId
                                  where x.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby x.CreatedOn descending
@@ -49,7 +50,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = x.LmOn,
                                      LmBy = x.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = x.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -121,7 +122,8 @@ namespace JDE_API.Controllers
                     var items = (from x in db.JDE_Stocks
                                  join p in db.JDE_Parts on x.PartId equals p.PartId
                                  join u in db.JDE_Users on x.CreatedBy equals u.UserId
-                                 join u2 in db.JDE_Users on x.LmBy equals u2.UserId
+                                 join u2 in db.JDE_Users on x.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on x.TenantId equals t.TenantId
                                  where x.TenantId == tenants.FirstOrDefault().TenantId && x.StockId==id
                                  orderby x.CreatedOn descending
@@ -139,7 +141,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LmOn = x.LmOn,
                                      LmBy = x.LmBy,
-                                     LmByName = u2.Name + " " + u2.Surname,
+                                     LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = x.TenantId,
                                      TenantName = t.TenantName
                                  });
@@ -183,6 +185,8 @@ namespace JDE_API.Controllers
 
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja stanów magazynowych", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
                         db.Entry(item).State = EntityState.Modified;
                         try
                         {
