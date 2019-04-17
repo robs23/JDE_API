@@ -42,9 +42,9 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Parts> JDE_Parts { get; set; }
         public virtual DbSet<JDE_PartUsages> JDE_PartUsages { get; set; }
         public virtual DbSet<JDE_Stocks> JDE_Stocks { get; set; }
-        public virtual DbSet<JDE_Companies> JDE_Companies { get; set; }
         public virtual DbSet<JDE_OrderItems> JDE_OrderItems { get; set; }
         public virtual DbSet<JDE_Orders> JDE_Orders { get; set; }
         public virtual DbSet<JDE_CompanyTypes> JDE_CompanyTypes { get; set; }
+        public virtual DbSet<JDE_Companies> JDE_Companies { get; set; }
     }
 }

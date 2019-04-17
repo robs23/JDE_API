@@ -48,13 +48,11 @@
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="JDE_Companies">
           <Key>
             <PropertyRef Name="CompanyId" />
           </Key>
-          <Property Name="CompanyId" Type="int" Nullable="false" />
+          <Property Name="CompanyId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="100" />
           <Property Name="Street" Type="nvarchar" MaxLength="100" />
           <Property Name="Street2" Type="nvarchar" MaxLength="100" />
@@ -327,6 +325,7 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Boms" EntityType="Self.JDE_Boms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Companies" EntityType="Self.JDE_Companies" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_CompanyTypes" EntityType="Self.JDE_CompanyTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Deliveries" EntityType="Self.JDE_Deliveries" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_DeliveryItems" EntityType="Self.JDE_DeliveryItems" Schema="dbo" store:Type="Tables" />
@@ -344,25 +343,6 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySet Name="JDE_Stocks" EntityType="Self.JDE_Stocks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="JDE_Companies" EntityType="Self.JDE_Companies" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [JDE_Companies].[CompanyId] AS [CompanyId], 
-    [JDE_Companies].[Name] AS [Name], 
-    [JDE_Companies].[Street] AS [Street], 
-    [JDE_Companies].[Street2] AS [Street2], 
-    [JDE_Companies].[BuildingNo] AS [BuildingNo], 
-    [JDE_Companies].[LocalNo] AS [LocalNo], 
-    [JDE_Companies].[ZipCode] AS [ZipCode], 
-    [JDE_Companies].[City] AS [City], 
-    [JDE_Companies].[Country] AS [Country], 
-    [JDE_Companies].[TypeId] AS [TypeId], 
-    [JDE_Companies].[CreatedBy] AS [CreatedBy], 
-    [JDE_Companies].[CreatedOn] AS [CreatedOn], 
-    [JDE_Companies].[LmBy] AS [LmBy], 
-    [JDE_Companies].[LmOn] AS [LmOn], 
-    [JDE_Companies].[TenantId] AS [TenantId]
-    FROM [dbo].[JDE_Companies] AS [JDE_Companies]</DefiningQuery>
-          </EntitySet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -518,10 +498,10 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <EntitySet Name="JDE_Parts" EntityType="DbModels.JDE_Parts" />
           <EntitySet Name="JDE_PartUsages" EntityType="DbModels.JDE_PartUsages" />
           <EntitySet Name="JDE_Stocks" EntityType="DbModels.JDE_Stocks" />
-          <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
           <EntitySet Name="JDE_OrderItems" EntityType="DbModels.JDE_OrderItems" />
           <EntitySet Name="JDE_Orders" EntityType="DbModels.JDE_Orders" />
           <EntitySet Name="JDE_CompanyTypes" EntityType="DbModels.JDE_CompanyTypes" />
+          <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -646,26 +626,6 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="TenantId" Type="Int32" />
           <Property Name="StorageBinId" Type="Int32" />
         </EntityType>
-        <EntityType Name="JDE_Companies">
-          <Key>
-            <PropertyRef Name="CompanyId" />
-          </Key>
-          <Property Name="CompanyId" Type="Int32" Nullable="false" />
-          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Street" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Street2" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="BuildingNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="LocalNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="ZipCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Country" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="TypeId" Type="Int32" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="LmBy" Type="Int32" />
-          <Property Name="LmOn" Type="DateTime" Precision="3" />
-          <Property Name="TenantId" Type="Int32" />
-        </EntityType>
         <EntityType Name="JDE_OrderItems">
           <Key>
             <PropertyRef Name="OrderItemId" />
@@ -706,6 +666,26 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
           <Property Name="TenantId" Type="Int32" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="JDE_Companies">
+          <Key>
+            <PropertyRef Name="CompanyId" />
+          </Key>
+          <Property Name="CompanyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Street" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Street2" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="BuildingNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="LocalNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="ZipCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="TypeId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -985,27 +965,6 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Companies">
-            <EntityTypeMapping TypeName="DbModels.JDE_Companies">
-              <MappingFragment StoreEntitySet="JDE_Companies">
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
-                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
-                <ScalarProperty Name="Country" ColumnName="Country" />
-                <ScalarProperty Name="City" ColumnName="City" />
-                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
-                <ScalarProperty Name="LocalNo" ColumnName="LocalNo" />
-                <ScalarProperty Name="BuildingNo" ColumnName="BuildingNo" />
-                <ScalarProperty Name="Street2" ColumnName="Street2" />
-                <ScalarProperty Name="Street" ColumnName="Street" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="JDE_OrderItems">
             <EntityTypeMapping TypeName="DbModels.JDE_OrderItems">
               <MappingFragment StoreEntitySet="JDE_OrderItems">
@@ -1047,6 +1006,27 @@ warning 6002: The table/view 'robs23_testowa.dbo.JDE_Companies' does not have a 
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="CompanyTypeId" ColumnName="CompanyTypeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Companies">
+            <EntityTypeMapping TypeName="DbModels.JDE_Companies">
+              <MappingFragment StoreEntitySet="JDE_Companies">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+                <ScalarProperty Name="LocalNo" ColumnName="LocalNo" />
+                <ScalarProperty Name="BuildingNo" ColumnName="BuildingNo" />
+                <ScalarProperty Name="Street2" ColumnName="Street2" />
+                <ScalarProperty Name="Street" ColumnName="Street" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

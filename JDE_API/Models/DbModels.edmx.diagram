@@ -22,10 +22,10 @@
         <EntityTypeShape EntityType="DbModels.JDE_Parts" Width="1.5" PointX="10.375" PointY="8.25" />
         <EntityTypeShape EntityType="DbModels.JDE_PartUsages" Width="1.5" PointX="7.75" PointY="10.25" />
         <EntityTypeShape EntityType="DbModels.JDE_Stocks" Width="1.5" PointX="13.75" PointY="0.75" />
-        <EntityTypeShape EntityType="DbModels.JDE_Companies" Width="1.5" PointX="3.375" PointY="8.875" />
         <EntityTypeShape EntityType="DbModels.JDE_OrderItems" Width="1.5" PointX="11.375" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Orders" Width="1.5" PointX="13.25" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_CompanyTypes" Width="1.5" PointX="12.375" PointY="8.75" />
+        <EntityTypeShape EntityType="DbModels.JDE_Companies" Width="1.5" PointX="12.375" PointY="12.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
