@@ -327,6 +327,7 @@ namespace JDE_API.Controllers
                 if (tenants.Any())
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
+                    item.PlaceToken = Static.Utilities.GetToken();
                     db.JDE_Places.Add(item);
                     db.SaveChanges();
                     JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie zasobu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
