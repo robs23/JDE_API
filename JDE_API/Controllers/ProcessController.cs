@@ -23,7 +23,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcesses")]
-        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null)
+        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -138,13 +138,21 @@ namespace JDE_API.Controllers
                     {
                         if (query != null)
                         {
-                            items = items.Where(query);
+                            if(query.IndexOf("Length")>0 || query.IndexOf("Status")>0)
+                            {
+                                ProcessQuery pq = new ProcessQuery(query);
+                                length = pq.Length;
+                                status = pq.Status;
+                                query = pq.Query;
+                            }
+                            items = items.Where(query);                        
                         }
 
-                        if (length != null)
+                        if (length != null || status !=null)
                         {
                             var nItems = items.ToList();
                             nItems = FilterByLength(nItems, length);
+                            nItems = FilterByStatus(nItems, status);
                             if (total == 0 && page > 0)
                             {
                                 int pageSize = RuntimeSettings.PageSize;
@@ -213,6 +221,8 @@ namespace JDE_API.Controllers
                 return NotFound();
             }
         }
+
+        
 
         [HttpGet]
         [Route("GetUsersOpenProcesses")]
@@ -436,6 +446,89 @@ namespace JDE_API.Controllers
                     nItems = nItems.Where(i => i.Length < mins).ToList();
                 }
 
+            }
+            return nItems;
+        }
+
+        private List<Process> FilterByStatus(List<Process> nItems, string status)
+        {
+            int start = 0;
+            int end = 0;
+            string word = "";
+
+            if (status.Contains("Status.ToLower().Contains") || status.Contains("Status="))
+            {
+                //Contains or equal to
+                //let's get just query parameter
+                if (status.Contains("Contains"))
+                {
+                    word = "Status.ToLower().Contains";
+                }
+                else
+                {
+                    word = "Status=";
+                }
+                status = status.Replace(word, "");
+                start = status.IndexOf("/");
+                end = status.IndexOf("/", start);
+                status = status.Substring(start, end - start);
+                if ("Zrealizowany".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == true && i.IsSuccessfull == true).ToList();
+                }
+                else if ("Zakończony".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == true).ToList();
+                }
+                else if ("Wstrzymany".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == true).ToList();
+                }
+                else if ("Rozpoczęty".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == false && i.IsActive==true).ToList();
+                }
+                else if ("Planowany".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsSuccessfull == false && i.IsActive==false && i.IsFrozen==false).ToList();
+                }
+                
+            }else if (status.Contains("!Status.ToLower().Contains") || status.Contains("Status<>"))
+            {
+                //Doesn't contain or different than
+                //let's get just query parameter
+                if (status.Contains("Contains"))
+                {
+                    word = "!Status.ToLower().Contains";
+                }
+                else
+                {
+                    word = "Status<>";
+                }
+                status = status.Replace(word, "");
+                start = status.IndexOf("/");
+                end = status.IndexOf("/", start);
+                status = status.Substring(start, end - start);
+                if ("Zrealizowany".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false).ToList();
+                }
+                else if ("Zakończony".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false).ToList();
+                }
+                else if ("Wstrzymany".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsFrozen == false).ToList();
+                }
+                else if ("Rozpoczęty".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsActive == false).ToList();
+                }
+                else if ("Planowany".Contains(status))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == true || i.IsSuccessfull == true || i.IsActive == true || i.IsFrozen == true).ToList();
+                }
             }
             return nItems;
         }
@@ -1323,6 +1416,37 @@ namespace JDE_API.Controllers
         public string Description { get; set; }
         public int? TenantId { get; set; }
         public string TenantName { get; set; }
+    }
+
+    public class ProcessQuery
+    {
+        public string OrginalQuery { get; set; }
+        public string Query { get; set; }
+        public string Length { get; set; }
+        public string Status { get; set; }
+
+        public ProcessQuery(string query)
+        {
+            this.OrginalQuery = query;
+            this.Query = query;
+            int start = 0;
+            int end = 0;
+            if (query.IndexOf("Length")>0)
+            {
+                //contains length
+                start = query.IndexOf("Length");
+                end = query.IndexOf(" ", start);
+                this.Length = query.Substring(start, end - start);
+                this.Query = query.Remove(start, end + 1);
+            }
+            if (query.IndexOf("Status") > 0)
+            {
+                start = this.Query.IndexOf("Status");
+                end = this.Query.IndexOf(" ", start);
+                this.Status = query.Substring(start, end - start);
+                this.Query = query.Remove(start, end + 1);
+            }
+        }
     }
 
     public class Process
