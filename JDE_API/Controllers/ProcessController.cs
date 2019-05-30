@@ -138,21 +138,25 @@ namespace JDE_API.Controllers
                     {
                         if (query != null)
                         {
-                            if(query.IndexOf("Length")>0 || query.IndexOf("Status")>0)
+                            if(query.IndexOf("Length")>=0 || query.IndexOf("Status")>=0)
                             {
                                 ProcessQuery pq = new ProcessQuery(query);
                                 length = pq.Length;
                                 status = pq.Status;
                                 query = pq.Query;
                             }
-                            items = items.Where(query);                        
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                items = items.Where(query);
+                            }                
                         }
 
-                        if (length != null || status !=null)
+                        if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status))
                         {
                             var nItems = items.ToList();
-                            nItems = FilterByLength(nItems, length);
-                            nItems = FilterByStatus(nItems, status);
+                            if (!string.IsNullOrEmpty(length)) {nItems = FilterByLength(nItems, length); }
+                            if (!string.IsNullOrEmpty(status)) {nItems = FilterByStatus(nItems, status); }
+                            
                             if (total == 0 && page > 0)
                             {
                                 int pageSize = RuntimeSettings.PageSize;
@@ -1431,20 +1435,75 @@ namespace JDE_API.Controllers
             this.Query = query;
             int start = 0;
             int end = 0;
-            if (query.IndexOf("Length")>0)
+            if (query.IndexOf("Length")>=0)
             {
                 //contains length
                 start = query.IndexOf("Length");
-                end = query.IndexOf(" ", start);
+
+                if (query.IndexOf("AND", start) >= 0)
+                {
+                    //it has got more parameters later
+                    end = query.IndexOf(" ", start);
+                }
+                else
+                {
+                    //it's the last parameter
+                    end = query.Length;
+                }
+                
                 this.Length = query.Substring(start, end - start);
-                this.Query = query.Remove(start, end + 1);
+                this.Query = query.Replace(this.Length, "");
+                //check if we need to remove some ANDs from query
+                DropAnd();
+
+                if (this.Length.Contains("Length"))
+                {
+                    //still contains length keyword
+                    int x = this.Length.IndexOf("Length")+6;
+                    this.Length = this.Length.Remove(0, x);
+                }
             }
             if (query.IndexOf("Status") > 0)
             {
                 start = this.Query.IndexOf("Status");
+                if (query.IndexOf("AND", start) >= 0)
+                {
+                    //it has got more parameters later
+                    end = this.Query.IndexOf(" ", start);
+                }
+                else
+                {
+                    //it's the last parameter
+                    end = query.Length - 1;
+                }
                 end = this.Query.IndexOf(" ", start);
                 this.Status = query.Substring(start, end - start);
-                this.Query = query.Remove(start, end + 1);
+                this.Query = query.Replace(this.Status, "");
+                DropAnd();
+            }
+        }
+
+        public void DropAnd()
+        {
+            if (!string.IsNullOrEmpty(Query))
+            {
+                if (Query.Contains("AND")) ;
+                string[] a = Regex.Split(Query,"AND");
+                int len = 0;
+                int start;
+                int end;
+                string output = "";
+
+                a = a.Where(val => val != " " && val != "  ").ToArray();//drop empty elements, what remains are goodies
+
+                for (int i = 0; i < a.Length; i++)
+                {
+                    output += a[i] + "AND";
+                }
+                //drop last AND
+                output = output.Substring(0, output.Length - 3);
+                output = output.Trim();
+                Query = output;
             }
         }
     }
