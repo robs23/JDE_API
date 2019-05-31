@@ -153,9 +153,9 @@ namespace JDE_API.Controllers
 
                         if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status))
                         {
-                            var nItems = items.ToList();
-                            if (!string.IsNullOrEmpty(length)) {nItems = FilterByLength(nItems, length); }
-                            if (!string.IsNullOrEmpty(status)) {nItems = FilterByStatus(nItems, status); }
+                            List<IProcessable> nItems = items.ToList<IProcessable>();
+                            if (!string.IsNullOrEmpty(length)) {nItems = Static.Utilities.FilterByLength(nItems, length); }
+                            if (!string.IsNullOrEmpty(status)) {nItems = Static.Utilities.FilterByStatus(nItems, status); }
                             
                             if (total == 0 && page > 0)
                             {
@@ -349,8 +349,8 @@ namespace JDE_API.Controllers
 
                         if (length != null)
                         {
-                            var nItems = items.ToList();
-                            nItems = FilterByLength(nItems, length);
+                            List<IProcessable> nItems = items.ToList<IProcessable>();
+                            nItems = Static.Utilities.FilterByLength(nItems, length);
                             if (total == 0 && page > 0)
                             {
                                 int pageSize = RuntimeSettings.PageSize;
@@ -418,127 +418,6 @@ namespace JDE_API.Controllers
             {
                 return NotFound();
             }
-        }
-
-        public List<Process> FilterByLength(List<Process> nItems, string length)
-        {
-            var min = Regex.Match(length, @"\d+").Value;
-            int mins = 0;
-            int.TryParse(min, out mins);
-            var sign = length.Substring(0, length.Length - min.Length);
-            if ((sign.Equals(">") || sign.Equals("<") || sign.Equals("=<") || sign.Equals("<=") || sign.Equals("=>") || sign.Equals(">=") || sign.Equals("=")) && mins >= 0)
-            {
-                // don't do anything unless you've got both min and sign
-                if (sign.Equals("="))
-                {
-                    nItems = nItems.Where(i => i.Length == mins).ToList();
-                }
-                else if (sign.Equals("<=") || sign.Equals("=<"))
-                {
-                    nItems = nItems.Where(i => i.Length <= mins).ToList();
-                }
-                else if (sign.Equals(">=") || sign.Equals("=>"))
-                {
-                    nItems = nItems.Where(i => i.Length >= mins).ToList();
-                }
-                else if (sign.Equals(">"))
-                {
-                    nItems = nItems.Where(i => i.Length > mins).ToList();
-                }
-                else if (sign.Equals("<"))
-                {
-                    nItems = nItems.Where(i => i.Length < mins).ToList();
-                }
-
-            }
-            return nItems;
-        }
-
-        private List<Process> FilterByStatus(List<Process> nItems, string status)
-        {
-            int start = 0;
-            int end = 0;
-            string word = "";
-
-            if (status.Contains("!Status.ToLower().Contains") || status.Contains("Status<>"))
-            {
-                //Doesn't contain or different than
-                //let's get just query parameter
-                if (status.Contains("Contains"))
-                {
-                    word = "!Status.ToLower().Contains";
-                }
-                else
-                {
-                    word = "Status<>";
-                }
-                status = status.Replace(word, "");
-                start = status.IndexOf("\"");
-                end = status.IndexOf("\"", start + 1);
-                status = status.Substring(start + 1, end - (start + 1));
-                if ("Zrealizowany".Contains(status) || ("Zrealizowany".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsSuccessfull == false).ToList();
-                }
-                else if ("Zakończony".Contains(status) || ("Zakończony".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false).ToList();
-                }
-                else if ("Wstrzymany".Contains(status) || ("Wstrzymany".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsFrozen == false).ToList();
-                }
-                else if ("Rozpoczęty".Contains(status) || ("Rozpoczęty".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsActive == false).ToList();
-                }
-                else if ("Planowany".Contains(status) || ("Planowany".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == true || i.IsSuccessfull == true || i.IsActive == true || i.IsFrozen == true).ToList();
-                }
-            }else if (status.Contains("Status.ToLower().Contains") || status.Contains("Status="))
-            {
-                //Contains or equal to
-                //let's get just query parameter
-                if (status.Contains("Contains"))
-                {
-                    word = "Status.ToLower().Contains";
-                }
-                else
-                {
-                    word = "Status=";
-                }
-                status = status.Replace(word, "");
-                start = status.IndexOf("\"");
-                end = status.IndexOf("\"", start+1);
-                status = status.Substring(start+1, end - (start+1));
-                if ("Zrealizowany".Contains(status) || ("Zrealizowany".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsSuccessfull == true).ToList();
-                }
-                else if ("Zakończony".Contains(status) || ("Zakończony".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == true).ToList();
-                }
-                else if ("Wstrzymany".Contains(status) || ("Wstrzymany".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == true).ToList();
-                }
-                else if ("Rozpoczęty".Contains(status) || ("Rozpoczęty".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == false && i.IsActive==true).ToList();
-                }
-                else if ("Planowany".Contains(status) || ("Planowany".ToLower().Contains(status)))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsSuccessfull == false && i.IsActive==false && i.IsFrozen==false).ToList();
-                }
-                else
-                {
-                    nItems.Clear();
-                }
-                
-            } 
-            return nItems;
         }
 
         public string GetHandlingStatus(int ProcessId, bool open = false)
@@ -1522,7 +1401,7 @@ namespace JDE_API.Controllers
         }
     }
 
-    public class Process
+    public class Process : IProcessable
     {
         public int ProcessId { get; set; }
         public string Description { get; set; }

@@ -21,7 +21,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetHandlings")]
-        public IHttpActionResult GetHandlings(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null)
+        public IHttpActionResult GetHandlings(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
         {
 
             if (token != null && token.Length > 0)
@@ -90,13 +90,25 @@ namespace JDE_API.Controllers
                     {
                         if (query != null)
                         {
-                            items = items.Where(query);
-                        }
+                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0)
+                            {
+                                ProcessQuery pq = new ProcessQuery(query);
+                                length = pq.Length;
+                                status = pq.Status;
+                                query = pq.Query;
+                            }
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                items = items.Where(query);
+                            }
 
-                        if (length != null)
+                        }
+                        if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status))
                         {
-                            var nItems = items.ToList();
-                            nItems = FilterByLength(nItems, length);
+                            List<IProcessable> nItems = items.ToList<IProcessable>();
+                            if (!string.IsNullOrEmpty(length)) { nItems = Static.Utilities.FilterByLength(nItems, length); }
+                            if (!string.IsNullOrEmpty(status)) { nItems = Static.Utilities.FilterByStatus(nItems, status); }
+
                             if (total == 0 && page > 0)
                             {
                                 int pageSize = RuntimeSettings.PageSize;
@@ -347,40 +359,6 @@ namespace JDE_API.Controllers
             }
         }
 
-        private List<Handling> FilterByLength(List<Handling> nItems, string length)
-        {
-            var min = Regex.Match(length, @"\d+").Value;
-            int mins = 0;
-            int.TryParse(min, out mins);
-            var sign = length.Substring(0, length.Length - min.Length);
-            if ((sign.Equals(">") || sign.Equals("<") || sign.Equals("=<") || sign.Equals("<=") || sign.Equals("=>") || sign.Equals(">=") || sign.Equals("=")) && mins >= 0)
-            {
-                // don't do anything unless you've got both min and sign
-                if (sign.Equals("="))
-                {
-                    nItems = nItems.Where(i => i.Length == mins).ToList();
-                }
-                else if (sign.Equals("<=") || sign.Equals("=<"))
-                {
-                    nItems = nItems.Where(i => i.Length <= mins).ToList();
-                }
-                else if (sign.Equals(">=") || sign.Equals("=>"))
-                {
-                    nItems = nItems.Where(i => i.Length >= mins).ToList();
-                }
-                else if (sign.Equals(">"))
-                {
-                    nItems = nItems.Where(i => i.Length > mins).ToList();
-                }
-                else if (sign.Equals("<"))
-                {
-                    nItems = nItems.Where(i => i.Length < mins).ToList();
-                }
-
-            }
-            return nItems;
-        }
-
         [HttpGet]
         [Route("CompleteUsersHandlings")]
         [ResponseType(typeof(void))]
@@ -457,7 +435,16 @@ namespace JDE_API.Controllers
         }
     }
 
-    public class Handling
+    public interface IProcessable
+    {
+        int? Length { get; }
+        bool? IsActive { get; set; }
+        bool? IsFrozen { get; set; }
+        bool? IsCompleted { get; set; }
+        bool? IsSuccessfull { get; set; }
+    }
+
+    public class Handling : IProcessable
     {
         public int HandlingId { get; set; }
         public int ProcessId { get; set; }
@@ -474,6 +461,7 @@ namespace JDE_API.Controllers
         public bool? IsActive { get; set; }
         public bool? IsFrozen { get; set; }
         public bool? IsCompleted { get; set; }
+        public bool? IsSuccessfull { get; set; }
         public string Output { get; set; }
         public int? TenantId { get; set; }
         public string TenantName { get; set; }
@@ -500,5 +488,7 @@ namespace JDE_API.Controllers
                 }
             }
         }
+
+        
     }
 }
