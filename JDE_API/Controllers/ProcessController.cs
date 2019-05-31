@@ -460,44 +460,7 @@ namespace JDE_API.Controllers
             int end = 0;
             string word = "";
 
-            if (status.Contains("Status.ToLower().Contains") || status.Contains("Status="))
-            {
-                //Contains or equal to
-                //let's get just query parameter
-                if (status.Contains("Contains"))
-                {
-                    word = "Status.ToLower().Contains";
-                }
-                else
-                {
-                    word = "Status=";
-                }
-                status = status.Replace(word, "");
-                start = status.IndexOf("/");
-                end = status.IndexOf("/", start);
-                status = status.Substring(start, end - start);
-                if ("Zrealizowany".Contains(status))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == true && i.IsSuccessfull == true).ToList();
-                }
-                else if ("Zakończony".Contains(status))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == true).ToList();
-                }
-                else if ("Wstrzymany".Contains(status))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == true).ToList();
-                }
-                else if ("Rozpoczęty".Contains(status))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == false && i.IsActive==true).ToList();
-                }
-                else if ("Planowany".Contains(status))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsSuccessfull == false && i.IsActive==false && i.IsFrozen==false).ToList();
-                }
-                
-            }else if (status.Contains("!Status.ToLower().Contains") || status.Contains("Status<>"))
+            if (status.Contains("!Status.ToLower().Contains") || status.Contains("Status<>"))
             {
                 //Doesn't contain or different than
                 //let's get just query parameter
@@ -510,30 +473,71 @@ namespace JDE_API.Controllers
                     word = "Status<>";
                 }
                 status = status.Replace(word, "");
-                start = status.IndexOf("/");
-                end = status.IndexOf("/", start);
-                status = status.Substring(start, end - start);
-                if ("Zrealizowany".Contains(status))
+                start = status.IndexOf("\"");
+                end = status.IndexOf("\"", start + 1);
+                status = status.Substring(start + 1, end - (start + 1));
+                if ("Zrealizowany".Contains(status) || ("Zrealizowany".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.IsSuccessfull == false).ToList();
+                }
+                else if ("Zakończony".Contains(status) || ("Zakończony".ToLower().Contains(status)))
                 {
                     nItems = nItems.Where(i => i.IsCompleted == false).ToList();
                 }
-                else if ("Zakończony".Contains(status))
-                {
-                    nItems = nItems.Where(i => i.IsCompleted == false).ToList();
-                }
-                else if ("Wstrzymany".Contains(status))
+                else if ("Wstrzymany".Contains(status) || ("Wstrzymany".ToLower().Contains(status)))
                 {
                     nItems = nItems.Where(i => i.IsFrozen == false).ToList();
                 }
-                else if ("Rozpoczęty".Contains(status))
+                else if ("Rozpoczęty".Contains(status) || ("Rozpoczęty".ToLower().Contains(status)))
                 {
                     nItems = nItems.Where(i => i.IsActive == false).ToList();
                 }
-                else if ("Planowany".Contains(status))
+                else if ("Planowany".Contains(status) || ("Planowany".ToLower().Contains(status)))
                 {
                     nItems = nItems.Where(i => i.IsCompleted == true || i.IsSuccessfull == true || i.IsActive == true || i.IsFrozen == true).ToList();
                 }
-            }
+            }else if (status.Contains("Status.ToLower().Contains") || status.Contains("Status="))
+            {
+                //Contains or equal to
+                //let's get just query parameter
+                if (status.Contains("Contains"))
+                {
+                    word = "Status.ToLower().Contains";
+                }
+                else
+                {
+                    word = "Status=";
+                }
+                status = status.Replace(word, "");
+                start = status.IndexOf("\"");
+                end = status.IndexOf("\"", start+1);
+                status = status.Substring(start+1, end - (start+1));
+                if ("Zrealizowany".Contains(status) || ("Zrealizowany".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.IsSuccessfull == true).ToList();
+                }
+                else if ("Zakończony".Contains(status) || ("Zakończony".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == true).ToList();
+                }
+                else if ("Wstrzymany".Contains(status) || ("Wstrzymany".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == true).ToList();
+                }
+                else if ("Rozpoczęty".Contains(status) || ("Rozpoczęty".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsFrozen == false && i.IsActive==true).ToList();
+                }
+                else if ("Planowany".Contains(status) || ("Planowany".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.IsCompleted == false && i.IsSuccessfull == false && i.IsActive==false && i.IsFrozen==false).ToList();
+                }
+                else
+                {
+                    nItems.Clear();
+                }
+                
+            } 
             return nItems;
         }
 
@@ -1463,10 +1467,19 @@ namespace JDE_API.Controllers
                     this.Length = this.Length.Remove(0, x);
                 }
             }
-            if (query.IndexOf("Status") > 0)
+            if (this.Query.IndexOf("Status") >= 0)
             {
-                start = this.Query.IndexOf("Status");
-                if (query.IndexOf("AND", start) >= 0)
+                if (this.Query.Contains("!Status"))
+                {
+                    //this is "doesn't contain" filter
+                    start = this.Query.IndexOf("!Status");
+                }
+                else
+                {
+                    start = this.Query.IndexOf("Status");
+                }
+                
+                if (this.Query.IndexOf("AND", start) >= 0)
                 {
                     //it has got more parameters later
                     end = this.Query.IndexOf(" ", start);
@@ -1474,11 +1487,10 @@ namespace JDE_API.Controllers
                 else
                 {
                     //it's the last parameter
-                    end = query.Length - 1;
+                    end = this.Query.Length;
                 }
-                end = this.Query.IndexOf(" ", start);
-                this.Status = query.Substring(start, end - start);
-                this.Query = query.Replace(this.Status, "");
+                this.Status = this.Query.Substring(start, end - start);
+                this.Query = this.Query.Replace(this.Status, "");
                 DropAnd();
             }
         }
@@ -1487,23 +1499,25 @@ namespace JDE_API.Controllers
         {
             if (!string.IsNullOrEmpty(Query))
             {
-                if (Query.Contains("AND")) ;
-                string[] a = Regex.Split(Query,"AND");
-                int len = 0;
-                int start;
-                int end;
-                string output = "";
-
-                a = a.Where(val => val != " " && val != "  ").ToArray();//drop empty elements, what remains are goodies
-
-                for (int i = 0; i < a.Length; i++)
+                if (Query.Contains("AND"))
                 {
-                    output += a[i] + "AND";
+                    string[] a = Regex.Split(Query, "AND");
+                    int len = 0;
+                    int start;
+                    int end;
+                    string output = "";
+
+                    a = a.Where(val => val != " " && val != "  " && val != "! ").ToArray();//drop empty elements, what remains are goodies
+
+                    for (int i = 0; i < a.Length; i++)
+                    {
+                        output += a[i] + "AND";
+                    }
+                    //drop last AND
+                    output = output.Substring(0, output.Length - 3);
+                    output = output.Trim();
+                    Query = output;
                 }
-                //drop last AND
-                output = output.Substring(0, output.Length - 3);
-                output = output.Trim();
-                Query = output;
             }
         }
     }
