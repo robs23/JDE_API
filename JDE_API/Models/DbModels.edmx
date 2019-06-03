@@ -117,6 +117,19 @@
           <Property Name="Class" Type="nvarchar" MaxLength="200" />
           <Property Name="Message" Type="nvarchar(max)" />
         </EntityType>
+        <EntityType Name="JDE_FileAssigns">
+          <Key>
+            <PropertyRef Name="FileAssignId" />
+          </Key>
+          <Property Name="FileAssignId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FileId" Type="int" />
+          <Property Name="ProcessId" Type="int" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="PlaceId" Type="int" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Files">
           <Key>
             <PropertyRef Name="FileId" />
@@ -125,10 +138,10 @@
           <Property Name="Name" Type="nvarchar" MaxLength="150" />
           <Property Name="Description" Type="nvarchar" MaxLength="150" />
           <Property Name="Link" Type="nvarchar" MaxLength="200" />
-          <Property Name="ProcessId" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="Token" Type="nvarchar" MaxLength="150" />
         </EntityType>
         <EntityType Name="JDE_Handlings">
           <Key>
@@ -330,6 +343,7 @@
           <EntitySet Name="JDE_Deliveries" EntityType="Self.JDE_Deliveries" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_DeliveryItems" EntityType="Self.JDE_DeliveryItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_FileAssigns" EntityType="Self.JDE_FileAssigns" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Handlings" EntityType="Self.JDE_Handlings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" Schema="dbo" store:Type="Tables" />
@@ -467,19 +481,6 @@
           <Property Name="Class" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="JDE_Files">
-          <Key>
-            <PropertyRef Name="FileId" />
-          </Key>
-          <Property Name="FileId" Type="Int32" Nullable="false" />
-          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Link" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="ProcessId" Type="Int32" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="TenantId" Type="Int32" />
-        </EntityType>
         <EntityContainer Name="DbModel" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" />
@@ -490,7 +491,6 @@
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" />
-          <EntitySet Name="JDE_Files" EntityType="Self.JDE_Files" />
           <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
           <EntitySet Name="JDE_Boms" EntityType="DbModels.JDE_Boms" />
           <EntitySet Name="JDE_Deliveries" EntityType="DbModels.JDE_Deliveries" />
@@ -502,6 +502,8 @@
           <EntitySet Name="JDE_Orders" EntityType="DbModels.JDE_Orders" />
           <EntitySet Name="JDE_CompanyTypes" EntityType="DbModels.JDE_CompanyTypes" />
           <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
+          <EntitySet Name="JDE_FileAssigns" EntityType="DbModels.JDE_FileAssigns" />
+          <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -687,6 +689,32 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
+        <EntityType Name="JDE_FileAssigns">
+          <Key>
+            <PropertyRef Name="FileAssignId" />
+          </Key>
+          <Property Name="FileAssignId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FileId" Type="Int32" />
+          <Property Name="ProcessId" Type="Int32" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Files">
+          <Key>
+            <PropertyRef Name="FileId" />
+          </Key>
+          <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Link" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="Token" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -818,20 +846,6 @@
                 <ScalarProperty Name="Method" ColumnName="Method" />
                 <ScalarProperty Name="Class" ColumnName="Class" />
                 <ScalarProperty Name="Message" ColumnName="Message" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Files">
-            <EntityTypeMapping TypeName="DbModels.JDE_Files">
-              <MappingFragment StoreEntitySet="JDE_Files">
-                <ScalarProperty Name="FileId" ColumnName="FileId" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Link" ColumnName="Link" />
-                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1027,6 +1041,34 @@
                 <ScalarProperty Name="Street" ColumnName="Street" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_FileAssigns">
+            <EntityTypeMapping TypeName="DbModels.JDE_FileAssigns">
+              <MappingFragment StoreEntitySet="JDE_FileAssigns">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
+                <ScalarProperty Name="FileId" ColumnName="FileId" />
+                <ScalarProperty Name="FileAssignId" ColumnName="FileAssignId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Files">
+            <EntityTypeMapping TypeName="DbModels.JDE_Files">
+              <MappingFragment StoreEntitySet="JDE_Files">
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Link" ColumnName="Link" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="FileId" ColumnName="FileId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

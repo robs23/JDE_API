@@ -12,15 +12,15 @@ namespace JDE_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class JDE_Files
+    public partial class JDE_FileAssigns
     {
-        public int FileId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Link { get; set; }
-        public Nullable<System.DateTime> CreatedOn { get; set; }
+        public int FileAssignId { get; set; }
+        public Nullable<int> FileId { get; set; }
+        public Nullable<int> ProcessId { get; set; }
+        public Nullable<int> PartId { get; set; }
+        public Nullable<int> PlaceId { get; set; }
         public Nullable<int> CreatedBy { get; set; }
+        public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> TenantId { get; set; }
-        public string Token { get; set; }
     }
 }

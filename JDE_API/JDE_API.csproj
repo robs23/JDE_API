@@ -191,6 +191,7 @@
     <Compile Include="Controllers\DeliveryController.cs" />
     <Compile Include="Controllers\DeliveryItemController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\HandlingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
@@ -246,6 +247,9 @@
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\JDE_Errors.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JDE_FileAssigns.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\JDE_Files.cs">
