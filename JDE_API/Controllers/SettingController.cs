@@ -21,6 +21,13 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
+        [Route("Path2Files")]
+        public IHttpActionResult Path2Files()
+        {
+            return Ok(RuntimeSettings.Path2Files);
+        }
+
+        [HttpGet]
         [Route("GetUniqueToken")]
         public IHttpActionResult GetUniqueToken()
         {
