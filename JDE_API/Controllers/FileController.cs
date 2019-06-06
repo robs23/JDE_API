@@ -283,17 +283,20 @@ namespace JDE_API.Controllers
 
         [HttpPost]
         [Route("CreateFile")]
-        public HttpResponseMessage CreateFile(string token, JDE_Files item, int UserId, int? PlaceId=null, int? PartId=null, int? ProcessId=null)
+        public HttpResponseMessage CreateFile(string token, string fileJson, int UserId, int? PlaceId=null, int? PartId=null, int? ProcessId=null)
         {           
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
+                    JavaScriptSerializer jss = new JavaScriptSerializer();
+                    JDE_Files item = jss.Deserialize<JDE_Files>(fileJson);
                     var httpRequest = HttpContext.Current.Request;
-                    if (httpRequest.Files.Any())
+
+                    if (httpRequest.ContentLength > 0)
                     {
-                        if (httpRequest.Files[0].ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                        if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
                         {
                             return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
                         }
