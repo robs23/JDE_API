@@ -310,9 +310,8 @@ namespace JDE_API.Controllers
                             if (postedFile != null && postedFile.ContentLength > 0)
                             {
                                 var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
-                                var extension = ext.ToLower();
 
-                                filePath = HttpContext.Current.Server.MapPath($"{Static.RuntimeSettings.Path2Files}{item.Token +  "."}");
+                                filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token +  ext.ToLower()}";
 
                                 postedFile.SaveAs(filePath);
                                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, item);
