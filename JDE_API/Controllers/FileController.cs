@@ -24,14 +24,14 @@ namespace JDE_API.Controllers
         [Route("GetFiles")]
         public IHttpActionResult GetFiles(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
         {
-
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
                     var items = (from f in db.JDE_Files
-                                 join u in db.JDE_Users on f.CreatedBy equals u.UserId
+                                 join fa in db.JDE_FileAssigns on f.FileId equals fa.FileId
+                                 join u in db.JDE_Users on fa.CreatedBy equals u.UserId
                                  join t in db.JDE_Tenants on f.TenantId equals t.TenantId
                                  where f.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby f.CreatedOn descending
@@ -40,8 +40,13 @@ namespace JDE_API.Controllers
                                      FileId = f.FileId,
                                      Name = f.Name,
                                      Description = f.Description,
-                                     CreatedOn = f.CreatedOn,
-                                     CreatedBy = f.CreatedBy,
+                                     Token = f.Token,
+                                     Link = f.Link,
+                                     PartId = fa.PartId,
+                                     PlaceId = fa.PlaceId,
+                                     ProcessId = fa.ProcessId,
+                                     CreatedOn = fa.CreatedOn,
+                                     CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      TenantId = f.TenantId,
                                      TenantName = t.TenantName
@@ -195,25 +200,33 @@ namespace JDE_API.Controllers
         [HttpGet]
         [Route("GetFile")]
         [ResponseType(typeof(JDE_Files))]
-        public IHttpActionResult GetFile(string token, int id)
+        public HttpResponseMessage GetFile(string token, int id)
         {
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
+
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
                     var items = (from f in db.JDE_Files
-                                 join u in db.JDE_Users on f.CreatedBy equals u.UserId
+                                 join fa in db.JDE_FileAssigns on f.FileId equals fa.FileId
+                                 join u in db.JDE_Users on fa.CreatedBy equals u.UserId
                                  join t in db.JDE_Tenants on f.TenantId equals t.TenantId
-                                 where f.TenantId == tenants.FirstOrDefault().TenantId && f.FileId==id
+                                 where f.TenantId == tenants.FirstOrDefault().TenantId && f.FileId == id
                                  orderby f.CreatedOn descending
-                                 select new
+                                 select new File
                                  {
                                      FileId = f.FileId,
                                      Name = f.Name,
                                      Description = f.Description,
-                                     CreatedOn = f.CreatedOn,
-                                     CreatedBy = f.CreatedBy,
+                                     Token = f.Token,
+                                     Link = f.Link,
+                                     PartId = fa.PartId,
+                                     PlaceId = fa.PlaceId,
+                                     ProcessId = fa.ProcessId,
+                                     CreatedOn = fa.CreatedOn,
+                                     CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      TenantId = f.TenantId,
                                      TenantName = t.TenantName
@@ -221,24 +234,45 @@ namespace JDE_API.Controllers
 
                     if (items.Any())
                     {
-                        return Ok(items.FirstOrDefault());
+                        ByteArrayContent content = PackAttachment(items.FirstOrDefault());
+                        response.Content = content;
+                        return response;
                     }
                     else
                     {
-                        return StatusCode(HttpStatusCode.NoContent);
+                        return Request.CreateResponse(HttpStatusCode.NoContent);
                     }
 
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
 
             }
             else
             {
-                return NotFound();
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
+        }
+
+        private ByteArrayContent PackAttachment(File f)
+        {
+            ByteArrayContent content = null;
+
+                string filePath = RuntimeSettings.Path2Files + f.Token + f.Name.LastIndexOf('.');
+                if (System.IO.File.Exists(filePath))
+                {
+                    byte[] bytes = System.IO.File.ReadAllBytes(filePath);
+                    content = new ByteArrayContent(bytes);
+                    content.Headers.ContentLength = bytes.Length;
+                    content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
+                    content.Headers.ContentDisposition.FileName = f.Name;
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(f.Name));
+                }
+
+            return content;
+
         }
 
         [HttpPut]
@@ -317,6 +351,7 @@ namespace JDE_API.Controllers
                                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, item);
                             }
                             item.CreatedOn = DateTime.Now;
+                            item.CreatedBy = UserId;
                             item.Link = filePath;
                             db.JDE_Files.Add(item);
                             db.SaveChanges();
@@ -412,5 +447,22 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Files.Count(e => e.FileId == id) > 0;
         }
+    }
+
+    class File
+    {
+        public int FileId { get; set; }
+        public string Description { get; set; }
+        public string Name { get; set; }
+        public string Token { get; set; }
+        public string Link { get; set; }
+        public int? PartId { get; set; }
+        public int? PlaceId { get; set; }
+        public int? ProcessId { get; set; }
+        public int? CreatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string CreatedByName { get; set; }
+        public int? TenantId { get; set; }
+        public string TenantName { get; set; }
     }
 }
