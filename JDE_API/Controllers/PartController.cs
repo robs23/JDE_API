@@ -29,8 +29,10 @@ namespace JDE_API.Controllers
                 if (tenants.Any())
                 {
                     var items = (from p in db.JDE_Parts
-                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId
-                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId
+                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId into producers
+                                 from prs in producers.DefaultIfEmpty()
+                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId into suppliers
+                                 from sups in suppliers.DefaultIfEmpty()
                                  join u in db.JDE_Users on p.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on p.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
@@ -44,9 +46,9 @@ namespace JDE_API.Controllers
                                      Description = p.Description,
                                      EAM = p.EAN,
                                      ProducerId = p.ProducerId,
-                                     ProducerName = pr.Name,
+                                     ProducerName = prs.Name,
                                      SupplierId = p.SupplierId,
-                                     SupplierName = s.Name,
+                                     SupplierName = sups.Name,
                                      Symbol = p.Symbol,
                                      Destination = p.Destination,
                                      Appliance = p.Appliance,

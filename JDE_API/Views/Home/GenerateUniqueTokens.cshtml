@@ -1,0 +1,32 @@
+﻿@model List<string>
+
+<table>
+    <thead>
+        <tr>
+            <th>
+                Lp.
+            </th>
+            <th>
+                Token
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ int i = 1;
+            foreach (string s in Model)
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                    <td>
+                        @s
+                    </td>
+                </tr>
+                i++;
+            }
+
+                    }
+    </tbody>
+</table>
+
