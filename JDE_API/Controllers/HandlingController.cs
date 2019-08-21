@@ -180,6 +180,166 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
+        [Route("GetHandlings")]
+        public IHttpActionResult GetUserHandlings(string token, int UserId, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
+        {
+
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    if (dFrom == null)
+                    {
+                        if (db.JDE_Handlings.Any())
+                        {
+                            dFrom = db.JDE_Handlings.Min(x => x.StartedOn).Value.AddDays(-1);
+                        }
+                        else
+                        {
+                            dFrom = new DateTime(2018, 1, 1);
+                        }
+                    }
+                    if (dTo == null)
+                    {
+                        if (db.JDE_Handlings.Any())
+                        {
+                            dTo = db.JDE_Handlings.Max(x => x.StartedOn).Value.AddDays(1);
+
+                        }
+                        else
+                        {
+                            dTo = new DateTime(2030, 12, 31);
+                        }
+                    }
+
+                    var items = (from h in db.JDE_Handlings
+                                 join u in db.JDE_Users on h.UserId equals u.UserId
+                                 join t in db.JDE_Tenants on h.TenantId equals t.TenantId
+                                 join p in db.JDE_Processes on h.ProcessId equals p.ProcessId
+                                 join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
+                                 join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join s in db.JDE_Sets on pl.SetId equals s.SetId
+                                 join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                                 where h.TenantId == tenants.FirstOrDefault().TenantId && h.StartedOn >= dFrom && h.StartedOn <= dTo && h.UserId==UserId
+                                 orderby h.StartedOn descending
+                                 select new Handling
+                                 {
+                                     HandlingId = h.HandlingId,
+                                     ProcessId = p.ProcessId,
+                                     StartedOn = h.StartedOn,
+                                     FinishedOn = h.FinishedOn,
+                                     UserId = u.UserId,
+                                     UserName = u.Name + " " + u.Surname,
+                                     ActionTypeId = p.ActionTypeId,
+                                     ActionTypeName = at.Name,
+                                     IsActive = h.IsActive,
+                                     IsFrozen = h.IsFrozen,
+                                     IsCompleted = h.IsCompleted,
+                                     PlaceId = p.PlaceId,
+                                     PlaceName = pl.Name,
+                                     SetId = pl.SetId,
+                                     SetName = s.Name,
+                                     AreaId = pl.AreaId,
+                                     AreaName = a.Name,
+                                     Output = h.Output,
+                                     TenantId = p.TenantId,
+                                     TenantName = t.TenantName
+                                 });
+                    if (items.Any())
+                    {
+                        if (query != null)
+                        {
+                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0)
+                            {
+                                ProcessQuery pq = new ProcessQuery(query);
+                                length = pq.Length;
+                                status = pq.Status;
+                                query = pq.Query;
+                            }
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                items = items.Where(query);
+                            }
+
+                        }
+                        if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status))
+                        {
+                            List<IProcessable> nItems = items.ToList<IProcessable>();
+                            if (!string.IsNullOrEmpty(length)) { nItems = Static.Utilities.FilterByLength(nItems, length); }
+                            if (!string.IsNullOrEmpty(status)) { nItems = Static.Utilities.FilterByStatus(nItems, status); }
+
+                            if (total == 0 && page > 0)
+                            {
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < nItems.Count())
+                                {
+                                    nItems = nItems.Skip(skip).Take(pageSize).ToList();
+                                    return Ok(nItems);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                nItems = nItems.Take(total).ToList();
+                                return Ok(nItems);
+                            }
+                            else
+                            {
+                                return Ok(nItems);
+                            }
+                        }
+                        else
+                        {
+                            if (total == 0 && page > 0)
+                            {
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < items.Count())
+                                {
+                                    items = items.Skip(skip).Take(pageSize);
+                                    return Ok(items);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                items = items.Take(total);
+                                return Ok(items);
+                            }
+                            else
+                            {
+                                return Ok(items);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+
+        }
+
+        [HttpGet]
         [Route("GetHandling")]
         [ResponseType(typeof(JDE_Handlings))]
         public IHttpActionResult GetHandling(string token, int id)

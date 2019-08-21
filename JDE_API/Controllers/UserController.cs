@@ -135,6 +135,46 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
+        [Route("IsUserWorking")]
+        public IHttpActionResult IsUserWorking(string token, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {                    
+                    var handlings = (from h in db.JDE_Handlings
+                                 join t in db.JDE_Tenants on h.TenantId equals t.TenantId
+                                 join u in db.JDE_Users on h.UserId equals u.UserId
+                                 where h.TenantId == tenants.FirstOrDefault().TenantId && u.UserId==UserId && (h.IsCompleted==false || h.IsCompleted==null)
+                                 select new
+                                 {
+                                     HandlingId = h.HandlingId,
+
+                                 });
+                    if (handlings.Any())
+                    {
+                        return Ok(true);
+                    }
+                    else
+                    {
+                        return Ok(false);
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
         [Route("GetMechanics")]
         public IHttpActionResult GetMechanics(string token)
         {
