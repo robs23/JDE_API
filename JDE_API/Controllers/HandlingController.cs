@@ -180,8 +180,8 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetHandlings")]
-        public IHttpActionResult GetUserHandlings(string token, int UserId, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
+        [Route("GetUserHandlings")]
+        public IHttpActionResult GetUserHandlings(string token, int UserId, int page = 0, int PageSize=0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
         {
 
             if (token != null && token.Length > 0)
@@ -271,7 +271,7 @@ namespace JDE_API.Controllers
 
                             if (total == 0 && page > 0)
                             {
-                                int pageSize = RuntimeSettings.PageSize;
+                                int pageSize = PageSize == 0 ? RuntimeSettings.PageSize : PageSize;
                                 var skip = pageSize * (page - 1);
                                 if (skip < nItems.Count())
                                 {
@@ -297,7 +297,7 @@ namespace JDE_API.Controllers
                         {
                             if (total == 0 && page > 0)
                             {
-                                int pageSize = RuntimeSettings.PageSize;
+                                int pageSize = PageSize == 0 ? RuntimeSettings.PageSize : PageSize;
                                 var skip = pageSize * (page - 1);
                                 if (skip < items.Count())
                                 {
