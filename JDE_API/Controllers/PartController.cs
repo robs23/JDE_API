@@ -4,10 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Script.Serialization;
@@ -17,6 +20,31 @@ namespace JDE_API.Controllers
     public class PartController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
+
+        [HttpGet]
+        public HttpResponseMessage GetThumb(string Photo)
+        {
+            var path = Path.Combine(RuntimeSettings.Path2Thumbs, Photo);
+            var theFile = new FileInfo(path);
+            if (theFile.Exists)
+            {
+                var stream = new MemoryStream();
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(stream.ToArray())
+                };
+                result.Content.Headers.ContentDisposition =
+                new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = theFile.Name
+                };
+                result.Content.Headers.ContentType =
+                new MediaTypeHeaderValue("application/octet-stream");
+
+                return result;
+            }
+            return null;
+        }
 
         [HttpGet]
         [Route("GetParts")]
@@ -54,6 +82,7 @@ namespace JDE_API.Controllers
                                      Appliance = p.Appliance,
                                      UsedOn = p.UsedOn,
                                      Token = p.Token,
+                                     Image = p.Image,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -152,6 +181,7 @@ namespace JDE_API.Controllers
                                      Appliance = p.Appliance,
                                      UsedOn = p.UsedOn,
                                      Token = p.Token,
+                                     Image = p.Image,
                                      CreatedOn = p.CreatedOn,
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -229,31 +259,59 @@ namespace JDE_API.Controllers
         [HttpPost]
         [Route("CreatePart")]
         [ResponseType(typeof(JDE_Parts))]
-        public IHttpActionResult CreatePart(string token, JDE_Parts item, int UserId)
+        public HttpResponseMessage CreatePart(string token, string PartJson, int UserId)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
+                    JavaScriptSerializer jss = new JavaScriptSerializer();
+                    JDE_Parts item = jss.Deserialize<JDE_Parts>(PartJson);
+
+                    var httpRequest = HttpContext.Current.Request;
+                    if (httpRequest.ContentLength > 0)
+                    {
+                        if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                        {
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
+                        }
+                        
+                        //create unique token unless the file already exists
+                        item.Token = Static.Utilities.GetToken();
+                        item.TenantId = tenants.FirstOrDefault().TenantId;
+                        var postedFile = httpRequest.Files[0];
+                        string filePath = "";
+                        if (postedFile != null && postedFile.ContentLength > 0)
+                        {
+                            var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                            filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token + ext.ToLower()}";
+
+                            postedFile.SaveAs(filePath);
+                            item.Image = item.Token + ext.ToLower();
+                        }
+                        
+                    }
+
                     item.TenantId = tenants.FirstOrDefault().TenantId;
                     item.CreatedOn = DateTime.Now;
-                    item.Token = Static.Utilities.GetToken();
                     db.JDE_Parts.Add(item);
                     db.SaveChanges();
                     JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
                     db.JDE_Logs.Add(Log);
                     db.SaveChanges();
-                    return Ok(item);
+                    
+                    return Request.CreateResponse(HttpStatusCode.Created, item);
                 }
                 else
                 {
-                    return NotFound();
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
             else
             {
-                return NotFound();
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
 

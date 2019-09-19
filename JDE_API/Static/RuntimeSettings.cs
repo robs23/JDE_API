@@ -22,6 +22,14 @@ namespace JDE_API.Static
             }
         }
 
+        public static string Path2Thumbs
+        {
+            get
+            {
+                return $@"{Path2Files}Thumbnails\";
+            }
+        }
+
         public static int MaxFileContentLength
         {
             get

@@ -317,7 +317,7 @@ namespace JDE_API.Controllers
 
         [HttpPost]
         [Route("CreateFile")]
-        public HttpResponseMessage CreateFile(string token, string fileJson, int UserId, int? PlaceId=null, int? PartId=null, int? ProcessId=null)
+        public HttpResponseMessage CreateFile(string token, string FileJson, int UserId, int? PlaceId=null, int? PartId=null, int? ProcessId=null)
         {           
             if (token != null && token.Length > 0)
             {
@@ -325,7 +325,7 @@ namespace JDE_API.Controllers
                 if (tenants.Any())
                 {
                     JavaScriptSerializer jss = new JavaScriptSerializer();
-                    JDE_Files item = jss.Deserialize<JDE_Files>(fileJson);
+                    JDE_Files item = jss.Deserialize<JDE_Files>(FileJson);
                     var httpRequest = HttpContext.Current.Request;
 
                     if (httpRequest.ContentLength > 0)

@@ -10,8 +10,8 @@
             <PropertyRef Name="ActionTypeId" />
           </Key>
           <Property Name="ActionTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="50" />
-          <Property Name="Description" Type="nvarchar" MaxLength="150" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
@@ -25,8 +25,8 @@
             <PropertyRef Name="AreaId" />
           </Key>
           <Property Name="AreaId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="50" />
-          <Property Name="Description" Type="nvarchar" MaxLength="150" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
@@ -39,7 +39,7 @@
           <Property Name="PartId" Type="int" />
           <Property Name="PlaceId" Type="int" />
           <Property Name="Amount" Type="float" />
-          <Property Name="Unit" Type="nvarchar" MaxLength="50" />
+          <Property Name="Unit" Type="nvarchar(max)" />
           <Property Name="ValidFrom" Type="datetime" />
           <Property Name="ValidTo" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
@@ -53,14 +53,14 @@
             <PropertyRef Name="CompanyId" />
           </Key>
           <Property Name="CompanyId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="100" />
-          <Property Name="Street" Type="nvarchar" MaxLength="100" />
-          <Property Name="Street2" Type="nvarchar" MaxLength="100" />
-          <Property Name="BuildingNo" Type="nvarchar" MaxLength="10" />
-          <Property Name="LocalNo" Type="nvarchar" MaxLength="10" />
-          <Property Name="ZipCode" Type="nvarchar" MaxLength="10" />
-          <Property Name="City" Type="nvarchar" MaxLength="100" />
-          <Property Name="Country" Type="nvarchar" MaxLength="100" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Street" Type="nvarchar(max)" />
+          <Property Name="Street2" Type="nvarchar(max)" />
+          <Property Name="BuildingNo" Type="nvarchar(max)" />
+          <Property Name="LocalNo" Type="nvarchar(max)" />
+          <Property Name="ZipCode" Type="nvarchar(max)" />
+          <Property Name="City" Type="nvarchar(max)" />
+          <Property Name="Country" Type="nvarchar(max)" />
           <Property Name="TypeId" Type="int" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
@@ -73,7 +73,7 @@
             <PropertyRef Name="CompanyTypeId" />
           </Key>
           <Property Name="CompanyTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="150" />
+          <Property Name="Name" Type="nvarchar(max)" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
@@ -113,8 +113,8 @@
           <Property Name="UserId" Type="int" />
           <Property Name="Time" Type="datetime" />
           <Property Name="App" Type="int" />
-          <Property Name="Method" Type="nvarchar" MaxLength="500" />
-          <Property Name="Class" Type="nvarchar" MaxLength="200" />
+          <Property Name="Method" Type="nvarchar(max)" />
+          <Property Name="Class" Type="nvarchar(max)" />
           <Property Name="Message" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="JDE_FileAssigns">
@@ -137,13 +137,13 @@
             <PropertyRef Name="FileId" />
           </Key>
           <Property Name="FileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="150" />
-          <Property Name="Description" Type="nvarchar" MaxLength="150" />
-          <Property Name="Link" Type="nvarchar" MaxLength="200" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="Link" Type="nvarchar(max)" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
-          <Property Name="Token" Type="nvarchar" MaxLength="150" />
+          <Property Name="Token" Type="nvarchar(max)" />
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
         </EntityType>
@@ -159,7 +159,7 @@
           <Property Name="IsActive" Type="bit" />
           <Property Name="IsFrozen" Type="bit" />
           <Property Name="IsCompleted" Type="bit" />
-          <Property Name="Output" Type="nvarchar" MaxLength="500" />
+          <Property Name="Output" Type="nvarchar(max)" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Logs">
@@ -169,7 +169,7 @@
           <Property Name="LogId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Timestamp" Type="datetime" />
           <Property Name="UserId" Type="int" />
-          <Property Name="Description" Type="nvarchar" MaxLength="150" />
+          <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="TenantId" Type="int" />
           <Property Name="OldValue" Type="nvarchar(max)" />
           <Property Name="NewValue" Type="nvarchar(max)" />
@@ -193,8 +193,8 @@
             <PropertyRef Name="OrderId" />
           </Key>
           <Property Name="OrderId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="OrderNo" Type="nvarchar" MaxLength="100" />
-          <Property Name="SuppliersOrderNo" Type="nvarchar" MaxLength="100" />
+          <Property Name="OrderNo" Type="nvarchar(max)" />
+          <Property Name="SuppliersOrderNo" Type="nvarchar(max)" />
           <Property Name="DeliveryOn" Type="datetime" />
           <Property Name="SupplierId" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
@@ -208,17 +208,18 @@
             <PropertyRef Name="PartId" />
           </Key>
           <Property Name="PartId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="200" />
-          <Property Name="Description" Type="nvarchar" MaxLength="1000" />
-          <Property Name="EAN" Type="nvarchar" MaxLength="50" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="EAN" Type="nvarchar(max)" />
           <Property Name="ProducerId" Type="int" />
-          <Property Name="ProducentsCode" Type="nvarchar" MaxLength="150" />
+          <Property Name="ProducentsCode" Type="nvarchar(max)" />
           <Property Name="SupplierId" Type="int" />
-          <Property Name="Symbol" Type="nvarchar" MaxLength="200" />
-          <Property Name="Destination" Type="nvarchar" MaxLength="200" />
-          <Property Name="Appliance" Type="nvarchar" MaxLength="200" />
-          <Property Name="UsedOn" Type="nvarchar" MaxLength="1000" />
-          <Property Name="Token" Type="nvarchar" MaxLength="100" />
+          <Property Name="Symbol" Type="nvarchar(max)" />
+          <Property Name="Destination" Type="nvarchar(max)" />
+          <Property Name="Appliance" Type="nvarchar(max)" />
+          <Property Name="UsedOn" Type="nvarchar(max)" />
+          <Property Name="Token" Type="nvarchar(max)" />
+          <Property Name="Image" Type="nvarchar(max)" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
@@ -245,24 +246,24 @@
             <PropertyRef Name="PlaceId" />
           </Key>
           <Property Name="PlaceId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Number1" Type="nvarchar" MaxLength="20" />
-          <Property Name="Number2" Type="nvarchar" MaxLength="20" />
-          <Property Name="Name" Type="nvarchar" MaxLength="150" />
-          <Property Name="Description" Type="nvarchar" MaxLength="250" />
+          <Property Name="Number1" Type="nvarchar(max)" />
+          <Property Name="Number2" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="AreaId" Type="int" />
           <Property Name="SetId" Type="int" />
-          <Property Name="Priority" Type="nchar" MaxLength="1" />
+          <Property Name="Priority" Type="nvarchar" MaxLength="1" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
-          <Property Name="PlaceToken" Type="nvarchar" MaxLength="150" />
+          <Property Name="PlaceToken" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="JDE_Processes">
           <Key>
             <PropertyRef Name="ProcessId" />
           </Key>
           <Property Name="ProcessId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Description" Type="nvarchar" MaxLength="500" />
+          <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="StartedOn" Type="datetime" />
           <Property Name="StartedBy" Type="int" />
           <Property Name="FinishedOn" Type="datetime" />
@@ -273,14 +274,14 @@
           <Property Name="IsCompleted" Type="bit" />
           <Property Name="IsSuccessfull" Type="bit" />
           <Property Name="PlaceId" Type="int" />
-          <Property Name="Output" Type="nvarchar" MaxLength="500" />
+          <Property Name="Output" Type="nvarchar(max)" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
-          <Property Name="MesId" Type="nvarchar" MaxLength="25" />
-          <Property Name="InitialDiagnosis" Type="nvarchar" MaxLength="1000" />
-          <Property Name="RepairActions" Type="nvarchar" MaxLength="1000" />
-          <Property Name="Reason" Type="nvarchar" MaxLength="1000" />
+          <Property Name="MesId" Type="nvarchar(max)" />
+          <Property Name="InitialDiagnosis" Type="nvarchar(max)" />
+          <Property Name="RepairActions" Type="nvarchar(max)" />
+          <Property Name="Reason" Type="nvarchar(max)" />
           <Property Name="MesDate" Type="datetime" />
           <Property Name="PlannedStart" Type="datetime" />
           <Property Name="PlannedFinish" Type="datetime" />
@@ -293,9 +294,9 @@
             <PropertyRef Name="SetId" />
           </Key>
           <Property Name="SetId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Number" Type="nvarchar" MaxLength="20" />
-          <Property Name="Name" Type="nvarchar" MaxLength="50" />
-          <Property Name="Description" Type="nvarchar" MaxLength="150" />
+          <Property Name="Number" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
@@ -307,7 +308,7 @@
           <Property Name="StockId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PartId" Type="int" />
           <Property Name="Amount" Type="float" />
-          <Property Name="CreatedOn" Type="date" />
+          <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
@@ -319,24 +320,24 @@
             <PropertyRef Name="TenantId" />
           </Key>
           <Property Name="TenantId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TenantName" Type="nvarchar" MaxLength="50" />
-          <Property Name="TenantFullName" Type="nvarchar" MaxLength="200" />
-          <Property Name="TenantToken" Type="nvarchar" MaxLength="100" />
+          <Property Name="TenantName" Type="nvarchar(max)" />
+          <Property Name="TenantFullName" Type="nvarchar(max)" />
+          <Property Name="TenantToken" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="JDE_Users">
           <Key>
             <PropertyRef Name="UserId" />
           </Key>
           <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="20" />
-          <Property Name="Surname" Type="nvarchar" MaxLength="50" />
-          <Property Name="Password" Type="nvarchar" MaxLength="20" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Surname" Type="nvarchar(max)" />
+          <Property Name="Password" Type="nvarchar(max)" />
           <Property Name="isMechanic" Type="bit" />
           <Property Name="lastLoggedOn" Type="datetime" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
-          <Property Name="MesLogin" Type="nvarchar" MaxLength="25" />
+          <Property Name="MesLogin" Type="nvarchar(max)" />
         </EntityType>
         <EntityContainer Name="DbModelsStoreContainer">
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
@@ -371,8 +372,8 @@
             <PropertyRef Name="ActionTypeId" />
           </Key>
           <Property Name="ActionTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
@@ -386,8 +387,8 @@
             <PropertyRef Name="AreaId" />
           </Key>
           <Property Name="AreaId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
@@ -404,7 +405,7 @@
           <Property Name="IsActive" Type="Boolean" />
           <Property Name="IsFrozen" Type="Boolean" />
           <Property Name="IsCompleted" Type="Boolean" />
-          <Property Name="Output" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Logs">
@@ -414,7 +415,7 @@
           <Property Name="LogId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Timestamp" Type="DateTime" Precision="3" />
           <Property Name="UserId" Type="Int32" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="TenantId" Type="Int32" />
           <Property Name="OldValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NewValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
@@ -424,26 +425,26 @@
             <PropertyRef Name="PlaceId" />
           </Key>
           <Property Name="PlaceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Number1" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Number2" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Number1" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Number2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="AreaId" Type="Int32" />
           <Property Name="SetId" Type="Int32" />
-          <Property Name="Priority" Type="String" MaxLength="1" FixedLength="true" Unicode="true" />
+          <Property Name="Priority" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
-          <Property Name="PlaceToken" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="PlaceToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
             <PropertyRef Name="SetId" />
           </Key>
           <Property Name="SetId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Number" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Number" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
@@ -453,24 +454,24 @@
             <PropertyRef Name="TenantId" />
           </Key>
           <Property Name="TenantId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TenantName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="TenantFullName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="TenantToken" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="TenantName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TenantFullName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TenantToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Users">
           <Key>
             <PropertyRef Name="UserId" />
           </Key>
           <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Surname" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Password" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Surname" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="isMechanic" Type="Boolean" />
           <Property Name="lastLoggedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
-          <Property Name="MesLogin" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="MesLogin" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Errors">
           <Key>
@@ -481,8 +482,8 @@
           <Property Name="UserId" Type="Int32" />
           <Property Name="Time" Type="DateTime" Precision="3" />
           <Property Name="App" Type="Int32" />
-          <Property Name="Method" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Class" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Method" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Class" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityContainer Name="DbModel" annotation:LazyLoadingEnabled="true">
@@ -514,7 +515,7 @@
             <PropertyRef Name="ProcessId" />
           </Key>
           <Property Name="ProcessId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="StartedOn" Type="DateTime" Precision="3" />
           <Property Name="StartedBy" Type="Int32" />
           <Property Name="FinishedOn" Type="DateTime" Precision="3" />
@@ -525,14 +526,14 @@
           <Property Name="IsCompleted" Type="Boolean" />
           <Property Name="IsSuccessfull" Type="Boolean" />
           <Property Name="PlaceId" Type="Int32" />
-          <Property Name="Output" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
-          <Property Name="MesId" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
-          <Property Name="InitialDiagnosis" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="RepairActions" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="Reason" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="MesId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InitialDiagnosis" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RepairActions" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Reason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="MesDate" Type="DateTime" Precision="3" />
           <Property Name="PlannedStart" Type="DateTime" Precision="3" />
           <Property Name="PlannedFinish" Type="DateTime" Precision="3" />
@@ -548,7 +549,7 @@
           <Property Name="PartId" Type="Int32" />
           <Property Name="PlaceId" Type="Int32" />
           <Property Name="Amount" Type="Double" />
-          <Property Name="Unit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Unit" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ValidFrom" Type="DateTime" Precision="3" />
           <Property Name="ValidTo" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
@@ -586,22 +587,23 @@
             <PropertyRef Name="PartId" />
           </Key>
           <Property Name="PartId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="EAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="EAN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ProducerId" Type="Int32" />
-          <Property Name="ProducentsCode" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ProducentsCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="SupplierId" Type="Int32" />
-          <Property Name="Symbol" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Destination" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Appliance" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="UsedOn" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="Token" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Symbol" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Destination" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Appliance" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UsedOn" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_PartUsages">
           <Key>
@@ -625,7 +627,7 @@
           <Property Name="StockId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="PartId" Type="Int32" />
           <Property Name="Amount" Type="Double" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="0" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="LmBy" Type="Int32" />
@@ -651,8 +653,8 @@
             <PropertyRef Name="OrderId" />
           </Key>
           <Property Name="OrderId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="OrderNo" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="SuppliersOrderNo" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="OrderNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SuppliersOrderNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="DeliveryOn" Type="DateTime" Precision="3" />
           <Property Name="SupplierId" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
@@ -666,7 +668,7 @@
             <PropertyRef Name="CompanyTypeId" />
           </Key>
           <Property Name="CompanyTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
@@ -678,14 +680,14 @@
             <PropertyRef Name="CompanyId" />
           </Key>
           <Property Name="CompanyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Street" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Street2" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="BuildingNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="LocalNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="ZipCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Country" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Street" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Street2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="BuildingNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LocalNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ZipCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="TypeId" Type="Int32" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
@@ -713,13 +715,13 @@
             <PropertyRef Name="FileId" />
           </Key>
           <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Link" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
-          <Property Name="Token" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
         </EntityType>
@@ -936,6 +938,7 @@
           <EntitySetMapping Name="JDE_Parts">
             <EntityTypeMapping TypeName="DbModels.JDE_Parts">
               <MappingFragment StoreEntitySet="JDE_Parts">
+                <ScalarProperty Name="Image" ColumnName="Image" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
