@@ -289,6 +289,7 @@ namespace JDE_API.Controllers
                             filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token + ext.ToLower()}";
 
                             postedFile.SaveAs(filePath);
+                            Static.Utilities.ProduceThumbnail(filePath);
                             item.Image = item.Token + ext.ToLower();
                         }
                         

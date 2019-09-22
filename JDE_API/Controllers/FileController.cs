@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Net;
@@ -200,7 +201,7 @@ namespace JDE_API.Controllers
         [HttpGet]
         [Route("GetFile")]
         [ResponseType(typeof(JDE_Files))]
-        public HttpResponseMessage GetFile(string token, int id)
+        public HttpResponseMessage GetFile(string token, int id, bool min)
         {
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
 
@@ -234,7 +235,7 @@ namespace JDE_API.Controllers
 
                     if (items.Any())
                     {
-                        ByteArrayContent content = PackAttachment(items.FirstOrDefault());
+                        ByteArrayContent content = PackAttachment(items.FirstOrDefault().Name,min);
                         response.Content = content;
                         return response;
                     }
@@ -256,19 +257,30 @@ namespace JDE_API.Controllers
             }
         }
 
-        private ByteArrayContent PackAttachment(File f)
+        private ByteArrayContent PackAttachment(string fileName, bool min)
         {
             ByteArrayContent content = null;
+            string filePath = null;
+            
+            if (min)
+            {
+                filePath = RuntimeSettings.Path2Thumbs + fileName;
+            }
+            else
+            {
+                filePath = RuntimeSettings.Path2Files + fileName;
+            }
 
-                string filePath = RuntimeSettings.Path2Files + f.Token + f.Name.LastIndexOf('.');
+            string name = Path.GetFileNameWithoutExtension(filePath);
+
                 if (System.IO.File.Exists(filePath))
                 {
                     byte[] bytes = System.IO.File.ReadAllBytes(filePath);
                     content = new ByteArrayContent(bytes);
                     content.Headers.ContentLength = bytes.Length;
                     content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
-                    content.Headers.ContentDisposition.FileName = f.Name;
-                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(f.Name));
+                    content.Headers.ContentDisposition.FileName = name;
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(name));
                 }
 
             return content;
@@ -386,6 +398,41 @@ namespace JDE_API.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetAttachment")]
+        public HttpResponseMessage GetAttachment(string token, string name, bool min)
+        {
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
+
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+
+                        ByteArrayContent content = PackAttachment(name, min);
+                    if (content == null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                    else
+                    {
+                        response.Content = content;
+                        return response;
+                    }
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+
             }
             else
             {
