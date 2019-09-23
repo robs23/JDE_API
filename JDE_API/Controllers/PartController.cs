@@ -218,7 +218,7 @@ namespace JDE_API.Controllers
         [Route("EditPart")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item)
+        public HttpResponseMessage EditPart(string token, int id, int UserId, string PartJson)
         {
             if (token != null && token.Length > 0)
             {
@@ -228,21 +228,53 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Parts.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
                     if (items.Any())
                     {
+                        JavaScriptSerializer jss = new JavaScriptSerializer();
+                        JDE_Parts item = jss.Deserialize<JDE_Parts>(PartJson);
+                        
+                        //handle image
 
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                        var httpRequest = HttpContext.Current.Request;
+                        if (httpRequest.ContentLength > 0)
+                        {
+                            if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                            {
+                                return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
+                            }
+
+                            //create unique token unless the file already exists
+                            item.Token = Static.Utilities.GetToken();
+                            item.TenantId = tenants.FirstOrDefault().TenantId;
+                            var postedFile = httpRequest.Files[0];
+                            string filePath = "";
+                            if (postedFile != null && postedFile.ContentLength > 0)
+                            {
+                                var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                                filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token + ext.ToLower()}";
+
+                                postedFile.SaveAs(filePath);
+                                Static.Utilities.ProduceThumbnail(filePath);
+                                item.Image = item.Token + ext.ToLower();
+                            }
+
+                        }
+
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = PartJson };
                         db.JDE_Logs.Add(Log);
                         item.LmBy = UserId;
                         item.LmOn = DateTime.Now;
                         db.Entry(item).State = EntityState.Modified;
+
                         try
                         {
                             db.SaveChanges();
+
                         }
                         catch (DbUpdateConcurrencyException)
                         {
                             if (!JDE_PartExists(id))
                             {
-                                return NotFound();
+                                return Request.CreateResponse(HttpStatusCode.NotFound);
                             }
                             else
                             {
@@ -253,7 +285,7 @@ namespace JDE_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         [HttpPost]
