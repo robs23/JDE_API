@@ -229,5 +229,10 @@ namespace JDE_API.Static
             }
             return newImage;
         }
+
+        public async static void  DeleteAttachment(string name)
+        {
+
+        }
     }
 }

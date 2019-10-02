@@ -72,9 +72,10 @@ namespace JDE_API.Controllers
                                      PartId = p.PartId,
                                      Name = p.Name,
                                      Description = p.Description,
-                                     EAM = p.EAN,
+                                     EAN = p.EAN,
                                      ProducerId = p.ProducerId,
                                      ProducerName = prs.Name,
+                                     ProducentsCode = p.ProducentsCode,
                                      SupplierId = p.SupplierId,
                                      SupplierName = sups.Name,
                                      Symbol = p.Symbol,
@@ -171,9 +172,10 @@ namespace JDE_API.Controllers
                                      PartId = p.PartId,
                                      Name = p.Name,
                                      Description = p.Description,
-                                     EAM = p.EAN,
+                                     EAN = p.EAN,
                                      ProducerId = p.ProducerId,
                                      ProducerName = pr.Name,
+                                     ProducentsCode = p.ProducentsCode,
                                      SupplierId = p.SupplierId,
                                      SupplierName = s.Name,
                                      Symbol = p.Symbol,
@@ -218,7 +220,7 @@ namespace JDE_API.Controllers
         [Route("EditPart")]
         [ResponseType(typeof(void))]
 
-        public HttpResponseMessage EditPart(string token, int id, int UserId, string PartJson)
+        public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item)
         {
             if (token != null && token.Length > 0)
             {
@@ -228,21 +230,73 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Parts.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
                     if (items.Any())
                     {
+
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                        db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
+                        // Not any image was sent so I'm removing it
+                        string oFileName = item.Image;
+                        if (!string.IsNullOrEmpty(oFileName))
+                        {
+                            // There was a file, must delete it first
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                        }
+                        item.Image = null;
+
+                        db.Entry(item).State = EntityState.Modified;
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!JDE_PartExists(id))
+                            {
+                                return NotFound();
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [HttpPut]
+        [Route("EditPart")]
+        [ResponseType(typeof(void))]
+
+        public HttpResponseMessage EditPart(string token, int id, int UserId, string PartJson)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Parts.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
+                    if (items.Any())
+                    {
                         JavaScriptSerializer jss = new JavaScriptSerializer();
                         JDE_Parts item = jss.Deserialize<JDE_Parts>(PartJson);
-                        
+                        JDE_Parts orgItem = items.FirstOrDefault();
+
                         //handle image
 
                         var httpRequest = HttpContext.Current.Request;
                         if (httpRequest.ContentLength > 0)
                         {
+                            //there's a new content
                             if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
                             {
                                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
                             }
 
-                            //create unique token unless the file already exists
-                            item.Token = Static.Utilities.GetToken();
                             item.TenantId = tenants.FirstOrDefault().TenantId;
                             var postedFile = httpRequest.Files[0];
                             string filePath = "";
@@ -252,6 +306,14 @@ namespace JDE_API.Controllers
 
                                 filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token + ext.ToLower()}";
 
+                                string oFileName = db.JDE_Parts.Where(p => p.PartId == id).FirstOrDefault().Image;
+                                if (!string.IsNullOrEmpty(oFileName))
+                                {
+                                    // There was a file, must delete it first
+                                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                                }
+                                
                                 postedFile.SaveAs(filePath);
                                 Static.Utilities.ProduceThumbnail(filePath);
                                 item.Image = item.Token + ext.ToLower();
@@ -263,10 +325,12 @@ namespace JDE_API.Controllers
                         db.JDE_Logs.Add(Log);
                         item.LmBy = UserId;
                         item.LmOn = DateTime.Now;
-                        db.Entry(item).State = EntityState.Modified;
+                        
 
                         try
                         {
+                            db.Entry(orgItem).CurrentValues.SetValues(item);
+                            db.Entry(orgItem).State = EntityState.Modified;
                             db.SaveChanges();
 
                         }
@@ -281,11 +345,46 @@ namespace JDE_API.Controllers
                                 throw;
                             }
                         }
+                        catch(Exception ex)
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError,ex);
+                        }
                     }
                 }
             }
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
+        [HttpPost]
+        [Route("CreatePart")]
+        [ResponseType(typeof(JDE_Parts))]
+        public IHttpActionResult CreatePart(string token, JDE_Parts item, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    item.TenantId = tenants.FirstOrDefault().TenantId;
+                    item.CreatedOn = DateTime.Now;
+                    item.Token = Static.Utilities.GetToken();
+                    db.JDE_Parts.Add(item);
+                    db.SaveChanges();
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                    db.JDE_Logs.Add(Log);
+                    db.SaveChanges();
+                    return Ok(item);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]
@@ -361,6 +460,13 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Parts.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
                     if (items.Any())
                     {
+                        string oFileName = items.FirstOrDefault().Image;
+                        if (!string.IsNullOrEmpty(oFileName))
+                        {
+                            // There was a file, must delete it first
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                        }
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
                         db.JDE_Parts.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
