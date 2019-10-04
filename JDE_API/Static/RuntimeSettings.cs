@@ -18,7 +18,13 @@ namespace JDE_API.Static
         {
             get
             {
-                return $@"{HttpContext.Current.Server.MapPath("~")}\Files\";
+                string path = $@"{HttpContext.Current.Server.MapPath("~")}\Files\";
+                if (!System.IO.Directory.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(path);
+                    System.IO.Directory.CreateDirectory(System.IO.Path.Combine(path, "Thumbnails"));
+                }
+                return path;
             }
         }
 
@@ -26,7 +32,8 @@ namespace JDE_API.Static
         {
             get
             {
-                return $@"{Path2Files}Thumbnails\";
+               return $@"{Path2Files}Thumbnails\";
+                
             }
         }
 
