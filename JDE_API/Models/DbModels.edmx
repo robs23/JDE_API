@@ -5,6 +5,20 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="DbModels.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="JDE_Actions">
+          <Key>
+            <PropertyRef Name="ActionId" />
+          </Key>
+          <Property Name="ActionId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+          <Property Name="GivenTime" Type="int" />
+          <Property Name="Type" Type="nvarchar" MaxLength="10" />
+        </EntityType>
         <EntityType Name="JDE_ActionTypes">
           <Key>
             <PropertyRef Name="ActionTypeId" />
@@ -241,6 +255,19 @@
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
+        <EntityType Name="JDE_PlaceActions">
+          <Key>
+            <PropertyRef Name="PlaceActionId" />
+          </Key>
+          <Property Name="PlaceActionId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PlaceId" Type="int" />
+          <Property Name="ActionId" Type="int" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Places">
           <Key>
             <PropertyRef Name="PlaceId" />
@@ -257,6 +284,33 @@
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
           <Property Name="PlaceToken" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="JDE_ProcessActions">
+          <Key>
+            <PropertyRef Name="ProcessActionId" />
+          </Key>
+          <Property Name="ProcessActionId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProcessId" Type="int" />
+          <Property Name="ActionId" Type="int" />
+          <Property Name="HandlingId" Type="int" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
+        <EntityType Name="JDE_ProcessAssigns">
+          <Key>
+            <PropertyRef Name="ProcessAssignId" />
+          </Key>
+          <Property Name="ProcessAssignId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="ProcessId" Type="int" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -340,6 +394,7 @@
           <Property Name="MesLogin" Type="nvarchar(max)" />
         </EntityType>
         <EntityContainer Name="DbModelsStoreContainer">
+          <EntitySet Name="JDE_Actions" EntityType="Self.JDE_Actions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Boms" EntityType="Self.JDE_Boms" Schema="dbo" store:Type="Tables" />
@@ -356,7 +411,10 @@
           <EntitySet Name="JDE_Orders" EntityType="Self.JDE_Orders" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Parts" EntityType="Self.JDE_Parts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_PartUsages" EntityType="Self.JDE_PartUsages" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_PlaceActions" EntityType="Self.JDE_PlaceActions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Places" EntityType="Self.JDE_Places" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_ProcessActions" EntityType="Self.JDE_ProcessActions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_ProcessAssigns" EntityType="Self.JDE_ProcessAssigns" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Processes" EntityType="Self.JDE_Processes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Stocks" EntityType="Self.JDE_Stocks" Schema="dbo" store:Type="Tables" />
@@ -509,6 +567,10 @@
           <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
           <EntitySet Name="JDE_FileAssigns" EntityType="DbModels.JDE_FileAssigns" />
           <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
+          <EntitySet Name="JDE_Actions" EntityType="DbModels.JDE_Actions" />
+          <EntitySet Name="JDE_PlaceActions" EntityType="DbModels.JDE_PlaceActions" />
+          <EntitySet Name="JDE_ProcessActions" EntityType="DbModels.JDE_ProcessActions" />
+          <EntitySet Name="JDE_ProcessAssigns" EntityType="DbModels.JDE_ProcessAssigns" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -724,6 +786,60 @@
           <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="JDE_Actions">
+          <Key>
+            <PropertyRef Name="ActionId" />
+          </Key>
+          <Property Name="ActionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="GivenTime" Type="Int32" />
+          <Property Name="Type" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="JDE_PlaceActions">
+          <Key>
+            <PropertyRef Name="PlaceActionId" />
+          </Key>
+          <Property Name="PlaceActionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="ActionId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_ProcessActions">
+          <Key>
+            <PropertyRef Name="ProcessActionId" />
+          </Key>
+          <Property Name="ProcessActionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProcessId" Type="Int32" />
+          <Property Name="ActionId" Type="Int32" />
+          <Property Name="HandlingId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_ProcessAssigns">
+          <Key>
+            <PropertyRef Name="ProcessAssignId" />
+          </Key>
+          <Property Name="ProcessAssignId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="ProcessId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1084,6 +1200,64 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="FileId" ColumnName="FileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Actions">
+            <EntityTypeMapping TypeName="DbModels.JDE_Actions">
+              <MappingFragment StoreEntitySet="JDE_Actions">
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="GivenTime" ColumnName="GivenTime" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ActionId" ColumnName="ActionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_PlaceActions">
+            <EntityTypeMapping TypeName="DbModels.JDE_PlaceActions">
+              <MappingFragment StoreEntitySet="JDE_PlaceActions">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="ActionId" ColumnName="ActionId" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="PlaceActionId" ColumnName="PlaceActionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_ProcessActions">
+            <EntityTypeMapping TypeName="DbModels.JDE_ProcessActions">
+              <MappingFragment StoreEntitySet="JDE_ProcessActions">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
+                <ScalarProperty Name="ActionId" ColumnName="ActionId" />
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
+                <ScalarProperty Name="ProcessActionId" ColumnName="ProcessActionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_ProcessAssigns">
+            <EntityTypeMapping TypeName="DbModels.JDE_ProcessAssigns">
+              <MappingFragment StoreEntitySet="JDE_ProcessAssigns">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ProcessAssignId" ColumnName="ProcessAssignId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

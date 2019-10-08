@@ -47,5 +47,9 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Companies> JDE_Companies { get; set; }
         public virtual DbSet<JDE_FileAssigns> JDE_FileAssigns { get; set; }
         public virtual DbSet<JDE_Files> JDE_Files { get; set; }
+        public virtual DbSet<JDE_Actions> JDE_Actions { get; set; }
+        public virtual DbSet<JDE_PlaceActions> JDE_PlaceActions { get; set; }
+        public virtual DbSet<JDE_ProcessActions> JDE_ProcessActions { get; set; }
+        public virtual DbSet<JDE_ProcessAssigns> JDE_ProcessAssigns { get; set; }
     }
 }
