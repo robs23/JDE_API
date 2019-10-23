@@ -34,8 +34,6 @@ namespace JDE_API.Controllers
                                  from prs in Processes.DefaultIfEmpty()
                                  join a in db.JDE_Actions on pa.ActionId equals a.ActionId into Actions
                                  from acs in Actions.DefaultIfEmpty()
-                                 join h in db.JDE_Handlings on pa.HandlingId equals h.HandlingId into Handlings
-                                 from hs in Handlings.DefaultIfEmpty()
                                  join u in db.JDE_Users on pa.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on pa.LmBy equals u2.UserId into LmByNames
                                  from lms in LmByNames.DefaultIfEmpty()
@@ -48,14 +46,29 @@ namespace JDE_API.Controllers
                                      ProcessId = pa.ProcessId,
                                      ActionId = pa.ActionId,
                                      ActionName = acs.Name,
-                                     HandlingId = pa.HandlingId,
+                                     GivenTime = acs.GivenTime,
+                                     Type = acs.Type,
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
                                      LmBy = pa.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     AssignedUsers = (from pras in db.JDE_ProcessAssigns
+                                                        join uu in db.JDE_Users on pras.UserId equals uu.UserId
+                                                        where pras.ProcessId == pa.ProcessId
+                                                        select uu.Name + " " + uu.Surname),
+                                     Handlings = (from hans in db.JDE_Handlings
+                                                  join uh in db.JDE_Users on hans.UserId equals uh.UserId
+                                                  where hans.ProcessActionId == pa.ProcessActionId
+                                                  select new
+                                                  {
+                                                      HandlingId = hans.HandlingId,
+                                                      UserName = uh.Name + " " + uh.Surname,
+                                                      StartedOn = hans.StartedOn,
+                                                      FinishedOn = hans.FinishedOn
+                                                  })
                                  });
                     if (items.Any())
                     {

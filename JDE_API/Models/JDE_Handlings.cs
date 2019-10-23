@@ -24,5 +24,6 @@ namespace JDE_API.Models
         public Nullable<bool> IsCompleted { get; set; }
         public string Output { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public Nullable<int> ProcessActionId { get; set; }
     }
 }

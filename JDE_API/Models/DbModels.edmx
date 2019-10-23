@@ -175,6 +175,7 @@
           <Property Name="IsCompleted" Type="bit" />
           <Property Name="Output" Type="nvarchar(max)" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="ProcessActionId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Logs">
           <Key>
@@ -465,6 +466,7 @@
           <Property Name="IsCompleted" Type="Boolean" />
           <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="ProcessActionId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Logs">
           <Key>
@@ -878,6 +880,7 @@
           <EntitySetMapping Name="JDE_Handlings">
             <EntityTypeMapping TypeName="DbModels.JDE_Handlings">
               <MappingFragment StoreEntitySet="JDE_Handlings">
+                <ScalarProperty Name="ProcessActionId" ColumnName="ProcessActionId" />
                 <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
