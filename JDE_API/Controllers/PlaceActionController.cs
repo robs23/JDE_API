@@ -50,7 +50,7 @@ namespace JDE_API.Controllers
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
-                                     LmBy = lms.UserId,
+                                     LmBy = pa.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
                                      TenantName = t.TenantName
@@ -141,7 +141,7 @@ namespace JDE_API.Controllers
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
-                                     LmBy = lms.UserId,
+                                     LmBy = pa.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
                                      TenantName = t.TenantName
