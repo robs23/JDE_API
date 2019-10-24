@@ -34,6 +34,7 @@ namespace JDE_API.Controllers
                                  from prs in Processes.DefaultIfEmpty()
                                  join a in db.JDE_Actions on pa.ActionId equals a.ActionId into Actions
                                  from acs in Actions.DefaultIfEmpty()
+                                 join pl in db.JDE_Places on prs.PlaceId equals pl.PlaceId
                                  join u in db.JDE_Users on pa.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on pa.LmBy equals u2.UserId into LmByNames
                                  from lms in LmByNames.DefaultIfEmpty()
@@ -44,6 +45,9 @@ namespace JDE_API.Controllers
                                  {
                                      ProcessActionId = pa.ProcessActionId,
                                      ProcessId = pa.ProcessId,
+                                     PlannedStart = prs.PlannedStart,
+                                     PlannedFinish = prs.PlannedFinish,
+                                     PlaceName = pl.Name,
                                      ActionId = pa.ActionId,
                                      ActionName = acs.Name,
                                      GivenTime = acs.GivenTime,
