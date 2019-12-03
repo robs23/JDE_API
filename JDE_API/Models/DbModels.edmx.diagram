@@ -7,7 +7,6 @@
       <Diagram DiagramId="17adbabb74324754be2af715a56a3cea" Name="Diagram1" ZoomLevel="88">
         <EntityTypeShape EntityType="DbModels.JDE_ActionTypes" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModels.JDE_Areas" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DbModels.JDE_Handlings" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModels.JDE_Logs" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModels.JDE_Places" Width="1.5" PointX="4.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModels.JDE_Sets" Width="1.5" PointX="0.75" PointY="4.125" IsExpanded="true" />
@@ -31,6 +30,7 @@
         <EntityTypeShape EntityType="DbModels.JDE_PlaceActions" Width="1.5" PointX="7.375" PointY="14.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessActions" Width="1.5" PointX="14.375" PointY="8.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessAssigns" Width="1.5" PointX="9.375" PointY="14.75" />
+        <EntityTypeShape EntityType="DbModels.JDE_Handlings" Width="1.5" PointX="7" PointY="6.625" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

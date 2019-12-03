@@ -361,8 +361,6 @@
     </Content>
     <None Include="Properties\PublishProfiles\jde-api.robs23.hostingasp.pl - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\jde-test-api.robs23.hostingasp.pl - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\JDE_API.pubxml" />
-    <None Include="Properties\PublishProfiles\JDE_API_TEST.pubxml" />
     <None Include="Properties\PublishProfiles\JDE_PROD_API_LOCAL.pubxml" />
     <None Include="Properties\PublishProfiles\JDE_TEST_API_LOCAL.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />

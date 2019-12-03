@@ -27,7 +27,6 @@ namespace JDE_API.Models
     
         public virtual DbSet<JDE_ActionTypes> JDE_ActionTypes { get; set; }
         public virtual DbSet<JDE_Areas> JDE_Areas { get; set; }
-        public virtual DbSet<JDE_Handlings> JDE_Handlings { get; set; }
         public virtual DbSet<JDE_Logs> JDE_Logs { get; set; }
         public virtual DbSet<JDE_Places> JDE_Places { get; set; }
         public virtual DbSet<JDE_Sets> JDE_Sets { get; set; }
@@ -51,5 +50,6 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_PlaceActions> JDE_PlaceActions { get; set; }
         public virtual DbSet<JDE_ProcessActions> JDE_ProcessActions { get; set; }
         public virtual DbSet<JDE_ProcessAssigns> JDE_ProcessAssigns { get; set; }
+        public virtual DbSet<JDE_Handlings> JDE_Handlings { get; set; }
     }
 }

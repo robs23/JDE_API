@@ -47,13 +47,21 @@ namespace JDE_API.Controllers
                                      PlaceName = pls.Name,
                                      ActionId = pa.ActionId,
                                      ActionName = acs.Name,
+                                     GivenTime = acs.GivenTime,
+                                     Type = acs.Type,
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
                                      LmBy = pa.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     LastCheck = (from pact in db.JDE_ProcessActions
+                                                  join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
+                                                  from hs in Handlings.DefaultIfEmpty()
+                                                  where pact.ActionId == pa.ActionId
+                                                  orderby hs.FinishedOn descending
+                                                  select hs.FinishedOn).Take(1)
                                  });
                     if (items.Any())
                     {
@@ -138,13 +146,21 @@ namespace JDE_API.Controllers
                                      PlaceName = pls.Name,
                                      ActionId = pa.ActionId,
                                      ActionName = acs.Name,
+                                     GivenTime = acs.GivenTime,
+                                     Type = acs.Type,
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
                                      LmBy = pa.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     LastCheck = (from pact in db.JDE_ProcessActions
+                                                  join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
+                                                  from hs in Handlings.DefaultIfEmpty()
+                                                  where pact.ActionId == pa.ActionId
+                                                  orderby hs.FinishedOn descending
+                                                  select hs.FinishedOn).Take(1)
                                  });
                     if (items.Any())
                     {

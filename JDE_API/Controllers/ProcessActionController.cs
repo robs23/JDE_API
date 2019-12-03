@@ -65,14 +65,20 @@ namespace JDE_API.Controllers
                                                         select uu.Name + " " + uu.Surname),
                                      Handlings = (from hans in db.JDE_Handlings
                                                   join uh in db.JDE_Users on hans.UserId equals uh.UserId
-                                                  where hans.ProcessActionId == pa.ProcessActionId
+                                                  where hans.HandlingId == pa.HandlingId
                                                   select new
                                                   {
                                                       HandlingId = hans.HandlingId,
                                                       UserName = uh.Name + " " + uh.Surname,
                                                       StartedOn = hans.StartedOn,
                                                       FinishedOn = hans.FinishedOn
-                                                  })
+                                                  }),
+                                      LastCheck = (from pact in db.JDE_ProcessActions
+                                                   join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
+                                                   from hs in Handlings.DefaultIfEmpty()
+                                                   where pact.ActionId==pa.ActionId
+                                                   orderby hs.FinishedOn descending
+                                                   select hs.FinishedOn).Take(1)
                                  });
                     if (items.Any())
                     {
@@ -165,7 +171,13 @@ namespace JDE_API.Controllers
                                      LmBy = pa.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     LastCheck = (from pact in db.JDE_ProcessActions
+                                                  join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
+                                                  from hs in Handlings.DefaultIfEmpty()
+                                                  where pact.ActionId == pa.ActionId
+                                                  orderby hs.FinishedOn descending
+                                                  select hs.FinishedOn).Take(1)
                                  });
                     if (items.Any())
                     {

@@ -175,7 +175,6 @@
           <Property Name="IsCompleted" Type="bit" />
           <Property Name="Output" Type="nvarchar(max)" />
           <Property Name="TenantId" Type="int" />
-          <Property Name="ProcessActionId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Logs">
           <Key>
@@ -452,22 +451,6 @@
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
-        <EntityType Name="JDE_Handlings">
-          <Key>
-            <PropertyRef Name="HandlingId" />
-          </Key>
-          <Property Name="HandlingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ProcessId" Type="Int32" />
-          <Property Name="UserId" Type="Int32" />
-          <Property Name="StartedOn" Type="DateTime" Precision="3" />
-          <Property Name="FinishedOn" Type="DateTime" Precision="3" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="IsFrozen" Type="Boolean" />
-          <Property Name="IsCompleted" Type="Boolean" />
-          <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="ProcessActionId" Type="Int32" />
-        </EntityType>
         <EntityType Name="JDE_Logs">
           <Key>
             <PropertyRef Name="LogId" />
@@ -549,7 +532,6 @@
         <EntityContainer Name="DbModel" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" />
-          <EntitySet Name="JDE_Handlings" EntityType="Self.JDE_Handlings" />
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" />
           <EntitySet Name="JDE_Places" EntityType="Self.JDE_Places" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" />
@@ -573,6 +555,7 @@
           <EntitySet Name="JDE_PlaceActions" EntityType="DbModels.JDE_PlaceActions" />
           <EntitySet Name="JDE_ProcessActions" EntityType="DbModels.JDE_ProcessActions" />
           <EntitySet Name="JDE_ProcessAssigns" EntityType="DbModels.JDE_ProcessAssigns" />
+          <EntitySet Name="JDE_Handlings" EntityType="DbModels.JDE_Handlings" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -843,6 +826,21 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
+        <EntityType Name="JDE_Handlings">
+          <Key>
+            <PropertyRef Name="HandlingId" />
+          </Key>
+          <Property Name="HandlingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProcessId" Type="Int32" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="StartedOn" Type="DateTime" Precision="3" />
+          <Property Name="FinishedOn" Type="DateTime" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="IsFrozen" Type="Boolean" />
+          <Property Name="IsCompleted" Type="Boolean" />
+          <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TenantId" Type="Int32" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -873,23 +871,6 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
                 <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Handlings">
-            <EntityTypeMapping TypeName="DbModels.JDE_Handlings">
-              <MappingFragment StoreEntitySet="JDE_Handlings">
-                <ScalarProperty Name="ProcessActionId" ColumnName="ProcessActionId" />
-                <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
-                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
-                <ScalarProperty Name="FinishedOn" ColumnName="FinishedOn" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="IsFrozen" ColumnName="IsFrozen" />
-                <ScalarProperty Name="IsCompleted" ColumnName="IsCompleted" />
-                <ScalarProperty Name="Output" ColumnName="Output" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -1261,6 +1242,22 @@
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="ProcessAssignId" ColumnName="ProcessAssignId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Handlings">
+            <EntityTypeMapping TypeName="DbModels.JDE_Handlings">
+              <MappingFragment StoreEntitySet="JDE_Handlings">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="Output" ColumnName="Output" />
+                <ScalarProperty Name="IsCompleted" ColumnName="IsCompleted" />
+                <ScalarProperty Name="IsFrozen" ColumnName="IsFrozen" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="FinishedOn" ColumnName="FinishedOn" />
+                <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
+                <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
