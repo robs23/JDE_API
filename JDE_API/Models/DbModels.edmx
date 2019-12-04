@@ -293,6 +293,7 @@
           <Property Name="ProcessId" Type="int" />
           <Property Name="ActionId" Type="int" />
           <Property Name="HandlingId" Type="int" />
+          <Property Name="IsChecked" Type="bit" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
@@ -812,6 +813,7 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsChecked" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_ProcessAssigns">
           <Key>
@@ -1219,6 +1221,7 @@
           <EntitySetMapping Name="JDE_ProcessActions">
             <EntityTypeMapping TypeName="DbModels.JDE_ProcessActions">
               <MappingFragment StoreEntitySet="JDE_ProcessActions">
+                <ScalarProperty Name="IsChecked" ColumnName="IsChecked" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />

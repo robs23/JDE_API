@@ -47,11 +47,13 @@ namespace JDE_API.Controllers
                                      ProcessId = pa.ProcessId,
                                      PlannedStart = prs.PlannedStart,
                                      PlannedFinish = prs.PlannedFinish,
+                                     PlaceId = prs.PlaceId,
                                      PlaceName = pl.Name,
                                      ActionId = pa.ActionId,
                                      ActionName = acs.Name,
                                      GivenTime = acs.GivenTime,
                                      Type = acs.Type,
+                                     IsChecked = pa.IsChecked,
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
@@ -73,10 +75,10 @@ namespace JDE_API.Controllers
                                                       StartedOn = hans.StartedOn,
                                                       FinishedOn = hans.FinishedOn
                                                   }),
-                                      LastCheck = (from pact in db.JDE_ProcessActions
+                                      LastChecks = (from pact in db.JDE_ProcessActions
                                                    join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
                                                    from hs in Handlings.DefaultIfEmpty()
-                                                   where pact.ActionId==pa.ActionId
+                                                   where pact.ActionId==pa.ActionId && pact.IsChecked==true
                                                    orderby hs.FinishedOn descending
                                                    select hs.FinishedOn).Take(1)
                                  });
@@ -164,7 +166,8 @@ namespace JDE_API.Controllers
                                      ProcessId = pa.ProcessId,
                                      ActionId = pa.ActionId,
                                      ActionName = acs.Name,
-                                     HandlingId = pa.HandlingId,
+                                     PlaceId = prs.PlaceId,
+                                     IsChecked = pa.IsChecked,
                                      CreatedBy = u.UserId,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      CreatedOn = pa.CreatedOn,
@@ -172,12 +175,12 @@ namespace JDE_API.Controllers
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
                                      TenantName = t.TenantName,
-                                     LastCheck = (from pact in db.JDE_ProcessActions
-                                                  join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
-                                                  from hs in Handlings.DefaultIfEmpty()
-                                                  where pact.ActionId == pa.ActionId
-                                                  orderby hs.FinishedOn descending
-                                                  select hs.FinishedOn).Take(1)
+                                     LastChecks = (from pact in db.JDE_ProcessActions
+                                                   join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
+                                                   from hs in Handlings.DefaultIfEmpty()
+                                                   where pact.ActionId == pa.ActionId && pact.IsChecked == true
+                                                   orderby hs.FinishedOn descending
+                                                   select hs.FinishedOn).Take(1)
                                  });
                     if (items.Any())
                     {
