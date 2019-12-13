@@ -255,7 +255,12 @@ namespace JDE_API.Controllers
                                  join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                                  join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
                                  from ha in hans.DefaultIfEmpty()
-                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo && ((ha.UserId == UserId && (ha.IsCompleted == false || ha.IsCompleted == null)) || (p.LastStatusBy==UserId && p.IsCompleted==false))
+                                 join pa in db.JDE_ProcessAssigns on p.ProcessId equals pa.ProcessId into pas
+                                 from ppas in pas.DefaultIfEmpty()
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo 
+                                 && ((ha.UserId == UserId && (ha.IsCompleted == false || ha.IsCompleted == null)) 
+                                 || (p.LastStatusBy==UserId && p.IsCompleted==false && (p.IsActive==true || p.IsFrozen==true))
+                                 || (p.LastStatus==(int)ProcessStatus.Planned && p.PlannedStart <= DateTime.Now && ppas.UserId==UserId))
                                  group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
                                  by new
                                  {
@@ -929,6 +934,7 @@ namespace JDE_API.Controllers
                         item.CreatedOn = items.FirstOrDefault().CreatedOn;
                         if(items.FirstOrDefault().StartedOn != null)
                         {
+                            //It has already had a date. Keep it
                             item.StartedOn = items.FirstOrDefault().StartedOn;
                         }
                         else
