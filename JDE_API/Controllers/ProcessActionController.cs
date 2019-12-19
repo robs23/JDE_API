@@ -47,6 +47,8 @@ namespace JDE_API.Controllers
                                      ProcessId = pa.ProcessId,
                                      PlannedStart = prs.PlannedStart,
                                      PlannedFinish = prs.PlannedFinish,
+                                     StartedOn = prs.StartedOn,
+                                     FinishedOn = prs.FinishedOn,
                                      PlaceId = prs.PlaceId,
                                      PlaceName = pl.Name,
                                      ActionId = pa.ActionId,

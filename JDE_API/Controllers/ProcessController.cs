@@ -131,8 +131,12 @@ namespace JDE_API.Controllers
                                      LastStatusBy = grp.Key.LastStatusBy,
                                      LastStatusByName = grp.Key.LastStatusByName,
                                      LastStatusOn = grp.Key.LastStatusOn,
-                                     OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted==false)).Count(),
-                                     AllHandlings = grp.Where(ph=>ph.ha.HandlingId > 0).Count()
+                                     OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
+                                     AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
+                                     AssignedUsers = (from pras in db.JDE_ProcessAssigns
+                                                      join uu in db.JDE_Users on pras.UserId equals uu.UserId
+                                                      where pras.ProcessId == grp.Key.ProcessId
+                                                      select uu.Name + " " + uu.Surname)
                                  });
                     if (items.Any())
                     {
@@ -1466,6 +1470,22 @@ namespace JDE_API.Controllers
         public DateTime? LastStatusOn { get; set; }
         public int? OpenHandlings { get; set; }
         public int? AllHandlings { get; set; }
+        public IQueryable<string> AssignedUsers { get; set; }
+        public string AssignedUserNames
+        {
+            get
+            {
+                string res = "";
+                if (AssignedUsers != null)
+                {
+                    if (AssignedUsers.ToList<string>().Any())
+                    {
+                        res = string.Join(", ", AssignedUsers);
+                    }
+                }
+                return res;
+            }
+        }
     }
 
     public enum ProcessStatus
