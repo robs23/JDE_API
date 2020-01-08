@@ -12,6 +12,7 @@ using JDE_API.Models;
 using System.Web.Script.Serialization;
 using System.Diagnostics;
 using JDE_API.Static;
+using System.Linq.Dynamic;
 
 namespace JDE_API.Controllers
 {
@@ -21,7 +22,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetUsers")]
-        public IHttpActionResult GetUsers(string token)
+        public IHttpActionResult GetUsers(string token, string query = null)
         {
             if(token != null && token.Length > 0)
             {
@@ -46,10 +47,15 @@ namespace JDE_API.Controllers
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LastLoggedOn = us.lastLoggedOn,
-                                     MesLogin = us.MesLogin
+                                     MesLogin = us.MesLogin,
+                                     IsArchived = us.IsArchived
                                  });
                     if (users.Any())
                     {
+                        if (query != null)
+                        {
+                            users = users.Where(query);
+                        }
                         return Ok(users);
                     }
                     else
@@ -73,7 +79,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetUsers")]
-        public IHttpActionResult GetUsers(string token, int page)
+        public IHttpActionResult GetUsers(string token, int page, string query = null)
         {
             int pageSize = RuntimeSettings.PageSize;
             var skip = pageSize * (page - 1);
@@ -101,10 +107,16 @@ namespace JDE_API.Controllers
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LastLoggedOn = us.lastLoggedOn,
-                                     MesLogin = us.MesLogin
+                                     MesLogin = us.MesLogin,
+                                     IsActive = us.IsArchived
                                  });
                     if (users.Any())
                     {
+                        if (query != null)
+                        {
+                            users = users.Where(query);
+                        }
+
                         if (skip < users.Count())
                         {
                             users = users.Skip(skip).Take(pageSize);

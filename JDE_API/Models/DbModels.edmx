@@ -81,6 +81,7 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_CompanyTypes">
           <Key>
@@ -239,6 +240,7 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_PartUsages">
           <Key>
@@ -284,6 +286,7 @@
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
           <Property Name="PlaceToken" Type="nvarchar(max)" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_ProcessActions">
           <Key>
@@ -393,6 +396,7 @@
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
           <Property Name="MesLogin" Type="nvarchar(max)" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityContainer Name="DbModelsStoreContainer">
           <EntitySet Name="JDE_Actions" EntityType="Self.JDE_Actions" Schema="dbo" store:Type="Tables" />
@@ -464,23 +468,6 @@
           <Property Name="OldValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NewValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="JDE_Places">
-          <Key>
-            <PropertyRef Name="PlaceId" />
-          </Key>
-          <Property Name="PlaceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Number1" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Number2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="AreaId" Type="Int32" />
-          <Property Name="SetId" Type="Int32" />
-          <Property Name="Priority" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="PlaceToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
             <PropertyRef Name="SetId" />
@@ -502,21 +489,6 @@
           <Property Name="TenantFullName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="TenantToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="JDE_Users">
-          <Key>
-            <PropertyRef Name="UserId" />
-          </Key>
-          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Surname" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="isMechanic" Type="Boolean" />
-          <Property Name="lastLoggedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="MesLogin" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="JDE_Errors">
           <Key>
             <PropertyRef Name="ErrorId" />
@@ -534,22 +506,18 @@
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" />
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" />
-          <EntitySet Name="JDE_Places" EntityType="Self.JDE_Places" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" />
-          <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" />
           <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
           <EntitySet Name="JDE_Boms" EntityType="DbModels.JDE_Boms" />
           <EntitySet Name="JDE_Deliveries" EntityType="DbModels.JDE_Deliveries" />
           <EntitySet Name="JDE_DeliveryItems" EntityType="DbModels.JDE_DeliveryItems" />
-          <EntitySet Name="JDE_Parts" EntityType="DbModels.JDE_Parts" />
           <EntitySet Name="JDE_PartUsages" EntityType="DbModels.JDE_PartUsages" />
           <EntitySet Name="JDE_Stocks" EntityType="DbModels.JDE_Stocks" />
           <EntitySet Name="JDE_OrderItems" EntityType="DbModels.JDE_OrderItems" />
           <EntitySet Name="JDE_Orders" EntityType="DbModels.JDE_Orders" />
           <EntitySet Name="JDE_CompanyTypes" EntityType="DbModels.JDE_CompanyTypes" />
-          <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
           <EntitySet Name="JDE_FileAssigns" EntityType="DbModels.JDE_FileAssigns" />
           <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
           <EntitySet Name="JDE_Actions" EntityType="DbModels.JDE_Actions" />
@@ -557,6 +525,10 @@
           <EntitySet Name="JDE_ProcessActions" EntityType="DbModels.JDE_ProcessActions" />
           <EntitySet Name="JDE_ProcessAssigns" EntityType="DbModels.JDE_ProcessAssigns" />
           <EntitySet Name="JDE_Handlings" EntityType="DbModels.JDE_Handlings" />
+          <EntitySet Name="JDE_Companies" EntityType="DbModels.JDE_Companies" />
+          <EntitySet Name="JDE_Parts" EntityType="DbModels.JDE_Parts" />
+          <EntitySet Name="JDE_Places" EntityType="DbModels.JDE_Places" />
+          <EntitySet Name="JDE_Users" EntityType="DbModels.JDE_Users" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -630,29 +602,6 @@
           <Property Name="StorageBinId" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
-        <EntityType Name="JDE_Parts">
-          <Key>
-            <PropertyRef Name="PartId" />
-          </Key>
-          <Property Name="PartId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="EAN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ProducerId" Type="Int32" />
-          <Property Name="ProducentsCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="SupplierId" Type="Int32" />
-          <Property Name="Symbol" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Destination" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Appliance" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="UsedOn" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="LmBy" Type="Int32" />
-          <Property Name="LmOn" Type="DateTime" Precision="3" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="JDE_PartUsages">
           <Key>
             <PropertyRef Name="PartUsageId" />
@@ -722,26 +671,6 @@
           <Property Name="TenantId" Type="Int32" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="JDE_Companies">
-          <Key>
-            <PropertyRef Name="CompanyId" />
-          </Key>
-          <Property Name="CompanyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Street" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Street2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="BuildingNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="LocalNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ZipCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="City" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Country" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="TypeId" Type="Int32" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="LmBy" Type="Int32" />
-          <Property Name="LmOn" Type="DateTime" Precision="3" />
-          <Property Name="TenantId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_FileAssigns">
           <Key>
@@ -843,6 +772,85 @@
           <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
+        <EntityType Name="JDE_Companies">
+          <Key>
+            <PropertyRef Name="CompanyId" />
+          </Key>
+          <Property Name="CompanyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Street" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Street2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="BuildingNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LocalNo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ZipCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TypeId" Type="Int32" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsArchived" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="JDE_Parts">
+          <Key>
+            <PropertyRef Name="PartId" />
+          </Key>
+          <Property Name="PartId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="EAN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ProducerId" Type="Int32" />
+          <Property Name="ProducentsCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SupplierId" Type="Int32" />
+          <Property Name="Symbol" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Destination" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Appliance" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UsedOn" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsArchived" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="JDE_Places">
+          <Key>
+            <PropertyRef Name="PlaceId" />
+          </Key>
+          <Property Name="PlaceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Number1" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Number2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AreaId" Type="Int32" />
+          <Property Name="SetId" Type="Int32" />
+          <Property Name="Priority" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="PlaceToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsArchived" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="JDE_Users">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Surname" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="isMechanic" Type="Boolean" />
+          <Property Name="lastLoggedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="MesLogin" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IsArchived" Type="Boolean" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -890,24 +898,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Places">
-            <EntityTypeMapping TypeName="DbModels.JDE_Places">
-              <MappingFragment StoreEntitySet="JDE_Places">
-                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
-                <ScalarProperty Name="Number1" ColumnName="Number1" />
-                <ScalarProperty Name="Number2" ColumnName="Number2" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
-                <ScalarProperty Name="SetId" ColumnName="SetId" />
-                <ScalarProperty Name="Priority" ColumnName="Priority" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="PlaceToken" ColumnName="PlaceToken" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="JDE_Sets">
             <EntityTypeMapping TypeName="DbModels.JDE_Sets">
               <MappingFragment StoreEntitySet="JDE_Sets">
@@ -928,22 +918,6 @@
                 <ScalarProperty Name="TenantName" ColumnName="TenantName" />
                 <ScalarProperty Name="TenantFullName" ColumnName="TenantFullName" />
                 <ScalarProperty Name="TenantToken" ColumnName="TenantToken" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Users">
-            <EntityTypeMapping TypeName="DbModels.JDE_Users">
-              <MappingFragment StoreEntitySet="JDE_Users">
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Surname" ColumnName="Surname" />
-                <ScalarProperty Name="Password" ColumnName="Password" />
-                <ScalarProperty Name="isMechanic" ColumnName="isMechanic" />
-                <ScalarProperty Name="lastLoggedOn" ColumnName="lastLoggedOn" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="MesLogin" ColumnName="MesLogin" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1037,30 +1011,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Parts">
-            <EntityTypeMapping TypeName="DbModels.JDE_Parts">
-              <MappingFragment StoreEntitySet="JDE_Parts">
-                <ScalarProperty Name="Image" ColumnName="Image" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
-                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="Token" ColumnName="Token" />
-                <ScalarProperty Name="UsedOn" ColumnName="UsedOn" />
-                <ScalarProperty Name="Appliance" ColumnName="Appliance" />
-                <ScalarProperty Name="Destination" ColumnName="Destination" />
-                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
-                <ScalarProperty Name="SupplierId" ColumnName="SupplierId" />
-                <ScalarProperty Name="ProducentsCode" ColumnName="ProducentsCode" />
-                <ScalarProperty Name="ProducerId" ColumnName="ProducerId" />
-                <ScalarProperty Name="EAN" ColumnName="EAN" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="PartId" ColumnName="PartId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="JDE_PartUsages">
             <EntityTypeMapping TypeName="DbModels.JDE_PartUsages">
               <MappingFragment StoreEntitySet="JDE_PartUsages">
@@ -1133,27 +1083,6 @@
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="CompanyTypeId" ColumnName="CompanyTypeId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Companies">
-            <EntityTypeMapping TypeName="DbModels.JDE_Companies">
-              <MappingFragment StoreEntitySet="JDE_Companies">
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
-                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
-                <ScalarProperty Name="Country" ColumnName="Country" />
-                <ScalarProperty Name="City" ColumnName="City" />
-                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
-                <ScalarProperty Name="LocalNo" ColumnName="LocalNo" />
-                <ScalarProperty Name="BuildingNo" ColumnName="BuildingNo" />
-                <ScalarProperty Name="Street2" ColumnName="Street2" />
-                <ScalarProperty Name="Street" ColumnName="Street" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1261,6 +1190,89 @@
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
                 <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Companies">
+            <EntityTypeMapping TypeName="DbModels.JDE_Companies">
+              <MappingFragment StoreEntitySet="JDE_Companies">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+                <ScalarProperty Name="LocalNo" ColumnName="LocalNo" />
+                <ScalarProperty Name="BuildingNo" ColumnName="BuildingNo" />
+                <ScalarProperty Name="Street2" ColumnName="Street2" />
+                <ScalarProperty Name="Street" ColumnName="Street" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Parts">
+            <EntityTypeMapping TypeName="DbModels.JDE_Parts">
+              <MappingFragment StoreEntitySet="JDE_Parts">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Image" ColumnName="Image" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="UsedOn" ColumnName="UsedOn" />
+                <ScalarProperty Name="Appliance" ColumnName="Appliance" />
+                <ScalarProperty Name="Destination" ColumnName="Destination" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="SupplierId" ColumnName="SupplierId" />
+                <ScalarProperty Name="ProducentsCode" ColumnName="ProducentsCode" />
+                <ScalarProperty Name="ProducerId" ColumnName="ProducerId" />
+                <ScalarProperty Name="EAN" ColumnName="EAN" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Places">
+            <EntityTypeMapping TypeName="DbModels.JDE_Places">
+              <MappingFragment StoreEntitySet="JDE_Places">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="PlaceToken" ColumnName="PlaceToken" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Priority" ColumnName="Priority" />
+                <ScalarProperty Name="SetId" ColumnName="SetId" />
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Number2" ColumnName="Number2" />
+                <ScalarProperty Name="Number1" ColumnName="Number1" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Users">
+            <EntityTypeMapping TypeName="DbModels.JDE_Users">
+              <MappingFragment StoreEntitySet="JDE_Users">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="MesLogin" ColumnName="MesLogin" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="lastLoggedOn" ColumnName="lastLoggedOn" />
+                <ScalarProperty Name="isMechanic" ColumnName="isMechanic" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Surname" ColumnName="Surname" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

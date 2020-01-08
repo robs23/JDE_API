@@ -29,5 +29,6 @@ namespace JDE_API.Models
         public Nullable<int> LmBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public Nullable<bool> IsArchived { get; set; }
     }
 }

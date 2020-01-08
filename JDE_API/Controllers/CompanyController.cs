@@ -80,7 +80,8 @@ namespace JDE_API.Controllers
                                      TypeId = c.TypeId,
                                      CompanyTypeName = ct.Name,
                                      TenantId = c.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = c.IsArchived
                                  });
                     if (items.Any())
                     {

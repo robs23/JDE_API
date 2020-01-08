@@ -53,7 +53,8 @@ namespace JDE_API.Controllers
                                       CreatedByName = us.Name + " " + us.Surname,
                                       TenantId = t.TenantId,
                                       TenantName = t.TenantName,
-                                      PlaceToken = pl.PlaceToken
+                                      PlaceToken = pl.PlaceToken,
+                                      IsArchived = pl.IsArchived
                                   }
                           );
                     if (items.Any())

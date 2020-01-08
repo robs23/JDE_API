@@ -24,5 +24,6 @@ namespace JDE_API.Models
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<int> TenantId { get; set; }
         public string MesLogin { get; set; }
+        public Nullable<bool> IsArchived { get; set; }
     }
 }

@@ -91,7 +91,8 @@ namespace JDE_API.Controllers
                                      LmBy = p.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = p.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = p.IsArchived
                                  });
                     if (items.Any())
                     {

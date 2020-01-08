@@ -26,11 +26,12 @@ namespace JDE_API.Models
         public string Appliance { get; set; }
         public string UsedOn { get; set; }
         public string Token { get; set; }
+        public string Image { get; set; }
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> LmBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> TenantId { get; set; }
-        public string Image { get; set; }
+        public Nullable<bool> IsArchived { get; set; }
     }
 }
