@@ -217,6 +217,52 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("ArchivePart")]
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage ArchivePart(string token, int id, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Parts.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
+                    if (items.Any())
+                    {
+                        JDE_Parts orgItem = items.FirstOrDefault();
+
+                        orgItem.IsArchived = true;
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Archiwizacja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = "" };
+                        db.JDE_Logs.Add(Log);
+
+                        try
+                        {
+                            db.Entry(orgItem).State = EntityState.Modified;
+                            db.SaveChanges();
+
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!JDE_PartExists(id))
+                            {
+                                return Request.CreateResponse(HttpStatusCode.NotFound);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                        }
+                    }
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
         [HttpPut]
         [Route("EditPart")]
         [ResponseType(typeof(void))]
