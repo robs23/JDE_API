@@ -316,6 +316,51 @@ namespace JDE_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [HttpGet]
+        [Route("ArchivePlace")]
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage ArchivePlace(string token, int id, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Places.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PlaceId == id);
+                    if (items.Any())
+                    {
+                        JDE_Places orgItem = items.FirstOrDefault();
+
+                        orgItem.IsArchived = true;
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Archiwizacja zasobu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = "" };
+                        db.JDE_Logs.Add(Log);
+
+                        try
+                        {
+                            db.Entry(orgItem).State = EntityState.Modified;
+                            db.SaveChanges();
+
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!JDE_PlacesExists(id))
+                            {
+                                return Request.CreateResponse(HttpStatusCode.NotFound);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                        }
+                    }
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
 
         [HttpPost]
         [Route("CreatePlace")]
