@@ -108,7 +108,7 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LastLoggedOn = us.lastLoggedOn,
                                      MesLogin = us.MesLogin,
-                                     IsActive = us.IsArchived
+                                     IsArchived = us.IsArchived
                                  });
                     if (users.Any())
                     {
