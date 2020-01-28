@@ -1175,6 +1175,73 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("AssignUsers")]
+        public IHttpActionResult AssignUsers(string token, int ProcessId, List<JDE_Users> Users, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == ProcessId);
+                    if (items.Any())
+                    {
+                        //delete all current assigns that are NOT in new list
+
+                        List<int> UserIds = Users.Select(o => o.UserId).ToList();
+
+                        var orgUsers = new Dictionary<string, string>
+                        {
+                            {"ProcessId", ProcessId.ToString() },
+                            {"Users", db.JDE_ProcessAssigns.Where(p=>p.ProcessId==ProcessId).Select(p=>p.UserId).ToString() }
+                        };
+
+                        var paks = db.JDE_ProcessAssigns.Where(p => p.ProcessId == ProcessId && !UserIds.Contains((int)p.UserId));
+                        if (paks.Any())
+                        {
+                            foreach(JDE_ProcessAssigns pa in paks)
+                            {
+                                db.JDE_ProcessAssigns.Remove(pa);
+                            }
+                            db.SaveChanges();
+                        }
+
+                        var newUsers = new Dictionary<string, string>
+                        {
+                            {"ProcessId", ProcessId.ToString() },
+                            {"Users", UserIds.ToString() }
+                        };
+
+                        paks = db.JDE_ProcessAssigns.Where(p => p.ProcessId == ProcessId);
+                        //assign Users to the process
+
+                        foreach(JDE_Users u in Users)
+                        {
+                            if (!paks.Any(p => p.UserId == u.UserId))
+                            {
+                                JDE_ProcessAssigns pa = new JDE_ProcessAssigns();
+                                pa.UserId = u.UserId;
+                                pa.ProcessId = pa.ProcessId;
+                                pa.TenantId = tenants.FirstOrDefault().TenantId;
+                                pa.CreatedBy = UserId;
+                                pa.CreatedOn = DateTime.Now;
+                                db.JDE_ProcessAssigns.Add(pa);
+                            }
+                        }
+
+                        db.SaveChanges();
+                       
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zmiana użytkowników przypisanych do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(orgUsers), NewValue = new JavaScriptSerializer().Serialize(newUsers) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
+                    }
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         [HttpGet]
         [Route("GetProcessHistory")]
         public IHttpActionResult GetProcessHistory(string token, int id)
