@@ -1184,7 +1184,11 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == ProcessId);
+                    //get assignable action types, so you won't assign a user to non-assignable action type
+
+                    List<int> AssignableTypes = db.JDE_ActionTypes.Where(a => a.ShowInPlanning == true).Select(a=>a.ActionTypeId).ToList();
+
+                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == ProcessId && AssignableTypes.Contains((int)u.ActionTypeId));
                     if (items.Any())
                     {
                         //delete all current assigns that are NOT in new list
@@ -1194,7 +1198,7 @@ namespace JDE_API.Controllers
                         var orgUsers = new Dictionary<string, string>
                         {
                             {"ProcessId", ProcessId.ToString() },
-                            {"Users", db.JDE_ProcessAssigns.Where(p=>p.ProcessId==ProcessId).Select(p=>p.UserId).ToString() }
+                            {"Users", string.Join(",",db.JDE_ProcessAssigns.Where(p=>p.ProcessId==ProcessId).Select(p=>p.UserId)) }
                         };
 
                         var paks = db.JDE_ProcessAssigns.Where(p => p.ProcessId == ProcessId && !UserIds.Contains((int)p.UserId));
@@ -1210,7 +1214,7 @@ namespace JDE_API.Controllers
                         var newUsers = new Dictionary<string, string>
                         {
                             {"ProcessId", ProcessId.ToString() },
-                            {"Users", UserIds.ToString() }
+                            {"Users", string.Join(",",UserIds) }
                         };
 
                         paks = db.JDE_ProcessAssigns.Where(p => p.ProcessId == ProcessId);
@@ -1222,19 +1226,23 @@ namespace JDE_API.Controllers
                             {
                                 JDE_ProcessAssigns pa = new JDE_ProcessAssigns();
                                 pa.UserId = u.UserId;
-                                pa.ProcessId = pa.ProcessId;
+                                pa.ProcessId = ProcessId;
                                 pa.TenantId = tenants.FirstOrDefault().TenantId;
                                 pa.CreatedBy = UserId;
                                 pa.CreatedOn = DateTime.Now;
                                 db.JDE_ProcessAssigns.Add(pa);
+                                
                             }
                         }
-
                         db.SaveChanges();
-                       
+
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zmiana użytkowników przypisanych do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(orgUsers), NewValue = new JavaScriptSerializer().Serialize(newUsers) };
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
+                    }
+                    else
+                    {
+                        return StatusCode(HttpStatusCode.BadRequest);
                     }
                 }
             }
