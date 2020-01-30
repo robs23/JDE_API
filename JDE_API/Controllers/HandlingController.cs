@@ -602,6 +602,7 @@ namespace JDE_API.Controllers
         bool? IsFrozen { get; set; }
         bool? IsCompleted { get; set; }
         bool? IsSuccessfull { get; set; }
+        string AssignedUserNames { get; }
     }
 
     public class Handling : IProcessable
@@ -648,7 +649,7 @@ namespace JDE_API.Controllers
                 }
             }
         }
+        public string AssignedUserNames { get;}
 
-        
     }
 }

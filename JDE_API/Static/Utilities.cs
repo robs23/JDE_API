@@ -187,6 +187,49 @@ namespace JDE_API.Static
             return nItems;
         }
 
+        public static List<IProcessable> FilterByAssignedUserNames(List<IProcessable> nItems, string assignedUserNames)
+        {
+            int start = 0;
+            int end = 0;
+            string word = "";
+
+            if (assignedUserNames.Contains("!AssignedUserNames.ToLower().Contains") || assignedUserNames.Contains("AssignedUserNames<>"))
+            {
+                //Doesn't contain or different than
+                //let's get just query parameter
+                if (assignedUserNames.Contains("Contains"))
+                {
+                    word = "!AssignedUserNames.ToLower().Contains";
+                }
+                else
+                {
+                    word = "AssignedUserNames<>";
+                }
+                assignedUserNames = assignedUserNames.Replace(word, "");
+                start = assignedUserNames.IndexOf("\"");
+                end = assignedUserNames.IndexOf("\"", start + 1);
+                assignedUserNames = assignedUserNames.Substring(start + 1, end - (start + 1));
+                
+            }else if(assignedUserNames.Contains("AssignedUserNames.ToLower().Contains") || assignedUserNames.Contains("AssignedUserNames="))
+            {
+                if (assignedUserNames.Contains("Contains"))
+                {
+                    word = "AssignedUserNames.ToLower().Contains";
+                }
+                else
+                {
+                    word = "AssignedUserNames=";
+                }
+                assignedUserNames = assignedUserNames.Replace(word, "");
+                start = assignedUserNames.IndexOf("\"");
+                end = assignedUserNames.IndexOf("\"", start + 1);
+                assignedUserNames = assignedUserNames.Substring(start + 1, end - (start + 1));
+                nItems = nItems.Where(i => i.AssignedUserNames.ToLower().Contains(assignedUserNames)).ToList();
+            }
+
+            return nItems;
+        }
+
         public static void ProduceThumbnail(string path)
         {
             string fileName = Path.GetFileName(path);
