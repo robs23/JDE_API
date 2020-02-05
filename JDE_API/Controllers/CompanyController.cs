@@ -30,7 +30,7 @@ namespace JDE_API.Controllers
                 {
                     if (dFrom == null)
                     {
-                        if (db.JDE_Handlings.Any())
+                        if (db.JDE_Companies.Any())
                         {
                             dFrom = db.JDE_Companies.Min(x => x.CreatedOn).Value.AddDays(-1);
                         }

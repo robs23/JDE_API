@@ -222,6 +222,7 @@ namespace JDE_API.Controllers
                     {
                         string descr = "Edycja przypisania czynności do zgłoszenia";
                         item.LmOn = DateTime.Now;
+                        item.LmBy = UserId;
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;

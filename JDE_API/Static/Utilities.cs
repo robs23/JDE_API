@@ -1,6 +1,8 @@
 ﻿using JDE_API.Controllers;
+using JDE_API.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
@@ -10,11 +12,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
+using ProcessStatus = JDE_API.Controllers.ProcessStatus;
 
 namespace JDE_API.Static
 {
     public static class Utilities
     {
+        private static Models.DbModel db = new Models.DbModel();
         public static string uniqueToken()
         {
             string token;
@@ -276,6 +281,92 @@ namespace JDE_API.Static
         public async static void  DeleteAttachment(string name)
         {
 
+        }
+
+        public async static void CompleteAllProcessesOfTheTypeInThePlace(int thePlace, int theType, int excludeProcess, int UserId, string reasonForClosure = null)
+        {
+
+            bool? requireClosing = db.JDE_ActionTypes.Where(i => i.ActionTypeId == theType).FirstOrDefault().ClosePreviousInSamePlace;
+            if(requireClosing == null) { requireClosing = false; }
+            if ((bool)requireClosing)
+            {
+                IQueryable<JDE_Processes> processes = null;
+                processes = db.JDE_Processes.Where(p => p.PlaceId == thePlace && p.ActionTypeId==theType && p.ProcessId<excludeProcess && (p.IsCompleted == false || p.IsCompleted == null) && (p.IsSuccessfull == false || p.IsSuccessfull == null));
+                if (processes.Any())
+                {
+                    foreach(var p in processes)
+                    {
+                        CompleteProcessAsync((int)processes.FirstOrDefault().TenantId, p, UserId, reasonForClosure);
+                    }
+                }
+            }
+        }
+
+        public async static void CompleteProcessAsync(int tenantId, JDE_Processes item, int UserId, string reasonForClosure = null)
+        {
+            string OldValue = new JavaScriptSerializer().Serialize(item);
+            item.FinishedOn = DateTime.Now;
+            item.FinishedBy = UserId;
+            item.IsActive = false;
+            item.IsCompleted = true;
+            item.IsFrozen = false;
+            item.LastStatus = (int)ProcessStatus.Finished;
+            item.LastStatusBy = UserId;
+            item.LastStatusOn = DateTime.Now;
+            var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
+            if (reasonForClosure == null)
+            {
+                item.Output = $"Przymusowe zamknięcie zgłoszenia przez {User.Name + " " + User.Surname}";
+            }
+            else
+            {
+                item.Output = reasonForClosure;
+            }
+            CompleteProcessesHandlings(item.ProcessId, UserId);
+            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zamknięcie zgłoszenia", TenantId = tenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue = new JavaScriptSerializer().Serialize(item) };
+            db.JDE_Logs.Add(Log);
+            db.Entry(item).State = EntityState.Modified;
+            db.SaveChanges();
+        }
+
+        public static void CompleteProcessesHandlings(int ProcessId, int UserId, string reasonForClosure = null)
+        {
+            //it completes all open handlings for given process
+            string descr = string.Empty;
+            var items = db.JDE_Handlings.AsNoTracking().Where(p => p.ProcessId == ProcessId && p.IsCompleted == false);
+            var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
+
+            if (items.Any())
+            {
+                foreach (var item in items)
+                {
+                    item.FinishedOn = DateTime.Now;
+                    item.IsActive = false;
+                    item.IsFrozen = false;
+                    item.IsCompleted = true;
+                    if (reasonForClosure == null)
+                    {
+                        item.Output = $"Obsługa została zakończona przy zamykaniu zgłoszenia przez {User.Name + " " + User.Surname}";
+                    }
+                    else
+                    {
+                        item.Output = reasonForClosure;
+                    }
+
+                    descr = "Zakończenie obsługi";
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = User.TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                    db.JDE_Logs.Add(Log);
+                    db.Entry(item).State = EntityState.Modified;
+                }
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ using JDE_API.Static;
 using System.Linq.Dynamic;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace JDE_API.Controllers
 {
@@ -952,6 +953,10 @@ namespace JDE_API.Controllers
                                 item.StartedOn = DateTime.Now;
                                 item.LastStatusBy = UserId;
                                 item.LastStatusOn = DateTime.Now;
+
+                                //if ActionType of this process requires closing all previous processes of the type, do it now
+                                Task.Run(() => Utilities.CompleteAllProcessesOfTheTypeInThePlace((int)item.PlaceId, (int)item.ActionTypeId, id, UserId, "Zamknięte ponieważ nowsze zgłoszenie tego typu zostało rozpoczęte"));
+
                             }
                         }
                         string descr = "Edycja zgłoszenia";
@@ -986,7 +991,7 @@ namespace JDE_API.Controllers
                         if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
                         {
                             //this has just been finished. Replace user's finish time with server time
-                            CompleteProcessesHandlings(item.ProcessId, UserId);
+                            Utilities.CompleteProcessesHandlings(item.ProcessId, UserId);
                             if (UseServerDates)
                             {
                                 item.FinishedOn = DateTime.Now;
@@ -1100,9 +1105,10 @@ namespace JDE_API.Controllers
             }
         }
 
+
         [HttpPut]
         [Route("CompleteProcess")]
-        public IHttpActionResult CompleteProcess(string token, int id, int UserId)
+        public IHttpActionResult CompleteProcess(string token, int id, int UserId, string reasonForClosure=null)
         {
             if (token != null && token.Length > 0)
             {
@@ -1122,7 +1128,16 @@ namespace JDE_API.Controllers
                         item.LastStatus = (int)ProcessStatus.Finished;
                         item.LastStatusBy = UserId;
                         item.LastStatusOn = DateTime.Now;
-                        CompleteProcessesHandlings(item.ProcessId, UserId);
+                        var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
+                        if (reasonForClosure == null)
+                        {
+                            item.Output = $"Przymusowe zamknięcie zgłoszenia przez {User.Name + " " + User.Surname}";
+                        }
+                        else
+                        {
+                            item.Output = reasonForClosure;
+                        }
+                        Utilities.CompleteProcessesHandlings(item.ProcessId, UserId);
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zamknięcie zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue=new JavaScriptSerializer().Serialize(item)};
                         db.JDE_Logs.Add(Log);
                         db.Entry(item).State = EntityState.Modified;
@@ -1146,37 +1161,7 @@ namespace JDE_API.Controllers
             }
         }
 
-        public void CompleteProcessesHandlings(int ProcessId, int UserId)
-        {
-            //it completes all open handlings for given process
-            string descr = string.Empty;
-            var items = db.JDE_Handlings.AsNoTracking().Where(p => p.ProcessId == ProcessId && p.IsCompleted==false);
-            var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
-
-            if (items.Any())
-            {
-                foreach (var item in items)
-                {
-                    item.FinishedOn = DateTime.Now;
-                    item.IsActive = false;
-                    item.IsFrozen = false;
-                    item.IsCompleted = true;
-                    item.Output = $"Obsługa została zakończona przy zamykaniu zgłoszenia przez {User.Name + " " + User.Surname}";
-                    descr = "Zakończenie obsługi";
-                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = User.TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
-                    db.JDE_Logs.Add(Log);
-                    db.Entry(item).State = EntityState.Modified;
-                }
-                try
-                {
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
-        }
+        
 
         [HttpPut]
         [Route("AssignUsers")]

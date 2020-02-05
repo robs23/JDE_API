@@ -24,5 +24,8 @@ namespace JDE_API.Models
         public Nullable<bool> ShowInPlanning { get; set; }
         public Nullable<bool> RequireInitialDiagnosis { get; set; }
         public Nullable<bool> AllowDuplicates { get; set; }
+        public Nullable<bool> RequireQrToStart { get; set; }
+        public Nullable<bool> RequireQrToFinish { get; set; }
+        public Nullable<bool> ClosePreviousInSamePlace { get; set; }
     }
 }

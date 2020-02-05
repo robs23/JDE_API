@@ -33,6 +33,9 @@
           <Property Name="ShowInPlanning" Type="bit" />
           <Property Name="RequireInitialDiagnosis" Type="bit" />
           <Property Name="AllowDuplicates" Type="bit" />
+          <Property Name="RequireQrToStart" Type="bit" />
+          <Property Name="RequireQrToFinish" Type="bit" />
+          <Property Name="ClosePreviousInSamePlace" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -444,6 +447,9 @@
           <Property Name="ShowInPlanning" Type="Boolean" />
           <Property Name="RequireInitialDiagnosis" Type="Boolean" />
           <Property Name="AllowDuplicates" Type="Boolean" />
+          <Property Name="RequireQrToStart" Type="Boolean" />
+          <Property Name="RequireQrToFinish" Type="Boolean" />
+          <Property Name="ClosePreviousInSamePlace" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -860,6 +866,9 @@
           <EntitySetMapping Name="JDE_ActionTypes">
             <EntityTypeMapping TypeName="DbModels.JDE_ActionTypes">
               <MappingFragment StoreEntitySet="JDE_ActionTypes">
+                <ScalarProperty Name="ClosePreviousInSamePlace" ColumnName="ClosePreviousInSamePlace" />
+                <ScalarProperty Name="RequireQrToFinish" ColumnName="RequireQrToFinish" />
+                <ScalarProperty Name="RequireQrToStart" ColumnName="RequireQrToStart" />
                 <ScalarProperty Name="AllowDuplicates" ColumnName="AllowDuplicates" />
                 <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
