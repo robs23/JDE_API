@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -19,7 +20,7 @@ namespace JDE_API.Static
 {
     public static class Utilities
     {
-        private static Models.DbModel db = new Models.DbModel();
+        //private static Models.DbModel db = new Models.DbModel();
         public static string uniqueToken()
         {
             string token;
@@ -283,7 +284,7 @@ namespace JDE_API.Static
 
         }
 
-        public async static void CompleteAllProcessesOfTheTypeInThePlace(int thePlace, int theType, int excludeProcess, int UserId, string reasonForClosure = null)
+        public async static Task CompleteAllProcessesOfTheTypeInThePlaceAsync(DbModel db, int thePlace, int theType, int excludeProcess, int UserId, string reasonForClosure = null)
         {
 
             bool? requireClosing = db.JDE_ActionTypes.Where(i => i.ActionTypeId == theType).FirstOrDefault().ClosePreviousInSamePlace;
@@ -296,13 +297,13 @@ namespace JDE_API.Static
                 {
                     foreach(var p in processes)
                     {
-                        CompleteProcessAsync((int)processes.FirstOrDefault().TenantId, p, UserId, reasonForClosure);
+                        await CompleteProcessAsync(db,(int)processes.FirstOrDefault().TenantId, p, UserId, reasonForClosure);
                     }
                 }
             }
         }
 
-        public async static void CompleteProcessAsync(int tenantId, JDE_Processes item, int UserId, string reasonForClosure = null)
+        public async static Task CompleteProcessAsync(DbModel db, int tenantId, JDE_Processes item, int UserId, string reasonForClosure = null)
         {
             string OldValue = new JavaScriptSerializer().Serialize(item);
             item.FinishedOn = DateTime.Now;
@@ -322,14 +323,14 @@ namespace JDE_API.Static
             {
                 item.Output = reasonForClosure;
             }
-            CompleteProcessesHandlings(item.ProcessId, UserId);
+            await CompleteProcessesHandlingsAsync(db, item.ProcessId, UserId);
             JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zamknięcie zgłoszenia", TenantId = tenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue = new JavaScriptSerializer().Serialize(item) };
             db.JDE_Logs.Add(Log);
             db.Entry(item).State = EntityState.Modified;
-            db.SaveChanges();
+            //db.SaveChanges();
         }
 
-        public static void CompleteProcessesHandlings(int ProcessId, int UserId, string reasonForClosure = null)
+        public static async Task CompleteProcessesHandlingsAsync(DbModel db, int ProcessId, int UserId, string reasonForClosure = null)
         {
             //it completes all open handlings for given process
             string descr = string.Empty;
@@ -360,7 +361,7 @@ namespace JDE_API.Static
                 }
                 try
                 {
-                    db.SaveChanges();
+                    //db.SaveChanges();
                 }
                 catch (Exception ex)
                 {

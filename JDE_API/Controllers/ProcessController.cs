@@ -955,7 +955,7 @@ namespace JDE_API.Controllers
                                 item.LastStatusOn = DateTime.Now;
 
                                 //if ActionType of this process requires closing all previous processes of the type, do it now
-                                Task.Run(() => Utilities.CompleteAllProcessesOfTheTypeInThePlace((int)item.PlaceId, (int)item.ActionTypeId, id, UserId, "Zamknięte ponieważ nowsze zgłoszenie tego typu zostało rozpoczęte"));
+                                //Utilities.CompleteAllProcessesOfTheTypeInThePlaceAsync(db,(int)item.PlaceId, (int)item.ActionTypeId, id, UserId, "Zamknięte ponieważ nowsze zgłoszenie tego typu zostało rozpoczęte");
 
                             }
                         }
@@ -991,7 +991,7 @@ namespace JDE_API.Controllers
                         if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
                         {
                             //this has just been finished. Replace user's finish time with server time
-                            Utilities.CompleteProcessesHandlings(item.ProcessId, UserId);
+                            CompleteProcessesHandlings(item.ProcessId, UserId);
                             if (UseServerDates)
                             {
                                 item.FinishedOn = DateTime.Now;
@@ -1105,6 +1105,58 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("CompleteAllProcessesOfTheTypeInThePlace")]
+        public IHttpActionResult CompleteAllProcessesOfTheTypeInThePlace(string token, int thePlace, int theType, int excludeProcess, int UserId, string reasonForClosure = null)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    bool? requireClosing = db.JDE_ActionTypes.Where(i => i.ActionTypeId == theType).FirstOrDefault().ClosePreviousInSamePlace;
+                    if (requireClosing == null) { requireClosing = false; }
+                    if ((bool)requireClosing)
+                    {
+                        IQueryable<JDE_Processes> processes = null;
+                        processes = db.JDE_Processes.AsNoTracking().Where(p => p.PlaceId == thePlace && p.ActionTypeId == theType && p.ProcessId < excludeProcess && (p.IsCompleted == false || p.IsCompleted == null) && (p.IsSuccessfull == false || p.IsSuccessfull == null));
+                        if (processes.Any())
+                        {
+                            try
+                            {
+                                foreach (var p in processes.ToList())
+                                {
+                                    _CompleteProcess(p.ProcessId, UserId, reasonForClosure);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                return StatusCode(HttpStatusCode.InternalServerError);
+                            }
+                            return StatusCode(HttpStatusCode.NoContent);
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(HttpStatusCode.NoContent);
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+            
+        }
 
         [HttpPut]
         [Route("CompleteProcess")]
@@ -1115,33 +1167,18 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Processes.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
+                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
                     if (items.Any())
                     {
-                        var item = items.FirstOrDefault();
-                        string OldValue = new JavaScriptSerializer().Serialize(item);
-                        item.FinishedOn = DateTime.Now;
-                        item.FinishedBy = UserId;
-                        item.IsActive = false;
-                        item.IsCompleted = true;
-                        item.IsFrozen = false;
-                        item.LastStatus = (int)ProcessStatus.Finished;
-                        item.LastStatusBy = UserId;
-                        item.LastStatusOn = DateTime.Now;
-                        var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
-                        if (reasonForClosure == null)
+                        try
                         {
-                            item.Output = $"Przymusowe zamknięcie zgłoszenia przez {User.Name + " " + User.Surname}";
+                            _CompleteProcess(items.FirstOrDefault().ProcessId, UserId, reasonForClosure);
                         }
-                        else
+                        catch(Exception ex)
                         {
-                            item.Output = reasonForClosure;
+                            return StatusCode(HttpStatusCode.InternalServerError);
                         }
-                        Utilities.CompleteProcessesHandlings(item.ProcessId, UserId);
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zamknięcie zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue=new JavaScriptSerializer().Serialize(item)};
-                        db.JDE_Logs.Add(Log);
-                        db.Entry(item).State = EntityState.Modified;
-                        db.SaveChanges();
+                        
 
                         return StatusCode(HttpStatusCode.NoContent);
                     }
@@ -1161,7 +1198,78 @@ namespace JDE_API.Controllers
             }
         }
 
-        
+        private void _CompleteProcess(int ProcessId, int UserId, string reasonForClosure = null)
+        {
+            JDE_Processes item = null;
+            if (db.JDE_Processes.Any(p => p.ProcessId == ProcessId))
+            {
+                item = db.JDE_Processes.FirstOrDefault(p => p.ProcessId == ProcessId);
+                string OldValue = new JavaScriptSerializer().Serialize(item);
+                item.FinishedOn = DateTime.Now;
+                item.FinishedBy = UserId;
+                item.IsActive = false;
+                item.IsCompleted = true;
+                item.IsFrozen = false;
+                item.LastStatus = (int)ProcessStatus.Finished;
+                item.LastStatusBy = UserId;
+                item.LastStatusOn = DateTime.Now;
+                var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
+                if (reasonForClosure == null)
+                {
+                    item.Output = $"Przymusowe zamknięcie zgłoszenia przez {User.Name + " " + User.Surname}";
+                }
+                else
+                {
+                    item.Output = reasonForClosure;
+                }
+                CompleteProcessesHandlings(item.ProcessId, UserId);
+                JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zamknięcie zgłoszenia", TenantId = item.TenantId, Timestamp = DateTime.Now, OldValue = OldValue, NewValue = new JavaScriptSerializer().Serialize(item) };
+                db.JDE_Logs.Add(Log);
+                db.Entry(item).State = EntityState.Modified;
+                db.SaveChanges();
+            }
+            
+        }
+
+        public void CompleteProcessesHandlings(int ProcessId, int UserId, string reasonForClosure = null)
+        {
+            //it completes all open handlings for given process
+            string descr = string.Empty;
+            var items = db.JDE_Handlings.AsNoTracking().Where(p => p.ProcessId == ProcessId && p.IsCompleted == false);
+            var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
+
+            if (items.Any())
+            {
+                foreach (var item in items.ToList())
+                {
+                    item.FinishedOn = DateTime.Now;
+                    item.IsActive = false;
+                    item.IsFrozen = false;
+                    item.IsCompleted = true;
+                    if (reasonForClosure == null)
+                    {
+                        item.Output = $"Obsługa została zakończona przy zamykaniu zgłoszenia przez {User.Name + " " + User.Surname}";
+                    }
+                    else
+                    {
+                        item.Output = reasonForClosure;
+                    }
+
+                    descr = "Zakończenie obsługi";
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = User.TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                    db.JDE_Logs.Add(Log);
+                    db.Entry(item).State = EntityState.Modified;
+                }
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+        }
 
         [HttpPut]
         [Route("AssignUsers")]
