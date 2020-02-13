@@ -138,7 +138,7 @@ namespace JDE_API.Controllers
                                      AssignedUsers = (from pras in db.JDE_ProcessAssigns
                                                       join uu in db.JDE_Users on pras.UserId equals uu.UserId
                                                       where pras.ProcessId == grp.Key.ProcessId
-                                                      select uu.Name + " " + uu.Surname)
+                                                     select uu.Name + " " + uu.Surname)
                                  });
                     if (items.Any())
                     {
@@ -1082,6 +1082,8 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Processes.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
                     if (items.Any())
                     {
+                        JDE_Users User = db.JDE_Users.AsNoTracking().FirstOrDefault(u => u.UserId == UserId);
+                        CompleteProcessesHandlings(items.FirstOrDefault().ProcessId, UserId, $"Obsługa zakończona przy usuwaniu zgłoszenia przez {User.Name + " " + User.Surname}");
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
                         db.JDE_Processes.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
@@ -1684,6 +1686,7 @@ namespace JDE_API.Controllers
                 return res;
             }
         }
+        public string ExecutionRate { get; set; }
     }
 
     public enum ProcessStatus

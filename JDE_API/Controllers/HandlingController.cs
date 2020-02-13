@@ -56,7 +56,8 @@ namespace JDE_API.Controllers
                     var items = (from h in db.JDE_Handlings
                                  join u in db.JDE_Users on h.UserId equals u.UserId
                                  join t in db.JDE_Tenants on h.TenantId equals t.TenantId
-                                 join p in db.JDE_Processes on h.ProcessId equals p.ProcessId
+                                 join prs in db.JDE_Processes on h.ProcessId equals prs.ProcessId into processes
+                                 from p in processes.DefaultIfEmpty()
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  join s in db.JDE_Sets on pl.SetId equals s.SetId
@@ -66,7 +67,7 @@ namespace JDE_API.Controllers
                                  select new Handling
                                  {
                                      HandlingId = h.HandlingId,
-                                     ProcessId = p.ProcessId,
+                                     ProcessId = (int)h.ProcessId,
                                      StartedOn = h.StartedOn,
                                      FinishedOn = h.FinishedOn,
                                      UserId = u.UserId,
@@ -216,7 +217,8 @@ namespace JDE_API.Controllers
                     var items = (from h in db.JDE_Handlings
                                  join u in db.JDE_Users on h.UserId equals u.UserId
                                  join t in db.JDE_Tenants on h.TenantId equals t.TenantId
-                                 join p in db.JDE_Processes on h.ProcessId equals p.ProcessId
+                                 join prs in db.JDE_Processes on h.ProcessId equals prs.ProcessId into processes
+                                 from p in processes.DefaultIfEmpty()
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  join s in db.JDE_Sets on pl.SetId equals s.SetId
@@ -226,7 +228,7 @@ namespace JDE_API.Controllers
                                  select new Handling
                                  {
                                      HandlingId = h.HandlingId,
-                                     ProcessId = p.ProcessId,
+                                     ProcessId = (int)h.ProcessId,
                                      StartedOn = h.StartedOn,
                                      FinishedOn = h.FinishedOn,
                                      UserId = u.UserId,
@@ -352,7 +354,8 @@ namespace JDE_API.Controllers
                     var items = (from h in db.JDE_Handlings
                                  join u in db.JDE_Users on h.UserId equals u.UserId
                                  join t in db.JDE_Tenants on h.TenantId equals t.TenantId
-                                 join p in db.JDE_Processes on h.ProcessId equals p.ProcessId
+                                 join prs in db.JDE_Processes on h.ProcessId equals prs.ProcessId into processes
+                                 from p in processes.DefaultIfEmpty()
                                  join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
                                  join s in db.JDE_Sets on pl.SetId equals s.SetId
@@ -361,7 +364,7 @@ namespace JDE_API.Controllers
                                  select new Handling
                                  {
                                      HandlingId = h.HandlingId,
-                                     ProcessId = p.ProcessId,
+                                     ProcessId = (int)h.ProcessId,
                                      StartedOn = h.StartedOn,
                                      FinishedOn = h.FinishedOn,
                                      UserId = u.UserId,
