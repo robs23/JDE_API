@@ -951,6 +951,7 @@ namespace JDE_API.Controllers
                             {
                                 //this has just been started. Must have been planned before. Replace user's date
                                 item.StartedOn = DateTime.Now;
+                                item.LastStatus = (int)ProcessStatus.Started;
                                 item.LastStatusBy = UserId;
                                 item.LastStatusOn = DateTime.Now;
 
@@ -992,6 +993,9 @@ namespace JDE_API.Controllers
                         {
                             //this has just been finished. Replace user's finish time with server time
                             CompleteProcessesHandlings(item.ProcessId, UserId);
+                            item.LastStatus = (int)ProcessStatus.Finished;
+                            item.LastStatusBy = UserId;
+                            item.LastStatusOn = DateTime.Now;
                             if (UseServerDates)
                             {
                                 item.FinishedOn = DateTime.Now;
