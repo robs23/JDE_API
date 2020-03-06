@@ -218,6 +218,74 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
+        [Route("GetPart")]
+        [ResponseType(typeof(JDE_Parts))]
+        public IHttpActionResult GetPart(string token, string partsToken)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = (from p in db.JDE_Parts
+                                 join pr in db.JDE_Companies on p.ProducerId equals pr.CompanyId
+                                 join s in db.JDE_Companies on p.SupplierId equals s.CompanyId
+                                 join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                                 join u2 in db.JDE_Users on p.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
+                                 join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                                 where p.TenantId == tenants.FirstOrDefault().TenantId && p.Token == partsToken
+                                 orderby p.CreatedOn descending
+                                 select new
+                                 {
+                                     PartId = p.PartId,
+                                     Name = p.Name,
+                                     Description = p.Description,
+                                     EAN = p.EAN,
+                                     ProducerId = p.ProducerId,
+                                     ProducerName = pr.Name,
+                                     ProducentsCode = p.ProducentsCode,
+                                     SupplierId = p.SupplierId,
+                                     SupplierName = s.Name,
+                                     Symbol = p.Symbol,
+                                     Destination = p.Destination,
+                                     Appliance = p.Appliance,
+                                     UsedOn = p.UsedOn,
+                                     Token = p.Token,
+                                     Image = p.Image,
+                                     CreatedOn = p.CreatedOn,
+                                     CreatedBy = p.CreatedBy,
+                                     CreatedByName = u.Name + " " + u.Surname,
+                                     LmOn = p.LmOn,
+                                     LmBy = p.LmBy,
+                                     LmByName = mb.Name + " " + mb.Surname,
+                                     TenantId = p.TenantId,
+                                     TenantName = t.TenantName
+                                 });
+
+                    if (items.Any())
+                    {
+                        return Ok(items.FirstOrDefault());
+                    }
+                    else
+                    {
+                        return StatusCode(HttpStatusCode.NoContent);
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
         [Route("ArchivePart")]
         [ResponseType(typeof(void))]
         public HttpResponseMessage ArchivePart(string token, int id, int UserId)
