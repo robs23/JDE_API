@@ -15,12 +15,14 @@ using System.Linq.Dynamic;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using NLog;
 
 namespace JDE_API.Controllers
 {
     public class ProcessController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [HttpGet]
         [Route("GetProcesses")]
@@ -931,99 +933,116 @@ namespace JDE_API.Controllers
 
         public IHttpActionResult EditProcess(string token, int id, int UserId, JDE_Processes item, bool UseServerDates=true)
         {
+            Logger.Info("Start EditProcess. Id={id}, UserId={UserId}", id, UserId);
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
-                    if (items.Any())
+                    try
                     {
-                        item.CreatedOn = items.FirstOrDefault().CreatedOn;
-                        if(items.FirstOrDefault().StartedOn != null)
+                        var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId == id);
+                        if (items.Any())
                         {
-                            //It has already had a date. Keep it
-                            item.StartedOn = items.FirstOrDefault().StartedOn;
-                        }
-                        else
-                        {
-                            if (item.StartedOn != null && UseServerDates)
+                            item.CreatedOn = items.FirstOrDefault().CreatedOn;
+                            if (items.FirstOrDefault().StartedOn != null)
                             {
-                                //this has just been started. Must have been planned before. Replace user's date
-                                item.StartedOn = DateTime.Now;
-                                item.LastStatus = (int)ProcessStatus.Started;
-                                item.LastStatusBy = UserId;
-                                item.LastStatusOn = DateTime.Now;
-
-                                //if ActionType of this process requires closing all previous processes of the type, do it now
-                                //Utilities.CompleteAllProcessesOfTheTypeInThePlaceAsync(db,(int)item.PlaceId, (int)item.ActionTypeId, id, UserId, "Zamknięte ponieważ nowsze zgłoszenie tego typu zostało rozpoczęte");
-
-                            }
-                        }
-                        string descr = "Edycja zgłoszenia";
-                        if((bool)items.FirstOrDefault().IsActive && (bool)item.IsFrozen)
-                        {
-                            //was active and it no longer is. It has been paused
-                            item.LastStatus = (int)ProcessStatus.Paused;
-                            item.LastStatusBy = UserId;
-                            item.LastStatusOn = DateTime.Now;
-                        }
-                        else if((bool)items.FirstOrDefault().IsFrozen && (bool)item.IsActive)
-                        {
-                            //was paused and now it is active - it's been resumed
-                            item.LastStatus = (int)ProcessStatus.Resumed;
-                            item.LastStatusBy = UserId;
-                            item.LastStatusOn = DateTime.Now;
-                        }
-                        else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
-                        {
-                            //wasn't active and now it is - it's been started
-                            item.LastStatus = (int)ProcessStatus.Started;
-                            item.LastStatusBy = UserId;
-                            item.LastStatusOn = DateTime.Now;
-                        }
-                        else if(!(bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted)
-                        {
-                            //it's been finished
-                            item.LastStatus = (int)ProcessStatus.Finished;
-                            item.LastStatusBy = UserId;
-                            item.LastStatusOn = DateTime.Now;
-                        }
-                        if (items.FirstOrDefault().FinishedOn==null && item.FinishedOn != null)
-                        {
-                            //this has just been finished. Replace user's finish time with server time
-                            CompleteProcessesHandlings(item.ProcessId, UserId);
-                            item.LastStatus = (int)ProcessStatus.Finished;
-                            item.LastStatusBy = UserId;
-                            item.LastStatusOn = DateTime.Now;
-                            if (UseServerDates)
-                            {
-                                item.FinishedOn = DateTime.Now;
-                            }
-                            descr = "Zamknięcie zgłoszenia";
-                        }
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description =descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
-                        db.JDE_Logs.Add(Log);
-                        db.Entry(item).State = EntityState.Modified;
-                        try
-                        {
-                            db.SaveChanges();
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            if (!JDE_ProcessesExists(id))
-                            {
-                                return NotFound();
+                                //It has already had a date. Keep it
+                                item.StartedOn = items.FirstOrDefault().StartedOn;
                             }
                             else
                             {
-                                throw;
+                                if (item.StartedOn != null && UseServerDates)
+                                {
+                                    //this has just been started. Must have been planned before. Replace user's date
+                                    item.StartedOn = DateTime.Now;
+                                    item.LastStatus = (int)ProcessStatus.Started;
+                                    item.LastStatusBy = UserId;
+                                    item.LastStatusOn = DateTime.Now;
+
+                                    //if ActionType of this process requires closing all previous processes of the type, do it now
+                                    //Utilities.CompleteAllProcessesOfTheTypeInThePlaceAsync(db,(int)item.PlaceId, (int)item.ActionTypeId, id, UserId, "Zamknięte ponieważ nowsze zgłoszenie tego typu zostało rozpoczęte");
+
+                                }
+                            }
+                            string descr = "Edycja zgłoszenia";
+                            if ((bool)items.FirstOrDefault().IsActive && (bool)item.IsFrozen)
+                            {
+                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało wstrzymane przez {UserId}", id, UserId);
+                                //was active and it no longer is. It has been paused
+                                item.LastStatus = (int)ProcessStatus.Paused;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                            }
+                            else if ((bool)items.FirstOrDefault().IsFrozen && (bool)item.IsActive)
+                            {
+                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało wznowione przez {UserId}", id, UserId);
+                                //was paused and now it is active - it's been resumed
+                                item.LastStatus = (int)ProcessStatus.Resumed;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                            }
+                            else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
+                            {
+                                //wasn't active and now it is - it's been started
+                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało rozpoczęte przez {UserId}", id, UserId);
+                                item.LastStatus = (int)ProcessStatus.Started;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                            }
+                            else if (!(bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted)
+                            {
+                                //it's been finished
+                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało zakończone przez {UserId}", id, UserId);
+                                item.LastStatus = (int)ProcessStatus.Finished;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                            }
+                            if (items.FirstOrDefault().FinishedOn == null && item.FinishedOn != null)
+                            {
+                                //this has just been finished. Replace user's finish time with server time
+                                Logger.Info("EditProcess - użytkownik {UserId} zainicjował zamykanie otwartych obsług w zgłoszeniu {id}",  UserId, id);
+                                CompleteProcessesHandlings(item.ProcessId, UserId);
+                                item.LastStatus = (int)ProcessStatus.Finished;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                                if (UseServerDates)
+                                {
+                                    item.FinishedOn = DateTime.Now;
+                                }
+                                descr = "Zamknięcie zgłoszenia";
+                            }
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            db.JDE_Logs.Add(Log);
+                            db.Entry(item).State = EntityState.Modified;
+                            try
+                            {
+                                db.SaveChanges();
+                            }
+                            catch (DbUpdateConcurrencyException)
+                            {
+                                if (!JDE_ProcessesExists(id))
+                                {
+                                    return NotFound();
+                                }
+                                else
+                                {
+                                    throw;
+                                }
                             }
                         }
                     }
+                    catch(Exception ex)
+                    {
+                        Logger.Error("Błąd w EditProcess. Id={id}, UserId={UserId}. Wiadomość: {Message}", id, UserId, ex.Message);
+                    }
+                }
+                else
+                {
+                    Logger.Info("Process Id={id} nie zostało znalezione..", id);
                 }
             }
-
+            Logger.Info("Koniec EditProcess. Id={id}, UserId={UserId}", id, UserId);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -1240,6 +1259,7 @@ namespace JDE_API.Controllers
         public void CompleteProcessesHandlings(int ProcessId, int UserId, string reasonForClosure = null)
         {
             //it completes all open handlings for given process
+            Logger.Info("Start CompleteProcessesHandlings. Id={ProcessId}, UserId={UserId}", ProcessId, UserId);
             string descr = string.Empty;
             var items = db.JDE_Handlings.AsNoTracking().Where(p => p.ProcessId == ProcessId && p.IsCompleted == false);
             var User = db.JDE_Users.AsNoTracking().Where(u => u.UserId == UserId).FirstOrDefault();
@@ -1272,9 +1292,11 @@ namespace JDE_API.Controllers
                 }
                 catch (Exception ex)
                 {
-
+                    Logger.Error("Błąd zapisu do bazy danych w CompleteProcessesHandlings. Id={ProcessId}, UserId={UserId}, Wiadomość: {Message}", ProcessId, UserId, ex.Message);
                 }
             }
+
+            Logger.Info("Koniec CompleteProcessesHandlings. Id={ProcessId}, UserId={UserId}", ProcessId, UserId);
         }
 
         [HttpPut]

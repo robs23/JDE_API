@@ -1,5 +1,6 @@
 ﻿using JDE_API.Models;
 using JDE_API.Static;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -17,6 +18,7 @@ namespace JDE_API.Controllers
     public class ProcessActionController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [HttpGet]
         [Route("GetProcessActions")]
@@ -212,6 +214,7 @@ namespace JDE_API.Controllers
 
         public IHttpActionResult EditProcessAction(string token, int id, int UserId, JDE_ProcessActions item)
         {
+            Logger.Info("Start EditProcessAction. Id={id}, UserId={UserId}",id, UserId);
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
@@ -220,31 +223,44 @@ namespace JDE_API.Controllers
                     var items = db.JDE_ProcessActions.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessActionId == id);
                     if (items.Any())
                     {
-                        string descr = "Edycja przypisania czynności do zgłoszenia";
-                        item.LmOn = DateTime.Now;
-                        item.LmBy = UserId;
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
-                        db.JDE_Logs.Add(Log);
-                        db.Entry(item).State = EntityState.Modified;
                         try
                         {
-                            db.SaveChanges();
+                            string descr = "Edycja przypisania czynności do zgłoszenia";
+                            item.LmOn = DateTime.Now;
+                            item.LmBy = UserId;
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            db.JDE_Logs.Add(Log);
+                            db.Entry(item).State = EntityState.Modified;
+                            try
+                            {
+                                db.SaveChanges();
+                            }
+                            catch (DbUpdateConcurrencyException DbEx)
+                            {
+                                Logger.Error("Błąd DbUpdateConcurrencyException w EditProcessAction. Id={id}, UserId={UserId}. Wiadomość: {Message}", id, UserId, DbEx.Message);
+                                if (!JDE_ProcessActionExists(id))
+                                {
+                                    return NotFound();
+                                }
+                                else
+                                {
+                                    return InternalServerError();
+                                }
+                            }
                         }
-                        catch (DbUpdateConcurrencyException)
+                        catch(Exception ex)
                         {
-                            if (!JDE_ProcessActionExists(id))
-                            {
-                                return NotFound();
-                            }
-                            else
-                            {
-                                throw;
-                            }
+                            Logger.Error("Błąd w EditProcessAction. Id={id}, UserId={UserId}. Wiadomość: {Message}", id, UserId, ex.Message);
                         }
+
+                    }
+                    else
+                    {
+                        Logger.Info("ProcessAction Id={id} nie zostało znalezione..", id);
                     }
                 }
             }
-
+            Logger.Info("Koniec EditProcessAction. Id={id}, UserId={UserId}", id, UserId);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -253,19 +269,29 @@ namespace JDE_API.Controllers
         [ResponseType(typeof(JDE_ProcessActions))]
         public IHttpActionResult CreateProcessAction(string token, JDE_ProcessActions item, int UserId)
         {
+            Logger.Info("Start CreateProcessAction. UserId={UserId}", UserId);
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    item.TenantId = tenants.FirstOrDefault().TenantId;
-                    item.CreatedOn = DateTime.Now;
-                    db.JDE_ProcessActions.Add(item);
-                    db.SaveChanges();
-                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie przypisania czynności do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
-                    db.JDE_Logs.Add(Log);
-                    db.SaveChanges();
-                    return Ok(item);
+                    try
+                    {
+                        item.TenantId = tenants.FirstOrDefault().TenantId;
+                        item.CreatedOn = DateTime.Now;
+                        db.JDE_ProcessActions.Add(item);
+                        db.SaveChanges();
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie przypisania czynności do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
+                        Logger.Info("Koniec CreateProcessAction. UserId={UserId}", UserId);
+                        return Ok(item);
+                    }catch(Exception ex)
+                    {
+                        Logger.Error("Błąd w CreateProcessAction. UserId={UserId}. Wiadomość: {Message}", UserId, ex.Message);
+                        return InternalServerError();
+                    }
+                    
                 }
                 else
                 {
