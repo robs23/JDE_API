@@ -223,12 +223,14 @@ namespace JDE_API.Controllers
                     var items = db.JDE_ProcessActions.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessActionId == id);
                     if (items.Any())
                     {
+                        string newItem = "";
                         try
                         {
                             string descr = "Edycja przypisania czynności do zgłoszenia";
+                            newItem = new JavaScriptSerializer().Serialize(item);
                             item.LmOn = DateTime.Now;
                             item.LmBy = UserId;
-                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = newItem };
                             db.JDE_Logs.Add(Log);
                             db.Entry(item).State = EntityState.Modified;
                             try
@@ -237,7 +239,7 @@ namespace JDE_API.Controllers
                             }
                             catch (DbUpdateConcurrencyException DbEx)
                             {
-                                Logger.Error("Błąd DbUpdateConcurrencyException w EditProcessAction. Id={id}, UserId={UserId}. Wiadomość: {Message}", id, UserId, DbEx.Message);
+                                Logger.Error("Błąd DbUpdateConcurrencyException w EditProcessAction. Id={id}, UserId={UserId}. Szczegóły: {Message}, nowa wartość: {newItem}", id, UserId, DbEx.ToString(), newItem);
                                 if (!JDE_ProcessActionExists(id))
                                 {
                                     return NotFound();
@@ -250,7 +252,8 @@ namespace JDE_API.Controllers
                         }
                         catch(Exception ex)
                         {
-                            Logger.Error("Błąd w EditProcessAction. Id={id}, UserId={UserId}. Wiadomość: {Message}", id, UserId, ex.Message);
+                            Logger.Error("Błąd w EditProcessAction. Id={id}, UserId={UserId}. Szczegóły: {Message}, nowa wartość: {newItem}", id, UserId, ex.ToString(), newItem);
+                            return InternalServerError();
                         }
 
                     }
@@ -288,7 +291,7 @@ namespace JDE_API.Controllers
                         return Ok(item);
                     }catch(Exception ex)
                     {
-                        Logger.Error("Błąd w CreateProcessAction. UserId={UserId}. Wiadomość: {Message}", UserId, ex.Message);
+                        Logger.Error("Błąd w CreateProcessAction. UserId={UserId}. Szczegóły: {Message}", UserId, ex.ToString());
                         return InternalServerError();
                     }
                     
