@@ -226,10 +226,12 @@ namespace JDE_API.Controllers
                         string newItem = "";
                         try
                         {
-                            string descr = "Edycja przypisania czynności do zgłoszenia";
-                            newItem = new JavaScriptSerializer().Serialize(item);
+                            item.CreatedOn = items.FirstOrDefault().CreatedOn; //switch back to original createdOn date
                             item.LmOn = DateTime.Now;
                             item.LmBy = UserId;
+                            item.TenantId = items.FirstOrDefault().TenantId;
+                            string descr = "Edycja przypisania czynności do zgłoszenia";
+                            newItem = new JavaScriptSerializer().Serialize(item);
                             JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = descr, TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = newItem };
                             db.JDE_Logs.Add(Log);
                             db.Entry(item).State = EntityState.Modified;
