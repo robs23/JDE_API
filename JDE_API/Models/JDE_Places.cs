@@ -27,5 +27,6 @@ namespace JDE_API.Models
         public Nullable<int> TenantId { get; set; }
         public string PlaceToken { get; set; }
         public Nullable<bool> IsArchived { get; set; }
+        public string Image { get; set; }
     }
 }

@@ -285,6 +285,7 @@
           <Property Name="AreaId" Type="int" />
           <Property Name="SetId" Type="int" />
           <Property Name="Priority" Type="nvarchar" MaxLength="1" />
+          <Property Name="Image" Type="nvarchar(max)" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="TenantId" Type="int" />
@@ -840,6 +841,7 @@
           <Property Name="TenantId" Type="Int32" />
           <Property Name="PlaceToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="IsArchived" Type="Boolean" />
+          <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Users">
           <Key>
@@ -1252,6 +1254,7 @@
           <EntitySetMapping Name="JDE_Places">
             <EntityTypeMapping TypeName="DbModels.JDE_Places">
               <MappingFragment StoreEntitySet="JDE_Places">
+                <ScalarProperty Name="Image" ColumnName="Image" />
                 <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
                 <ScalarProperty Name="PlaceToken" ColumnName="PlaceToken" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />

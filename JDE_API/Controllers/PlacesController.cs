@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Net;
@@ -48,6 +49,7 @@ namespace JDE_API.Controllers
                                       SetId = st.SetId,
                                       SetName = st.Name,
                                       Priority = pl.Priority,
+                                      Image = pl.Image,
                                       CreatedOn = pl.CreatedOn,
                                       CreatedBy = us.UserId,
                                       CreatedByName = us.Name + " " + us.Surname,
@@ -130,6 +132,7 @@ namespace JDE_API.Controllers
                                      SetId = st.SetId,
                                      SetName = st.Name,
                                      Priority = pl.Priority,
+                                     Image = pl.Image,
                                      CreatedOn = pl.CreatedOn,
                                      CreatedBy = us.UserId,
                                      CreatedByName = us.Name + " " + us.Surname,
@@ -183,6 +186,7 @@ namespace JDE_API.Controllers
                                      SetId = st.SetId,
                                      SetName = st.Name,
                                      Priority = pl.Priority,
+                                     Image = pl.Image,
                                      CreatedOn = pl.CreatedOn,
                                      CreatedBy = us.UserId,
                                      CreatedByName = us.Name + " " + us.Surname,
@@ -240,6 +244,7 @@ namespace JDE_API.Controllers
                                      SetId = st.SetId,
                                      SetName = st.Name,
                                      Priority = pl.Priority,
+                                     Image = pl.Image,
                                      CreatedOn = pl.CreatedOn,
                                      CreatedBy = us.UserId,
                                      CreatedByName = us.Name + " " + us.Surname,
@@ -406,6 +411,13 @@ namespace JDE_API.Controllers
                     var items = db.JDE_Places.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PlaceId == id);
                     if (items.Any())
                     {
+                        string oFileName = items.FirstOrDefault().Image;
+                        if (!string.IsNullOrEmpty(oFileName))
+                        {
+                            // There was a file, must delete it first
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                        }
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie zasobu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
                         db.JDE_Places.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
@@ -457,6 +469,7 @@ namespace JDE_API.Controllers
         public int SetId { get; set; }
         public string SetName { get; set; }
         public string Priority { get; set; }
+        public string Image { get; set; }
         public DateTime? CreatedOn { get; set; }
         public int? CreatedBy { get; set; }
         public string CreatedByName { get; set; }
