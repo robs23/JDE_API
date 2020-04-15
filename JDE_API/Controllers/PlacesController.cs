@@ -9,6 +9,7 @@ using System.Linq.Dynamic;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Script.Serialization;
@@ -35,7 +36,9 @@ namespace JDE_API.Controllers
                                   join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
                                   join us in db.JDE_Users on pl.CreatedBy equals us.UserId
                                   join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
-                                  where t.TenantId == tenants.FirstOrDefault().TenantId
+                                    join u2 in db.JDE_Users on pl.LmBy equals u2.UserId into modifiedBy
+                                    from mb in modifiedBy.DefaultIfEmpty()
+                                 where t.TenantId == tenants.FirstOrDefault().TenantId
                                   orderby pl.CreatedOn descending
                                   select new
                                   {
@@ -56,7 +59,10 @@ namespace JDE_API.Controllers
                                       TenantId = t.TenantId,
                                       TenantName = t.TenantName,
                                       PlaceToken = pl.PlaceToken,
-                                      IsArchived = pl.IsArchived
+                                      IsArchived = pl.IsArchived,
+                                      LmBy = pl.LmBy,
+                                      LmByName = mb.Name + " " + mb.Surname,
+                                      LmOn = pl.LmOn
                                   }
                           );
                     if (items.Any())
@@ -119,6 +125,8 @@ namespace JDE_API.Controllers
                                  join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
                                  join us in db.JDE_Users on pl.CreatedBy equals us.UserId
                                  join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
+                                 join u2 in db.JDE_Users on pl.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  where pl.PlaceId == id && t.TenantId == tenants.FirstOrDefault().TenantId
                                  select new
                                  {
@@ -138,7 +146,10 @@ namespace JDE_API.Controllers
                                      CreatedByName = us.Name + " " + us.Surname,
                                      TenantId = t.TenantId,
                                      TenantName = t.TenantName,
-                                     PlaceToken = pl.PlaceToken
+                                     PlaceToken = pl.PlaceToken,
+                                     LmBy = pl.LmBy,
+                                     LmByName = mb.Name + " " + mb.Surname,
+                                     LmOn = pl.LmOn
                                  }
                           ).Take(1);
                     if (!place.Any())
@@ -173,6 +184,8 @@ namespace JDE_API.Controllers
                                  join ar in db.JDE_Areas on pl.AreaId equals ar.AreaId
                                  join us in db.JDE_Users on pl.CreatedBy equals us.UserId
                                  join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
+                                 join u2 in db.JDE_Users on pl.LmBy equals u2.UserId into modifiedBy
+                                 from mb in modifiedBy.DefaultIfEmpty()
                                  where pl.PlaceToken == placeToken && t.TenantId == tenants.FirstOrDefault().TenantId
                                  select new
                                  {
@@ -192,7 +205,10 @@ namespace JDE_API.Controllers
                                      CreatedByName = us.Name + " " + us.Surname,
                                      TenantId = t.TenantId,
                                      TenantName = t.TenantName,
-                                     PlaceToken = pl.PlaceToken
+                                     PlaceToken = pl.PlaceToken,
+                                     LmBy = pl.LmBy,
+                                     LmByName = mb.Name + " " + mb.Surname,
+                                     LmOn = pl.LmOn
                                  }
                           ).Take(1);
                     if (!place.Any())
@@ -298,6 +314,17 @@ namespace JDE_API.Controllers
                     {
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zasobu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
+                        // Not any image was sent so I'm removing it
+                        string oFileName = item.Image;
+                        if (!string.IsNullOrEmpty(oFileName))
+                        {
+                            // There was a file, must delete it first
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                        }
+                        item.Image = null;
                         db.Entry(item).State = EntityState.Modified;
                         try
                         {
@@ -319,6 +346,92 @@ namespace JDE_API.Controllers
             }
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [HttpPut]
+        [Route("EditPlace")]
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage EditPlace(string token, int id, int UserId, string PlaceJson)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Places.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PlaceId == id);
+                    if (items.Any())
+                    {
+                        JavaScriptSerializer jss = new JavaScriptSerializer();
+                        JDE_Places item = jss.Deserialize<JDE_Places>(PlaceJson);
+                        JDE_Places orgItem = items.FirstOrDefault();
+
+                        //handle image
+
+                        var httpRequest = HttpContext.Current.Request;
+                        if (httpRequest.ContentLength > 0)
+                        {
+                            //there's a new content
+                            if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                            {
+                                return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
+                            }
+
+                            item.TenantId = tenants.FirstOrDefault().TenantId;
+                            var postedFile = httpRequest.Files[0];
+                            string filePath = "";
+                            if (postedFile != null && postedFile.ContentLength > 0)
+                            {
+                                var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                                filePath = $"{Static.RuntimeSettings.Path2Files}{item.PlaceToken + ext.ToLower()}";
+
+                                string oFileName = db.JDE_Places.Where(p => p.PlaceId == id).FirstOrDefault().Image;
+                                if (!string.IsNullOrEmpty(oFileName))
+                                {
+                                    // There was a file, must delete it first
+                                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                                }
+
+                                postedFile.SaveAs(filePath);
+                                Static.Utilities.ProduceThumbnail(filePath);
+                                item.Image = item.PlaceToken + ext.ToLower();
+                            }
+
+                        }
+
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = PlaceJson };
+                        db.JDE_Logs.Add(Log);
+                        item.LmBy = UserId;
+                        item.LmOn = DateTime.Now;
+
+
+                        try
+                        {
+                            db.Entry(orgItem).CurrentValues.SetValues(item);
+                            db.Entry(orgItem).State = EntityState.Modified;
+                            db.SaveChanges();
+
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!JDE_PlacesExists(id))
+                            {
+                                return Request.CreateResponse(HttpStatusCode.NotFound);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                        }
+                    }
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         [HttpGet]
@@ -395,6 +508,66 @@ namespace JDE_API.Controllers
             else
             {
                 return NotFound();
+            }
+        }
+
+        [HttpPost]
+        [Route("CreatePlace")]
+        [ResponseType(typeof(JDE_Places))]
+        public HttpResponseMessage CreatePlace(string token, string PlaceJson, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    JavaScriptSerializer jss = new JavaScriptSerializer();
+                    JDE_Places item = jss.Deserialize<JDE_Places>(PlaceJson);
+
+                    var httpRequest = HttpContext.Current.Request;
+                    if (httpRequest.ContentLength > 0)
+                    {
+                        if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                        {
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
+                        }
+
+                        //create unique token unless the file already exists
+                        item.PlaceToken = Static.Utilities.GetToken();
+                        item.TenantId = tenants.FirstOrDefault().TenantId;
+                        var postedFile = httpRequest.Files[0];
+                        string filePath = "";
+                        if (postedFile != null && postedFile.ContentLength > 0)
+                        {
+                            var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                            filePath = $"{Static.RuntimeSettings.Path2Files}{item.PlaceToken + ext.ToLower()}";
+
+                            postedFile.SaveAs(filePath);
+                            Static.Utilities.ProduceThumbnail(filePath);
+                            item.Image = item.PlaceToken + ext.ToLower();
+                        }
+
+                    }
+
+                    item.TenantId = tenants.FirstOrDefault().TenantId;
+                    item.CreatedOn = DateTime.Now;
+                    db.JDE_Places.Add(item);
+                    db.SaveChanges();
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie zasobu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                    db.JDE_Logs.Add(Log);
+                    db.SaveChanges();
+
+                    return Request.CreateResponse(HttpStatusCode.Created, item);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
 
@@ -476,5 +649,9 @@ namespace JDE_API.Controllers
         public int TenantId { get; set; }
         public string TenantName { get; set; }
         public string PlaceToken { get; set; }
+
+        public DateTime? LmOn { get; set; }
+        public int? LmBy { get; set; }
+        public string LmByName { get; set; }
     }
 }

@@ -28,5 +28,7 @@ namespace JDE_API.Models
         public string PlaceToken { get; set; }
         public Nullable<bool> IsArchived { get; set; }
         public string Image { get; set; }
+        public Nullable<int> LmBy { get; set; }
+        public Nullable<System.DateTime> LmOn { get; set; }
     }
 }

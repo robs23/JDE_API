@@ -291,6 +291,8 @@
           <Property Name="TenantId" Type="int" />
           <Property Name="PlaceToken" Type="nvarchar(max)" />
           <Property Name="IsArchived" Type="bit" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
         </EntityType>
         <EntityType Name="JDE_ProcessActions">
           <Key>
@@ -842,6 +844,8 @@
           <Property Name="PlaceToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="IsArchived" Type="Boolean" />
           <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="JDE_Users">
           <Key>
@@ -1254,6 +1258,8 @@
           <EntitySetMapping Name="JDE_Places">
             <EntityTypeMapping TypeName="DbModels.JDE_Places">
               <MappingFragment StoreEntitySet="JDE_Places">
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
                 <ScalarProperty Name="Image" ColumnName="Image" />
                 <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
                 <ScalarProperty Name="PlaceToken" ColumnName="PlaceToken" />
