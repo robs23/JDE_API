@@ -36,6 +36,7 @@
           <Property Name="RequireQrToStart" Type="bit" />
           <Property Name="RequireQrToFinish" Type="bit" />
           <Property Name="ClosePreviousInSamePlace" Type="bit" />
+          <Property Name="PartsApplicable" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -254,6 +255,7 @@
           <Property Name="Amount" Type="float" />
           <Property Name="PlaceId" Type="int" />
           <Property Name="HandlingId" Type="int" />
+          <Property Name="ProcessId" Type="int" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
@@ -453,6 +455,7 @@
           <Property Name="RequireQrToStart" Type="Boolean" />
           <Property Name="RequireQrToFinish" Type="Boolean" />
           <Property Name="ClosePreviousInSamePlace" Type="Boolean" />
+          <Property Name="PartsApplicable" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -625,6 +628,7 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
           <Property Name="HandlingId" Type="Int32" />
+          <Property Name="ProcessId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Stocks">
           <Key>
@@ -872,6 +876,7 @@
           <EntitySetMapping Name="JDE_ActionTypes">
             <EntityTypeMapping TypeName="DbModels.JDE_ActionTypes">
               <MappingFragment StoreEntitySet="JDE_ActionTypes">
+                <ScalarProperty Name="PartsApplicable" ColumnName="PartsApplicable" />
                 <ScalarProperty Name="ClosePreviousInSamePlace" ColumnName="ClosePreviousInSamePlace" />
                 <ScalarProperty Name="RequireQrToFinish" ColumnName="RequireQrToFinish" />
                 <ScalarProperty Name="RequireQrToStart" ColumnName="RequireQrToStart" />
@@ -1029,6 +1034,7 @@
           <EntitySetMapping Name="JDE_PartUsages">
             <EntityTypeMapping TypeName="DbModels.JDE_PartUsages">
               <MappingFragment StoreEntitySet="JDE_PartUsages">
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
                 <ScalarProperty Name="HandlingId" ColumnName="HandlingId" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />

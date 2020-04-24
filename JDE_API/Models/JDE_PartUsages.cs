@@ -24,5 +24,6 @@ namespace JDE_API.Models
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> TenantId { get; set; }
         public Nullable<int> HandlingId { get; set; }
+        public Nullable<int> ProcessId { get; set; }
     }
 }
