@@ -18,12 +18,11 @@ namespace JDE_API.Models
         public Nullable<int> PartId { get; set; }
         public Nullable<double> Amount { get; set; }
         public Nullable<int> PlaceId { get; set; }
+        public Nullable<int> ProcessId { get; set; }
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> LmBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> TenantId { get; set; }
-        public Nullable<int> HandlingId { get; set; }
-        public Nullable<int> ProcessId { get; set; }
     }
 }
