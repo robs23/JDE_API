@@ -34,6 +34,8 @@ namespace JDE_API.Controllers
                                  join u in db.JDE_Users on pu.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on pu.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
+                                 join comp in db.JDE_Companies on p.ProducerId equals comp.CompanyId into producer
+                                 from pr in producer.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pu.TenantId equals t.TenantId
                                  where pu.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby pu.CreatedOn descending
@@ -41,18 +43,23 @@ namespace JDE_API.Controllers
                                  {
                                      PartUsageId = pu.PartUsageId,
                                      PartId = p.PartId,
-                                     PartName = p.Name,
+                                     Name = p.Name,
                                      PlaceId = pu.PlaceId,
                                      PlaceName = pl.Name,
                                      ProcessId = pu.ProcessId,
+                                     ProducerId = pu.ProcessId,
+                                     ProducerName = pr.Name,
+                                     Symbol = p.Symbol,
+                                     Description = p.Description,
+                                     Image = p.Image,
                                      Amount = pu.Amount,
-                                     CreatedOn = p.CreatedOn,
-                                     CreatedBy = p.CreatedBy,
+                                     CreatedOn = pu.CreatedOn,
+                                     CreatedBy = pu.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LmOn = p.LmOn,
-                                     LmBy = p.LmBy,
+                                     LmOn = pu.LmOn,
+                                     LmBy = pu.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
-                                     TenantId = p.TenantId,
+                                     TenantId = pu.TenantId,
                                      TenantName = t.TenantName
                                  });
                     if (items.Any())
@@ -126,6 +133,8 @@ namespace JDE_API.Controllers
                                  join u in db.JDE_Users on pu.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on pu.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
+                                 join comp in db.JDE_Companies on p.ProducerId equals comp.CompanyId into producer
+                                 from pr in producer.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pu.TenantId equals t.TenantId
                                  where pu.TenantId == tenants.FirstOrDefault().TenantId && pu.PartUsageId == id
                                  orderby pu.CreatedOn descending
@@ -133,18 +142,23 @@ namespace JDE_API.Controllers
                                  {
                                      PartUsageId = pu.PartUsageId,
                                      PartId = p.PartId,
-                                     PartName = p.Name,
+                                     Name = p.Name,
                                      PlaceId = pu.PlaceId,
                                      PlaceName = pl.Name,
                                      ProcessId = pu.ProcessId,
+                                     ProducerId = pu.ProcessId,
+                                     ProducerName = pr.Name,
+                                     Symbol = p.Symbol,
+                                     Description = p.Description,
+                                     Image = p.Image,
                                      Amount = pu.Amount,
-                                     CreatedOn = p.CreatedOn,
-                                     CreatedBy = p.CreatedBy,
+                                     CreatedOn = pu.CreatedOn,
+                                     CreatedBy = pu.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
-                                     LmOn = p.LmOn,
-                                     LmBy = p.LmBy,
+                                     LmOn = pu.LmOn,
+                                     LmBy = pu.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
-                                     TenantId = p.TenantId,
+                                     TenantId = pu.TenantId,
                                      TenantName = t.TenantName
                                  });
 
