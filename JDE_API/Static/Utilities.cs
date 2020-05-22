@@ -1,4 +1,5 @@
 ﻿using JDE_API.Controllers;
+using JDE_API.Interfaces;
 using JDE_API.Models;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
-using ProcessStatus = JDE_API.Controllers.ProcessStatus;
+using ProcessStatus = JDE_API.Models.ProcessStatus;
 
 namespace JDE_API.Static
 {

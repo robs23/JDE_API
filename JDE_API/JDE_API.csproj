@@ -220,6 +220,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IProcessable.cs" />
     <Compile Include="Models\DbModels.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -235,6 +236,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DbModels.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\Handling.cs" />
     <Compile Include="Models\JDE_Actions.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
@@ -313,6 +315,8 @@
     <Compile Include="Models\JDE_Users.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Maintenance.cs" />
+    <Compile Include="Models\Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Static\RuntimeSettings.cs" />
     <Compile Include="Static\Utilities.cs" />
