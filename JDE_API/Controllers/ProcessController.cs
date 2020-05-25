@@ -26,7 +26,7 @@ namespace JDE_API.Controllers
         private Models.DbModel db = new Models.DbModel();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private IQueryable<Process> FetchProcesses (int TenantId, DateTime dFrom, DateTime dTo)
+        private IQueryable<Process> FetchProcesses (int TenantId, DateTime dFrom, DateTime dTo, bool? givenTime=null)
         {
             var items = (from p in db.JDE_Processes
                          join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
@@ -81,7 +81,7 @@ namespace JDE_API.Controllers
                              StartedByName = star.Name + " " + star.Surname,
                              PlaceName = pl.Name,
                              LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
-                                     p.LastStatusBy,
+                             p.LastStatusBy,
                              LastStatusByName = lStat.Name + " " + lStat.Surname,
                              p.LastStatusOn
                          } into grp
@@ -130,8 +130,12 @@ namespace JDE_API.Controllers
                              AssignedUsers = (from pras in db.JDE_ProcessAssigns
                                               join uu in db.JDE_Users on pras.UserId equals uu.UserId
                                               where pras.ProcessId == grp.Key.ProcessId
-                                              select uu.Name + " " + uu.Surname)
-                         });
+                                              select uu.Name + " " + uu.Surname),
+                             GivenTime = givenTime==null ? 0 : (from prac in db.JDE_ProcessActions
+                                                                join a in db.JDE_Actions on prac.ActionId equals a.ActionId
+                                                                where prac.ProcessId == grp.Key.ProcessId
+                                                                select a.GivenTime).Sum()
+                         }) ;
             return items;
         }
 
@@ -181,7 +185,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcesses")]
-        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
+        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -193,7 +197,7 @@ namespace JDE_API.Controllers
                     dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value.AddDays(1);
                     string assignedUserNames = null;
                     db.Database.Log = Console.Write;
-                    var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo);
+                    var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime);
                     
                     if (items.Any())
                     {
@@ -235,65 +239,6 @@ namespace JDE_API.Controllers
                 return NotFound();
             }
         }
-
-        [HttpGet]
-        [Route("GetMaintenances")]
-        public IHttpActionResult GetMaintenances(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null)
-        {
-            //if ext=true then there's more columns in the result sent
-            if (token != null && token.Length > 0)
-            {
-                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
-                if (tenants.Any())
-                {
-                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.CreatedOn).Value.AddDays(-1);
-                    dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value.AddDays(1);
-                    string assignedUserNames = null;
-                    db.Database.Log = Console.Write;
-                    var processItems = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo);
-
-                    IQueryable<Maintenance> items = (IQueryable<Maintenance>)processItems;
-                    if (items.Any())
-                    {
-                        if (query != null)
-                        {
-                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0)
-                            {
-                                ProcessQuery pq = new ProcessQuery(query);
-                                length = pq.Length;
-                                status = pq.Status;
-                                assignedUserNames = pq.AssignedUserNames;
-                                query = pq.Query;
-
-                            }
-                            if (!string.IsNullOrEmpty(query))
-                            {
-                                items = items.Where(query);
-                            }
-                        }
-
-                        IQueryable<IProcessable> nItems = AdvancedFilter(items, length, status, assignedUserNames);
-
-                        return PrepareResponse(nItems, page, total);
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
-
-                }
-                else
-                {
-                    return NotFound();
-                }
-
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
 
         [HttpGet]
         [Route("GetUsersOpenProcesses")]

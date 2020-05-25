@@ -84,7 +84,9 @@ namespace JDE_API.Models
             return res;
         }
     }
-}
+
+    public int? GivenTime { get; set; }
+    }
     public enum ProcessStatus
     {
         None,
