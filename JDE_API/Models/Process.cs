@@ -86,6 +86,20 @@ namespace JDE_API.Models
     }
 
     public int? GivenTime { get; set; }
+
+    public string TimingStatus
+        {
+            get
+            {
+                string res = "OK";
+
+                if(this.Length > this.GivenTime && this.GivenTime!=null && this.GivenTime>0)
+                {
+                    res = "Przekroczono";
+                }
+                return res;
+            }
+        }
     }
     public enum ProcessStatus
     {

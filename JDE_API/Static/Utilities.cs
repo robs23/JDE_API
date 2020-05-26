@@ -194,6 +194,70 @@ namespace JDE_API.Static
             return nItems;
         }
 
+        public static List<IProcessable> FilterByTimingStatus(List<IProcessable> nItems, string status)
+        {
+            int start = 0;
+            int end = 0;
+            string word = "";
+
+            if (status.Contains("!TimingStatus.ToLower().Contains") || status.Contains("TimingStatus<>"))
+            {
+                //Doesn't contain or different than
+                //let's get just query parameter
+                if (status.Contains("Contains"))
+                {
+                    word = "!TimingStatus.ToLower().Contains";
+                }
+                else
+                {
+                    word = "TimingStatus<>";
+                }
+                status = status.Replace(word, "");
+                start = status.IndexOf("\"");
+                end = status.IndexOf("\"", start + 1);
+                status = status.Substring(start + 1, end - (start + 1));
+                if ("OK".Contains(status) || ("OK".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.Length > i.GivenTime).ToList();
+                }
+                else if ("Przekroczono".Contains(status) || ("Przekroczono".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.Length <= i.GivenTime).ToList();
+                }
+            }
+            else if (status.Contains("TimingStatus.ToLower().Contains") || status.Contains("TimingStatus="))
+            {
+                //Contains or equal to
+                //let's get just query parameter
+                if (status.Contains("Contains"))
+                {
+                    word = "TimingStatus.ToLower().Contains";
+                }
+                else
+                {
+                    word = "TimingStatus=";
+                }
+                status = status.Replace(word, "");
+                start = status.IndexOf("\"");
+                end = status.IndexOf("\"", start + 1);
+                status = status.Substring(start + 1, end - (start + 1));
+                if ("OK".Contains(status) || ("OK".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.Length <= i.GivenTime).ToList();
+                }
+                else if ("Przekroczono".Contains(status) || ("Przekroczono".ToLower().Contains(status)))
+                {
+                    nItems = nItems.Where(i => i.Length > i.GivenTime).ToList();
+                }
+                else
+                {
+                    nItems.Clear();
+                }
+
+            }
+            return nItems;
+        }
+
         public static List<IProcessable> FilterByAssignedUserNames(List<IProcessable> nItems, string assignedUserNames)
         {
             int start = 0;

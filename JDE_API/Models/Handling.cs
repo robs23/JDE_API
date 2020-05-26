@@ -51,5 +51,6 @@ namespace JDE_API.Models
             }
         }
         public string AssignedUserNames { get; }
+        public int? GivenTime { get; set; }
     }
 }
