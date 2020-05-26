@@ -26,124 +26,141 @@ namespace JDE_API.Controllers
         private Models.DbModel db = new Models.DbModel();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private IQueryable<Process> FetchProcesses (int TenantId, DateTime dFrom, DateTime dTo, bool? givenTime=null)
+        private IQueryable<Process> FetchProcesses (int TenantId, DateTime dFrom, DateTime dTo, bool? givenTime=null, bool? finishRate=null)
         {
-            var items = (from p in db.JDE_Processes
-                         join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
-                         from fin in finished.DefaultIfEmpty()
-                         join t in db.JDE_Tenants on p.TenantId equals t.TenantId
-                         join u in db.JDE_Users on p.CreatedBy equals u.UserId
-                         join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
-                         join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
-                         from star in started.DefaultIfEmpty()
-                         join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
-                         from lStat in lastStatus.DefaultIfEmpty()
-                         join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
-                         join s in db.JDE_Sets on pl.SetId equals s.SetId
-                         join a in db.JDE_Areas on pl.AreaId equals a.AreaId
-                         join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
-                         from ha in hans.DefaultIfEmpty()
-                         where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
-                         group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
-                         by new
-                         {
-                             p.ProcessId,
-                             p.Description,
-                             p.StartedOn,
-                             p.StartedBy,
-                             p.FinishedOn,
-                             p.FinishedBy,
-                             p.PlannedFinish,
-                             p.PlannedStart,
-                             p.PlaceId,
-                             pl.SetId,
-                             SetName = s.Name,
-                             pl.AreaId,
-                             AreaName = a.Name,
-                             p.Reason,
-                             p.CreatedBy,
-                             CreatedByName = u.Name + " " + u.Surname,
-                             p.CreatedOn,
-                             p.ActionTypeId,
-                             p.Output,
-                             p.InitialDiagnosis,
-                             p.RepairActions,
-                             p.TenantId,
-                             p.MesId,
-                             p.MesDate,
-                             TenantName = t.TenantName,
-                             p.IsActive,
-                             p.IsCompleted,
-                             p.IsFrozen,
-                             p.IsSuccessfull,
-                             ActionTypeName = at.Name,
-                             FinishedByName = fin.Name + " " + fin.Surname,
-                             StartedByName = star.Name + " " + star.Surname,
-                             PlaceName = pl.Name,
-                             LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
+            IQueryable<Process> items; 
+            try
+            {
+                items = (from p in db.JDE_Processes
+                             join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
+                             from fin in finished.DefaultIfEmpty()
+                             join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                             join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                             join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
+                             join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
+                             from star in started.DefaultIfEmpty()
+                             join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                             from lStat in lastStatus.DefaultIfEmpty()
+                             join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                             join s in db.JDE_Sets on pl.SetId equals s.SetId
+                             join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                             join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
+                             from ha in hans.DefaultIfEmpty()
+                             where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
+                             group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
+                             by new
+                             {
+                                 p.ProcessId,
+                                 p.Description,
+                                 p.StartedOn,
+                                 p.StartedBy,
+                                 p.FinishedOn,
+                                 p.FinishedBy,
+                                 p.PlannedFinish,
+                                 p.PlannedStart,
+                                 p.PlaceId,
+                                 pl.SetId,
+                                 SetName = s.Name,
+                                 pl.AreaId,
+                                 AreaName = a.Name,
+                                 p.Reason,
+                                 p.CreatedBy,
+                                 CreatedByName = u.Name + " " + u.Surname,
+                                 p.CreatedOn,
+                                 p.ActionTypeId,
+                                 p.Output,
+                                 p.InitialDiagnosis,
+                                 p.RepairActions,
+                                 p.TenantId,
+                                 p.MesId,
+                                 p.MesDate,
+                                 TenantName = t.TenantName,
+                                 p.IsActive,
+                                 p.IsCompleted,
+                                 p.IsFrozen,
+                                 p.IsSuccessfull,
+                                 ActionTypeName = at.Name,
+                                 FinishedByName = fin.Name + " " + fin.Surname,
+                                 StartedByName = star.Name + " " + star.Surname,
+                                 PlaceName = pl.Name,
+                                 LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                              p.LastStatusBy,
-                             LastStatusByName = lStat.Name + " " + lStat.Surname,
-                             p.LastStatusOn
-                         } into grp
-                         orderby grp.Key.CreatedOn descending
-                         select new Process
-                         {
-                             ProcessId = grp.Key.ProcessId,
-                             Description = grp.Key.Description,
-                             StartedOn = grp.Key.StartedOn,
-                             StartedBy = grp.Key.StartedBy,
-                             StartedByName = grp.Key.StartedByName,
-                             FinishedOn = grp.Key.FinishedOn,
-                             FinishedBy = grp.Key.FinishedBy,
-                             FinishedByName = grp.Key.FinishedByName,
-                             ActionTypeId = grp.Key.ActionTypeId,
-                             ActionTypeName = grp.Key.ActionTypeName,
-                             IsActive = grp.Key.IsActive,
-                             IsFrozen = grp.Key.IsFrozen,
-                             IsCompleted = grp.Key.IsCompleted,
-                             IsSuccessfull = grp.Key.IsSuccessfull,
-                             PlaceId = grp.Key.PlaceId,
-                             PlaceName = grp.Key.PlaceName,
-                             SetId = grp.Key.SetId,
-                             SetName = grp.Key.SetName,
-                             AreaId = grp.Key.AreaId,
-                             AreaName = grp.Key.AreaName,
-                             Output = grp.Key.Output,
-                             TenantId = grp.Key.TenantId,
-                             TenantName = grp.Key.TenantName,
-                             CreatedOn = grp.Key.CreatedOn,
-                             CreatedBy = grp.Key.CreatedBy,
-                             CreatedByName = grp.Key.CreatedByName,
-                             MesId = grp.Key.MesId,
-                             InitialDiagnosis = grp.Key.InitialDiagnosis,
-                             RepairActions = grp.Key.RepairActions,
-                             Reason = grp.Key.Reason,
-                             MesDate = grp.Key.MesDate,
-                             PlannedStart = grp.Key.PlannedStart,
-                             PlannedFinish = grp.Key.PlannedFinish,
-                             LastStatus = grp.Key.LastStatus,
-                             LastStatusBy = grp.Key.LastStatusBy,
-                             LastStatusByName = grp.Key.LastStatusByName,
-                             LastStatusOn = grp.Key.LastStatusOn,
-                             OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
-                             AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
-                             AssignedUsers = (from pras in db.JDE_ProcessAssigns
-                                              join uu in db.JDE_Users on pras.UserId equals uu.UserId
-                                              where pras.ProcessId == grp.Key.ProcessId
-                                              select uu.Name + " " + uu.Surname),
-                             GivenTime = givenTime==null ? 0 : (from prac in db.JDE_ProcessActions
-                                                                join a in db.JDE_Actions on prac.ActionId equals a.ActionId
-                                                                where prac.ProcessId == grp.Key.ProcessId
-                                                                select a.GivenTime).Sum()
-                         }) ;
+                                 LastStatusByName = lStat.Name + " " + lStat.Surname,
+                                 p.LastStatusOn
+                             } into grp
+                             orderby grp.Key.CreatedOn descending
+                             select new Process
+                             {
+                                 ProcessId = grp.Key.ProcessId,
+                                 Description = grp.Key.Description,
+                                 StartedOn = grp.Key.StartedOn,
+                                 StartedBy = grp.Key.StartedBy,
+                                 StartedByName = grp.Key.StartedByName,
+                                 FinishedOn = grp.Key.FinishedOn,
+                                 FinishedBy = grp.Key.FinishedBy,
+                                 FinishedByName = grp.Key.FinishedByName,
+                                 ActionTypeId = grp.Key.ActionTypeId,
+                                 ActionTypeName = grp.Key.ActionTypeName,
+                                 IsActive = grp.Key.IsActive,
+                                 IsFrozen = grp.Key.IsFrozen,
+                                 IsCompleted = grp.Key.IsCompleted,
+                                 IsSuccessfull = grp.Key.IsSuccessfull,
+                                 PlaceId = grp.Key.PlaceId,
+                                 PlaceName = grp.Key.PlaceName,
+                                 SetId = grp.Key.SetId,
+                                 SetName = grp.Key.SetName,
+                                 AreaId = grp.Key.AreaId,
+                                 AreaName = grp.Key.AreaName,
+                                 Output = grp.Key.Output,
+                                 TenantId = grp.Key.TenantId,
+                                 TenantName = grp.Key.TenantName,
+                                 CreatedOn = grp.Key.CreatedOn,
+                                 CreatedBy = grp.Key.CreatedBy,
+                                 CreatedByName = grp.Key.CreatedByName,
+                                 MesId = grp.Key.MesId,
+                                 InitialDiagnosis = grp.Key.InitialDiagnosis,
+                                 RepairActions = grp.Key.RepairActions,
+                                 Reason = grp.Key.Reason,
+                                 MesDate = grp.Key.MesDate,
+                                 PlannedStart = grp.Key.PlannedStart,
+                                 PlannedFinish = grp.Key.PlannedFinish,
+                                 LastStatus = grp.Key.LastStatus,
+                                 LastStatusBy = grp.Key.LastStatusBy,
+                                 LastStatusByName = grp.Key.LastStatusByName,
+                                 LastStatusOn = grp.Key.LastStatusOn,
+                                 OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
+                                 AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
+                                 AssignedUsers = (from pras in db.JDE_ProcessAssigns
+                                                  join uu in db.JDE_Users on pras.UserId equals uu.UserId
+                                                  where pras.ProcessId == grp.Key.ProcessId
+                                                  select uu.Name + " " + uu.Surname),
+                                 GivenTime = givenTime == null || givenTime == false ? 0 : (from prac in db.JDE_ProcessActions
+                                                                                            join a in db.JDE_Actions on prac.ActionId equals a.ActionId
+                                                                                            where prac.ProcessId == grp.Key.ProcessId
+                                                                                            select a.GivenTime).Sum(),
+                                 FinishRate = finishRate == null || finishRate == false ? 0 : db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId)==0 
+                                                                                            ? 100 : (((float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId && i.IsChecked == true)
+                                                                                            / (float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId))*100),
+
+                             });
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
             return items;
         }
 
-        private IHttpActionResult PrepareResponse(IQueryable<IProcessable> items, int page, int total)
+        private IHttpActionResult PrepareResponse(IQueryable<IProcessable> items, int page, int total, int? PageSize=null)
         {
             if (total == 0 && page > 0)
             {
                 int pageSize = RuntimeSettings.PageSize;
+                if (PageSize != null)
+                {
+                    pageSize = (int)PageSize;
+                }
                 var skip = pageSize * (page - 1);
                 if (skip < items.Count())
                 {
@@ -186,7 +203,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcesses")]
-        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null)
+        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate=null, int? pageSize=null)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -199,7 +216,7 @@ namespace JDE_API.Controllers
                     string assignedUserNames = null;
                     string timingStatus = null;
                     db.Database.Log = Console.Write;
-                    var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime);
+                    var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate);
                     
                     if (items.Any())
                     {
@@ -223,7 +240,7 @@ namespace JDE_API.Controllers
                         
                         IQueryable<IProcessable> nItems = AdvancedFilter(items, length, status, assignedUserNames, timingStatus);
 
-                        return PrepareResponse(nItems, page, total);
+                        return PrepareResponse(nItems, page, total, pageSize);
                     }
                     else
                     {
@@ -1638,32 +1655,6 @@ namespace JDE_API.Controllers
                 }
                 this.AssignedUserNames = this.Query.Substring(start, end - start);
                 this.Query = this.Query.Replace(this.AssignedUserNames, "");
-                DropAnd();
-            }
-            if (this.Query.IndexOf("TimingStatus") >= 0)
-            {
-                if (this.Query.Contains("!TimingStatus"))
-                {
-                    //this is "doesn't contain" filter
-                    start = this.Query.IndexOf("!TimingStatus");
-                }
-                else
-                {
-                    start = this.Query.IndexOf("TimingStatus");
-                }
-
-                if (this.Query.IndexOf("AND", start) >= 0)
-                {
-                    //it has got more parameters later
-                    end = this.Query.IndexOf(" ", start);
-                }
-                else
-                {
-                    //it's the last parameter
-                    end = this.Query.Length;
-                }
-                this.TimingStatus = this.Query.Substring(start, end - start);
-                this.Query = this.Query.Replace(this.TimingStatus, "");
                 DropAnd();
             }
         }

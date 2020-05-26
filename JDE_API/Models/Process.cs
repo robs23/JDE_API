@@ -100,6 +100,7 @@ namespace JDE_API.Models
                 return res;
             }
         }
+    public float? FinishRate { get; set; }
     }
     public enum ProcessStatus
     {
