@@ -198,16 +198,19 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
+                    string newItem = "";
                     try
                     {
                         var items = db.JDE_PartUsages.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartUsageId == id);
                         if (items.Any())
                         {
                             Logger.Info("EditPartUsage: Znalazłem odpowiednie PartUsage. Przystępuję do edycji Id={id}, UserId={UserId}", id, UserId);
-                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zużycia części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
-                            db.JDE_Logs.Add(Log);
+                            item.CreatedOn = items.FirstOrDefault().CreatedOn; //switch back to original createdOn date
                             item.LmBy = UserId;
                             item.LmOn = DateTime.Now;
+                            newItem = new JavaScriptSerializer().Serialize(item);
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zużycia części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            db.JDE_Logs.Add(Log);
                             db.Entry(item).State = EntityState.Modified;
                             try
                             {
@@ -229,7 +232,7 @@ namespace JDE_API.Controllers
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Błąd w EditPartUsage. Id={id}, UserId={UserId}. Szczegóły: {Message}", id, UserId, ex.ToString());
+                        Logger.Error("Błąd w EditPartUsage. Id={id}, UserId={UserId}. Szczegóły: {Message}, nowa wartość: {newItem}", id, UserId, ex.ToString(), newItem);
                         return StatusCode(HttpStatusCode.InternalServerError);
                     }
                 }
