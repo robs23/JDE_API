@@ -1057,6 +1057,7 @@ namespace JDE_API.Controllers
                     catch(Exception ex)
                     {
                         Logger.Error("Błąd w EditProcess. Id={id}, UserId={UserId}. Szczegóły: {Message}", id, UserId, ex.ToString());
+                        return StatusCode(HttpStatusCode.InternalServerError);
                     }
                 }
                 else

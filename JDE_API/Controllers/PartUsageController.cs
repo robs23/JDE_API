@@ -1,5 +1,6 @@
 ﻿using JDE_API.Models;
 using JDE_API.Static;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -17,6 +18,7 @@ namespace JDE_API.Controllers
     public class PartUsageController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [HttpGet]
         [Route("GetPartUsages")]
@@ -190,35 +192,45 @@ namespace JDE_API.Controllers
 
         public IHttpActionResult EditPartUsage(string token, int id, int UserId, JDE_PartUsages item)
         {
+            Logger.Info("Start EditPartUsage. Id={id}, UserId={UserId}", id, UserId);
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_PartUsages.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartUsageId == id);
-                    if (items.Any())
+                    try
                     {
-
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zużycia części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
-                        db.JDE_Logs.Add(Log);
-                        item.LmBy = UserId;
-                        item.LmOn = DateTime.Now;
-                        db.Entry(item).State = EntityState.Modified;
-                        try
+                        var items = db.JDE_PartUsages.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartUsageId == id);
+                        if (items.Any())
                         {
-                            db.SaveChanges();
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            if (!JDE_PartUsageExists(id))
+                            Logger.Info("EditPartUsage: Znalazłem odpowiednie PartUsage. Przystępuję do edycji Id={id}, UserId={UserId}", id, UserId);
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja zużycia części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            db.JDE_Logs.Add(Log);
+                            item.LmBy = UserId;
+                            item.LmOn = DateTime.Now;
+                            db.Entry(item).State = EntityState.Modified;
+                            try
                             {
-                                return NotFound();
+                                db.SaveChanges();
+                                Logger.Info("EditPartUsage: Edycja zakończona powodzeniem. Przystępuję do edycji Id={id}, UserId={UserId}", id, UserId);
                             }
-                            else
+                            catch (DbUpdateConcurrencyException)
                             {
-                                throw;
+                                if (!JDE_PartUsageExists(id))
+                                {
+                                    return NotFound();
+                                }
+                                else
+                                {
+                                    throw;
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Błąd w EditPartUsage. Id={id}, UserId={UserId}. Szczegóły: {Message}", id, UserId, ex.ToString());
+                        return StatusCode(HttpStatusCode.InternalServerError);
                     }
                 }
             }
@@ -231,19 +243,29 @@ namespace JDE_API.Controllers
         [ResponseType(typeof(JDE_PartUsages))]
         public IHttpActionResult CreatePartUsage(string token, JDE_PartUsages item, int UserId)
         {
+            Logger.Info("Start CreatePartUsage. PartId={PartId}, UserId={UserId}", item.PartId, UserId);
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    item.TenantId = tenants.FirstOrDefault().TenantId;
-                    item.CreatedOn = DateTime.Now;
-                    db.JDE_PartUsages.Add(item);
-                    db.SaveChanges();
-                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zużycie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
-                    db.JDE_Logs.Add(Log);
-                    db.SaveChanges();
-                    return Ok(item);
+                    try
+                    {
+                        item.TenantId = tenants.FirstOrDefault().TenantId;
+                        item.CreatedOn = DateTime.Now;
+                        db.JDE_PartUsages.Add(item);
+                        db.SaveChanges();
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Zużycie części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
+                        Logger.Info("CreatePartUsage: Zapis zakończony powodzeniem. PartId={PartId}, UserId={UserId}", item.PartId, UserId);
+                        return Ok(item);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Błąd w CreatePartUsage. PartId={PartId}, UserId={UserId}. Szczegóły: {Message}", item.PartId, UserId, ex.ToString());
+                        return StatusCode(HttpStatusCode.InternalServerError);
+                    }
                 }
                 else
                 {
