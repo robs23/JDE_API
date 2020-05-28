@@ -100,6 +100,21 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
         </EntityType>
+        <EntityType Name="JDE_Components">
+          <Key>
+            <PropertyRef Name="ComponentId" />
+          </Key>
+          <Property Name="ComponentId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="PlaceId" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
+        </EntityType>
         <EntityType Name="JDE_Deliveries">
           <Key>
             <PropertyRef Name="DeliveryId" />
@@ -413,6 +428,7 @@
           <EntitySet Name="JDE_Boms" EntityType="Self.JDE_Boms" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Companies" EntityType="Self.JDE_Companies" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_CompanyTypes" EntityType="Self.JDE_CompanyTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_Components" EntityType="Self.JDE_Components" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Deliveries" EntityType="Self.JDE_Deliveries" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_DeliveryItems" EntityType="Self.JDE_DeliveryItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" Schema="dbo" store:Type="Tables" />
@@ -542,6 +558,7 @@
           <EntitySet Name="JDE_Places" EntityType="DbModels.JDE_Places" />
           <EntitySet Name="JDE_Users" EntityType="DbModels.JDE_Users" />
           <EntitySet Name="JDE_PartUsages" EntityType="DbModels.JDE_PartUsages" />
+          <EntitySet Name="JDE_Components" EntityType="DbModels.JDE_Components" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -866,6 +883,21 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_Components">
+          <Key>
+            <PropertyRef Name="ComponentId" />
+          </Key>
+          <Property Name="ComponentId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsArchived" Type="Boolean" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1297,6 +1329,22 @@
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="PartId" ColumnName="PartId" />
                 <ScalarProperty Name="PartUsageId" ColumnName="PartUsageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Components">
+            <EntityTypeMapping TypeName="DbModels.JDE_Components">
+              <MappingFragment StoreEntitySet="JDE_Components">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ComponentId" ColumnName="ComponentId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

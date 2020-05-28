@@ -51,5 +51,6 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Places> JDE_Places { get; set; }
         public virtual DbSet<JDE_Users> JDE_Users { get; set; }
         public virtual DbSet<JDE_PartUsages> JDE_PartUsages { get; set; }
+        public virtual DbSet<JDE_Components> JDE_Components { get; set; }
     }
 }

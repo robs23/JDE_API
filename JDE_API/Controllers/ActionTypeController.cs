@@ -46,6 +46,7 @@ namespace JDE_API.Controllers
                                      RequireQrToFinish = at.RequireQrToFinish,
                                      ClosePreviousInSamePlace = at.ClosePreviousInSamePlace,
                                      PartsApplicable = at.PartsApplicable,
+                                     ActionsApplicable = at.ActionsApplicable,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -125,6 +126,7 @@ namespace JDE_API.Controllers
                                      RequireQrToFinish = at.RequireQrToFinish,
                                      ClosePreviousInSamePlace = at.ClosePreviousInSamePlace,
                                      PartsApplicable = at.PartsApplicable,
+                                     ActionsApplicable = at.ActionsApplicable,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -184,6 +186,7 @@ namespace JDE_API.Controllers
                             RequireQrToFinish = false,
                             ClosePreviousInSamePlace = false,
                             PartsApplicable = false,
+                            ActionsApplicable = false,
                             CreatedBy = UserId,
                             CreatedOn = DateTime.Now,
                             TenantId = tenants.FirstOrDefault().TenantId
