@@ -258,6 +258,78 @@ namespace JDE_API.Static
             return nItems;
         }
 
+        public static List<IProcessable> FilterByTimingVsPlan(List<IProcessable> nItems, string keyword)
+        {
+            int start = 0;
+            int end = 0;
+            string word = "";
+
+            if (keyword.Contains("!TimingVsPlan.ToLower().Contains") || keyword.Contains("TimingVsPlan<>"))
+            {
+                //Doesn't contain or different than
+                //let's get just query parameter
+                if (keyword.Contains("Contains"))
+                {
+                    word = "!TimingVsPlan.ToLower().Contains";
+                }
+                else
+                {
+                    word = "TimingVsPlan<>";
+                }
+                keyword = keyword.Replace(word, "").ToLower();
+                start = keyword.IndexOf("\"");
+                end = keyword.IndexOf("\"", start + 1);
+                keyword = keyword.Substring(start + 1, end - (start + 1));
+                if ("Zaległe".Contains(keyword) || ("Zaległe".ToLower().Contains(keyword)))
+                {
+                    nItems = nItems.Where(i => !i.TimingVsPlan.ToLower().Contains(keyword)).ToList();
+                }
+                else if ("Bieżące".Contains(keyword) || ("Bieżące".ToLower().Contains(keyword)))
+                {
+                    nItems = nItems.Where(i => !i.TimingVsPlan.ToLower().Contains(keyword)).ToList();
+                }
+                else if ("Nie dotyczy".Contains(keyword) || ("Nie dotyczy".ToLower().Contains(keyword)))
+                {
+                    nItems = nItems.Where(i => !i.TimingVsPlan.ToLower().Contains(keyword)).ToList();
+                }
+            }
+            else if (keyword.Contains("TimingVsPlan.ToLower().Contains") || keyword.Contains("TimingVsPlan="))
+            {
+                //Contains or equal to
+                //let's get just query parameter
+                if (keyword.Contains("Contains"))
+                {
+                    word = "TimingVsPlan.ToLower().Contains";
+                }
+                else
+                {
+                    word = "TimingVsPlan=";
+                }
+                keyword = keyword.Replace(word, "");
+                start = keyword.IndexOf("\"");
+                end = keyword.IndexOf("\"", start + 1);
+                keyword = keyword.Substring(start + 1, end - (start + 1));
+                if ("Zaległe".Contains(keyword) || ("Zaległe".ToLower().Contains(keyword)))
+                {
+                    nItems = nItems.Where(i => i.TimingVsPlan.ToLower().Contains(keyword)).ToList();
+                }
+                else if ("Bieżące".Contains(keyword) || ("Bieżące".ToLower().Contains(keyword)))
+                {
+                    nItems = nItems.Where(i => i.TimingVsPlan.ToLower().Contains(keyword)).ToList();
+                }
+                else if ("Nie dotyczy".Contains(keyword) || ("Nie dotyczy".ToLower().Contains(keyword)))
+                {
+                    nItems = nItems.Where(i => i.TimingVsPlan.ToLower().Contains(keyword)).ToList();
+                }
+                else
+                {
+                    nItems.Clear();
+                }
+
+            }
+            return nItems;
+        }
+
         public static List<IProcessable> FilterByAssignedUserNames(List<IProcessable> nItems, string assignedUserNames)
         {
             int start = 0;

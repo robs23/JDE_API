@@ -183,15 +183,16 @@ namespace JDE_API.Controllers
             }
         }
 
-        private IQueryable<IProcessable> AdvancedFilter(IQueryable<Process> items, string length = null, string status = null, string assignedUserNames = null, string timingStatus=null)
+        private IQueryable<IProcessable> AdvancedFilter(IQueryable<Process> items, string length = null, string status = null, string assignedUserNames = null, string timingStatus=null, string timingVsPlan = null)
         {
-            if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status) || !string.IsNullOrEmpty(assignedUserNames) || !string.IsNullOrEmpty(timingStatus))
+            if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status) || !string.IsNullOrEmpty(assignedUserNames) || !string.IsNullOrEmpty(timingStatus) || !string.IsNullOrEmpty(timingVsPlan))
             {
                 List<IProcessable> nItems = items.ToList<IProcessable>();
                 if (!string.IsNullOrEmpty(length)) { nItems = Static.Utilities.FilterByLength(nItems, length); }
                 if (!string.IsNullOrEmpty(status)) { nItems = Static.Utilities.FilterByStatus(nItems, status); }
                 if (!string.IsNullOrEmpty(assignedUserNames)) { nItems = Static.Utilities.FilterByAssignedUserNames(nItems, assignedUserNames); }
                 if (!string.IsNullOrEmpty(timingStatus)) { nItems = Static.Utilities.FilterByTimingStatus(nItems, timingStatus); }
+                if (!string.IsNullOrEmpty(timingVsPlan)) { nItems = Static.Utilities.FilterByTimingVsPlan(nItems, timingVsPlan); }
                 return nItems.AsQueryable();
             }
             else
@@ -215,30 +216,32 @@ namespace JDE_API.Controllers
                     dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value.AddDays(1);
                     string assignedUserNames = null;
                     string timingStatus = null;
-                    db.Database.Log = Console.Write;
+                    string timingVsPlan = null;
                     var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate);
                     
                     if (items.Any())
                     {
                         if (query != null)
                         {
-                            if(query.IndexOf("Length")>=0 || query.IndexOf("Status")>=0 || query.IndexOf("AssignedUserNames")>=0 || query.IndexOf("TimingStatus") >= 0)
+                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0 || query.IndexOf("TimingStatus") >= 0 || query.IndexOf("TimingVsPlan") >= 0)
                             {
                                 ProcessQuery pq = new ProcessQuery(query);
                                 length = pq.Length;
                                 status = pq.Status;
                                 assignedUserNames = pq.AssignedUserNames;
                                 timingStatus = pq.TimingStatus;
+                                timingVsPlan = pq.TimingVsPlan;
                                 query = pq.Query;
 
                             }
                             if (!string.IsNullOrEmpty(query))
                             {
                                 items = items.Where(query);
-                            }                
+
+                            }
                         }
-                        
-                        IQueryable<IProcessable> nItems = AdvancedFilter(items, length, status, assignedUserNames, timingStatus);
+
+                        IQueryable<IProcessable> nItems = AdvancedFilter(items, length, status, assignedUserNames, timingStatus, timingVsPlan);
 
                         return PrepareResponse(nItems, page, total, pageSize);
                     }
@@ -1546,6 +1549,8 @@ namespace JDE_API.Controllers
         public string AssignedUserNames { get; set; }
         public string TimingStatus { get; set; }
 
+        public string TimingVsPlan { get; set; }
+
         public ProcessQuery(string query)
         {
             this.OrginalQuery = query;
@@ -1606,6 +1611,33 @@ namespace JDE_API.Controllers
                 this.Query = this.Query.Replace(this.TimingStatus, "");
                 DropAnd();
             }
+            if (this.Query.IndexOf("TimingVsPlan") >= 0)
+            {
+                if (this.Query.Contains("!TimingVsPlan"))
+                {
+                    //this is "doesn't contain" filter
+                    start = this.Query.IndexOf("!TimingVsPlan");
+                }
+                else
+                {
+                    start = this.Query.IndexOf("TimingVsPlan");
+                }
+
+                if (this.Query.IndexOf("AND", start) >= 0)
+                {
+                    //it has got more parameters later
+                    end = this.Query.IndexOf(" ", start);
+                }
+                else
+                {
+                    //it's the last parameter
+                    end = this.Query.Length;
+                }
+                this.TimingVsPlan = this.Query.Substring(start, end - start);
+                this.Query = this.Query.Replace(this.TimingVsPlan, "");
+                DropAnd();
+            }
+
             if (this.Query.IndexOf("Status") >= 0)
             {
                 if (this.Query.Contains("!Status"))

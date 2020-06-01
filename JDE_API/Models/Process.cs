@@ -88,19 +88,61 @@ namespace JDE_API.Models
     public int? GivenTime { get; set; }
 
     public string TimingStatus
+    {
+        get
         {
-            get
-            {
-                string res = "OK";
+            string res = "OK";
 
-                if(this.Length > this.GivenTime && this.GivenTime!=null && this.GivenTime>0)
+            if(this.Length > this.GivenTime && this.GivenTime!=null && this.GivenTime>0)
+            {
+                res = "Przekroczono";
+            }
+            return res;
+        }
+    }
+
+    public string TimingVsPlan
+    {
+        get
+        {
+            if (PlannedStart == null)
+            {
+                return "Nie dotyczy";
+            }
+            else
+            {
+                if (PlannedStart > DateTime.Now)
                 {
-                    res = "Przekroczono";
+                    return "W przyszłości";
                 }
-                return res;
+                else if (PlannedFinish != null)
+                {
+                    if (PlannedFinish < DateTime.Now)
+                    {
+                        return "Zaległe";
+                    }
+                    else
+                    {
+                        return "Bieżące";
+                    }
+
+                }
+                else
+                {
+                    if (PlannedStart < DateTime.Now.AddDays(-7))
+                    {
+                        return "Zaległe";
+                    }
+                    else
+                    {
+                        return "Bieżące";
+                    }
+                }
             }
         }
-    public float? FinishRate { get; set; }
+    }
+
+        public float? FinishRate { get; set; }
     }
     public enum ProcessStatus
     {

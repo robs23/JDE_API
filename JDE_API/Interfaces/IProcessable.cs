@@ -15,5 +15,6 @@ namespace JDE_API.Interfaces
         bool? IsSuccessfull { get; set; }
         string AssignedUserNames { get; }
         int? GivenTime { get; set; }
+        string TimingVsPlan { get; }
     }
 }
