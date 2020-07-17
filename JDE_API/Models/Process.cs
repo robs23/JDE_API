@@ -87,6 +87,8 @@ namespace JDE_API.Models
 
     public int? GivenTime { get; set; }
 
+    public string Comment { get; set; }
+
     public string TimingStatus
     {
         get

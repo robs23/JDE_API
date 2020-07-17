@@ -40,5 +40,6 @@ namespace JDE_API.Models
         public Nullable<int> LastStatus { get; set; }
         public Nullable<int> LastStatusBy { get; set; }
         public Nullable<System.DateTime> LastStatusOn { get; set; }
+        public string Comment { get; set; }
     }
 }

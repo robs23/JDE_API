@@ -40,7 +40,6 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Orders> JDE_Orders { get; set; }
         public virtual DbSet<JDE_CompanyTypes> JDE_CompanyTypes { get; set; }
         public virtual DbSet<JDE_FileAssigns> JDE_FileAssigns { get; set; }
-        public virtual DbSet<JDE_Files> JDE_Files { get; set; }
         public virtual DbSet<JDE_Actions> JDE_Actions { get; set; }
         public virtual DbSet<JDE_PlaceActions> JDE_PlaceActions { get; set; }
         public virtual DbSet<JDE_ProcessActions> JDE_ProcessActions { get; set; }
@@ -52,5 +51,6 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Users> JDE_Users { get; set; }
         public virtual DbSet<JDE_PartUsages> JDE_PartUsages { get; set; }
         public virtual DbSet<JDE_Components> JDE_Components { get; set; }
+        public virtual DbSet<JDE_Files> JDE_Files { get; set; }
     }
 }

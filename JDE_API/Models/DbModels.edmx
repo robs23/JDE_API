@@ -369,6 +369,7 @@
           <Property Name="LastStatus" Type="int" />
           <Property Name="LastStatusBy" Type="int" />
           <Property Name="LastStatusOn" Type="datetime" />
+          <Property Name="Comment" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
@@ -547,7 +548,6 @@
           <EntitySet Name="JDE_Orders" EntityType="DbModels.JDE_Orders" />
           <EntitySet Name="JDE_CompanyTypes" EntityType="DbModels.JDE_CompanyTypes" />
           <EntitySet Name="JDE_FileAssigns" EntityType="DbModels.JDE_FileAssigns" />
-          <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
           <EntitySet Name="JDE_Actions" EntityType="DbModels.JDE_Actions" />
           <EntitySet Name="JDE_PlaceActions" EntityType="DbModels.JDE_PlaceActions" />
           <EntitySet Name="JDE_ProcessActions" EntityType="DbModels.JDE_ProcessActions" />
@@ -559,6 +559,7 @@
           <EntitySet Name="JDE_Users" EntityType="DbModels.JDE_Users" />
           <EntitySet Name="JDE_PartUsages" EntityType="DbModels.JDE_PartUsages" />
           <EntitySet Name="JDE_Components" EntityType="DbModels.JDE_Components" />
+          <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -590,6 +591,7 @@
           <Property Name="LastStatus" Type="Int32" />
           <Property Name="LastStatusBy" Type="Int32" />
           <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Boms">
           <Key>
@@ -699,21 +701,6 @@
           <Property Name="CreatedBy" Type="Int32" />
           <Property Name="CreatedOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
-          <Property Name="LmBy" Type="Int32" />
-          <Property Name="LmOn" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="JDE_Files">
-          <Key>
-            <PropertyRef Name="FileId" />
-          </Key>
-          <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
         </EntityType>
@@ -899,6 +886,21 @@
           <Property Name="TenantId" Type="Int32" />
           <Property Name="IsArchived" Type="Boolean" />
         </EntityType>
+        <EntityType Name="JDE_Files">
+          <Key>
+            <PropertyRef Name="FileId" />
+          </Key>
+          <Property Name="FileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -991,6 +993,7 @@
           <EntitySetMapping Name="JDE_Processes">
             <EntityTypeMapping TypeName="DbModels.JDE_Processes">
               <MappingFragment StoreEntitySet="JDE_Processes">
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="LastStatusOn" ColumnName="LastStatusOn" />
                 <ScalarProperty Name="LastStatusBy" ColumnName="LastStatusBy" />
                 <ScalarProperty Name="LastStatus" ColumnName="LastStatus" />
@@ -1136,22 +1139,6 @@
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
                 <ScalarProperty Name="FileId" ColumnName="FileId" />
                 <ScalarProperty Name="FileAssignId" ColumnName="FileAssignId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Files">
-            <EntityTypeMapping TypeName="DbModels.JDE_Files">
-              <MappingFragment StoreEntitySet="JDE_Files">
-                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
-                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
-                <ScalarProperty Name="Token" ColumnName="Token" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="Link" ColumnName="Link" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="FileId" ColumnName="FileId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1348,6 +1335,22 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Files">
+            <EntityTypeMapping TypeName="DbModels.JDE_Files">
+              <MappingFragment StoreEntitySet="JDE_Files">
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Link" ColumnName="Link" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="FileId" ColumnName="FileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -1363,7 +1366,7 @@
       <DesignerInfoPropertySet>
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
         <DesignerProperty Name="EnablePluralization" Value="true" />
-        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="False" />
         <DesignerProperty Name="UseLegacyProvider" Value="false" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
       </DesignerInfoPropertySet>

@@ -20,7 +20,6 @@
         <EntityTypeShape EntityType="DbModels.JDE_Orders" Width="1.5" PointX="13.25" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_CompanyTypes" Width="1.5" PointX="12.375" PointY="8.75" />
         <EntityTypeShape EntityType="DbModels.JDE_FileAssigns" Width="1.5" PointX="0.75" PointY="14.75" />
-        <EntityTypeShape EntityType="DbModels.JDE_Files" Width="1.5" PointX="2.75" PointY="14.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Actions" Width="1.5" PointX="5.375" PointY="14.75" />
         <EntityTypeShape EntityType="DbModels.JDE_PlaceActions" Width="1.5" PointX="7.375" PointY="14.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessActions" Width="1.5" PointX="14.375" PointY="8.75" />
@@ -32,6 +31,7 @@
         <EntityTypeShape EntityType="DbModels.JDE_Users" Width="1.5" PointX="15.375" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_PartUsages" Width="1.5" PointX="9.375" PointY="8.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Components" Width="1.5" PointX="15.375" PointY="12.75" />
+        <EntityTypeShape EntityType="DbModels.JDE_Files" Width="1.5" PointX="16.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
