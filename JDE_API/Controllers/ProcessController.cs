@@ -74,6 +74,7 @@ namespace JDE_API.Controllers
                                  p.TenantId,
                                  p.MesId,
                                  p.MesDate,
+                                 p.Comment,
                                  TenantName = t.TenantName,
                                  p.IsActive,
                                  p.IsCompleted,
@@ -122,6 +123,7 @@ namespace JDE_API.Controllers
                                  RepairActions = grp.Key.RepairActions,
                                  Reason = grp.Key.Reason,
                                  MesDate = grp.Key.MesDate,
+                                 Comment = grp.Key.Comment,
                                  PlannedStart = grp.Key.PlannedStart,
                                  PlannedFinish = grp.Key.PlannedFinish,
                                  LastStatus = grp.Key.LastStatus,
@@ -322,6 +324,7 @@ namespace JDE_API.Controllers
                                      p.RepairActions,
                                      p.TenantId,
                                      p.MesId,
+                                     p.Comment,
                                      p.MesDate,
                                      TenantName = t.TenantName,
                                      p.IsActive,
@@ -367,6 +370,7 @@ namespace JDE_API.Controllers
                                      CreatedBy = grp.Key.CreatedBy,
                                      CreatedByName = grp.Key.CreatedByName,
                                      MesId = grp.Key.MesId,
+                                     Comment = grp.Key.Comment,
                                      InitialDiagnosis = grp.Key.InitialDiagnosis,
                                      RepairActions = grp.Key.RepairActions,
                                      Reason = grp.Key.Reason,
@@ -747,6 +751,7 @@ namespace JDE_API.Controllers
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      MesId = p.MesId,
+                                     Comment = p.Comment,
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
@@ -839,6 +844,7 @@ namespace JDE_API.Controllers
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      MesId = p.MesId,
+                                     Comment = p.Comment,
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
@@ -919,6 +925,7 @@ namespace JDE_API.Controllers
                                      CreatedBy = p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      MesId = p.MesId,
+                                     Comment = p.Comment,
                                      InitialDiagnosis = p.InitialDiagnosis,
                                      RepairActions = p.RepairActions,
                                      Reason = p.Reason,
@@ -1323,6 +1330,53 @@ namespace JDE_API.Controllers
             }
 
             Logger.Info("Koniec CompleteProcessesHandlings. Id={ProcessId}, UserId={UserId}", ProcessId, UserId);
+        }
+
+        [HttpPut]
+        [Route("AddComment")]
+        public IHttpActionResult AddComment(string token, List<int> processes, string comment, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+
+                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && processes.Contains(u.ProcessId));
+                    if (items.Any())
+                    {
+                        var orgComments = new Dictionary<string, string>();
+                        var newCommets = new Dictionary<string, string>();
+
+                        foreach (JDE_Processes p in items)
+                        {
+                            orgComments.Add("ProcessId", p.ProcessId.ToString());
+                            orgComments.Add("Comment", p.Comment);
+                            newCommets.Add("ProcessId", p.ProcessId.ToString());
+                            newCommets.Add("Comment", comment);
+                            p.Comment = comment;
+                            db.Entry(p).State = EntityState.Modified;
+                        }
+
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Dodanie komentarza do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(orgComments), NewValue = new JavaScriptSerializer().Serialize(newCommets) };
+                        db.JDE_Logs.Add(Log);
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Błąd zapisu do bazy danych w AddComment. UserId={UserId}, Comment={Comment}, Wiadomość: {Message}", UserId, comment, ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(HttpStatusCode.BadRequest);
+                    }
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         [HttpPut]
