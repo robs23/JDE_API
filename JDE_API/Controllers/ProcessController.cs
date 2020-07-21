@@ -1334,7 +1334,7 @@ namespace JDE_API.Controllers
 
         [HttpPut]
         [Route("AddComment")]
-        public IHttpActionResult AddComment(string token, List<int> processes, string comment, int UserId)
+        public IHttpActionResult AddComment(string token, int ProcessId, string comment, int UserId)
         {
             if (token != null && token.Length > 0)
             {
@@ -1342,23 +1342,15 @@ namespace JDE_API.Controllers
                 if (tenants.Any())
                 {
 
-                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && processes.Contains(u.ProcessId));
+                    var items = db.JDE_Processes.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.ProcessId==ProcessId);
                     if (items.Any())
                     {
-                        var orgComments = new Dictionary<string, string>();
-                        var newCommets = new Dictionary<string, string>();
+                        JDE_Processes item = items.FirstOrDefault();
+                        var orgProcess = new JavaScriptSerializer().Serialize(item);
+                        item.Comment = comment;
+                        db.Entry(item).State = EntityState.Modified;
 
-                        foreach (JDE_Processes p in items)
-                        {
-                            orgComments.Add("ProcessId", p.ProcessId.ToString());
-                            orgComments.Add("Comment", p.Comment);
-                            newCommets.Add("ProcessId", p.ProcessId.ToString());
-                            newCommets.Add("Comment", comment);
-                            p.Comment = comment;
-                            db.Entry(p).State = EntityState.Modified;
-                        }
-
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Dodanie komentarza do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(orgComments), NewValue = new JavaScriptSerializer().Serialize(newCommets) };
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Dodanie komentarza do zgłoszenia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = orgProcess, NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         try
                         {
