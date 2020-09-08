@@ -1,5 +1,6 @@
 ﻿using JDE_API.Models;
 using JDE_API.Static;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -20,6 +21,7 @@ namespace JDE_API.Controllers
     public class PartController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [HttpGet]
         public HttpResponseMessage GetThumb(string Photo)
@@ -393,83 +395,107 @@ namespace JDE_API.Controllers
 
         public HttpResponseMessage EditPart(string token, int id, int UserId, string PartJson)
         {
-            if (token != null && token.Length > 0)
+            try
             {
-                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
-                if (tenants.Any())
+                if (token != null && token.Length > 0)
                 {
-                    var items = db.JDE_Parts.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
-                    if (items.Any())
+                    var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                    if (tenants.Any())
                     {
                         JavaScriptSerializer jss = new JavaScriptSerializer();
                         JDE_Parts item = jss.Deserialize<JDE_Parts>(PartJson);
-                        JDE_Parts orgItem = items.FirstOrDefault();
-
-                        //handle image
-
-                        var httpRequest = HttpContext.Current.Request;
-                        if (httpRequest.ContentLength > 0)
-                        {
-                            //there's a new content
-                            if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
-                            {
-                                return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
-                            }
-
-                            item.TenantId = tenants.FirstOrDefault().TenantId;
-                            var postedFile = httpRequest.Files[0];
-                            string filePath = "";
-                            if (postedFile != null && postedFile.ContentLength > 0)
-                            {
-                                var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
-
-                                filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token + ext.ToLower()}";
-
-                                string oFileName = db.JDE_Parts.Where(p => p.PartId == id).FirstOrDefault().Image;
-                                if (!string.IsNullOrEmpty(oFileName))
-                                {
-                                    // There was a file, must delete it first
-                                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
-                                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
-                                }
-                                
-                                postedFile.SaveAs(filePath);
-                                Static.Utilities.ProduceThumbnail(filePath);
-                                item.Image = item.Token + ext.ToLower();
-                            }
-
-                        }
-
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = PartJson };
-                        db.JDE_Logs.Add(Log);
-                        item.LmBy = UserId;
-                        item.LmOn = DateTime.Now;
-                        
 
                         try
                         {
-                            db.Entry(orgItem).CurrentValues.SetValues(item);
-                            db.Entry(orgItem).State = EntityState.Modified;
-                            db.SaveChanges();
+                            var items = db.JDE_Parts.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.PartId == id);
+                            if (items.Any())
+                            {
+                                Logger.Info("EditPart: Znalazłem odpowiednią część. Przystępuję do edycji Id={id}, UserId={UserId}", id, UserId);
+                                JDE_Parts orgItem = items.FirstOrDefault();
 
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            if (!JDE_PartExists(id))
-                            {
-                                return Request.CreateResponse(HttpStatusCode.NotFound);
+                                //handle image
+
+                                var httpRequest = HttpContext.Current.Request;
+                                if (httpRequest.ContentLength > 0)
+                                {
+                                    //there's a new content
+                                    if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                                    {
+                                        return Request.CreateResponse(HttpStatusCode.BadRequest, $"{item.Name} przekracza dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB) i został odrzucony");
+                                    }
+
+                                    item.TenantId = tenants.FirstOrDefault().TenantId;
+                                    var postedFile = httpRequest.Files[0];
+                                    string filePath = "";
+                                    if (postedFile != null && postedFile.ContentLength > 0)
+                                    {
+                                        Logger.Info("EditPart: Znaleziono nowe pliki. Przystępuję do zapisu na dysku. Id={id}, UserId={UserId}", id, UserId);
+                                        var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                                        filePath = $"{Static.RuntimeSettings.Path2Files}{item.Token + ext.ToLower()}";
+
+                                        string oFileName = db.JDE_Parts.Where(p => p.PartId == id).FirstOrDefault().Image;
+                                        if (!string.IsNullOrEmpty(oFileName))
+                                        {
+                                            // There was a file, must delete it first
+                                            Logger.Info("EditPart: Istnieją poprzednie pliki pod tą nazwą. Przystępuję do usuwania. Id={id}, UserId={UserId}", id, UserId);
+                                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                                        }
+
+                                        postedFile.SaveAs(filePath);
+                                        Logger.Info("EditPart: Zapisano pliki. Przystępuję do utworzenia miniatury.. Id={id}, UserId={UserId}", id, UserId);
+                                        Static.Utilities.ProduceThumbnail(filePath);
+                                        item.Image = item.Token + ext.ToLower();
+                                    }
+
+                                }
+
+                                JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = PartJson };
+                                db.JDE_Logs.Add(Log);
+                                item.LmBy = UserId;
+                                item.LmOn = DateTime.Now;
+
+
+                                try
+                                {
+                                    Logger.Info("EditPart: Przystępuję do zapisu zmian w bazie danych. Id={id}, UserId={UserId}", id, UserId);
+                                    db.Entry(orgItem).CurrentValues.SetValues(item);
+                                    db.Entry(orgItem).State = EntityState.Modified;
+                                    db.SaveChanges();
+                                    Logger.Info("EditPart: Zapisano zmiany w bazie. Id={id}, UserId={UserId}", id, UserId);
+                                }
+                                catch (DbUpdateConcurrencyException)
+                                {
+                                    if (!JDE_PartExists(id))
+                                    {
+                                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                                    }
+                                    else
+                                    {
+                                        throw;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Error("Błąd w EditPart. Id={id}, UserId={UserId}. Szczegóły: {Message}, nowa wartość: {item}", id, UserId, ex.ToString(), item);
+                                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                                }
                             }
-                            else
-                            {
-                                throw;
-                            }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
-                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError,ex);
+
+                            Logger.Error("Błąd w EditPart. Id={id}, UserId={UserId}. Szczegóły: {Message}, nowa wartość: {item}", id, UserId, ex.ToString(), item);
+                            return Request.CreateResponse(HttpStatusCode.NoContent);
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Błąd w EditPart. Id={id}, UserId={UserId}. Szczegóły: {Message}", id, UserId, ex.ToString());
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return Request.CreateResponse(HttpStatusCode.NoContent);

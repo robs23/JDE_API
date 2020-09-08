@@ -1,6 +1,7 @@
 ﻿using JDE_API.Controllers;
 using JDE_API.Interfaces;
 using JDE_API.Models;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -21,6 +22,7 @@ namespace JDE_API.Static
 {
     public static class Utilities
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         //private static Models.DbModel db = new Models.DbModel();
         public static string uniqueToken()
         {
@@ -378,11 +380,20 @@ namespace JDE_API.Static
             string fileName = Path.GetFileName(path);
             using (Image image = Image.FromFile(path))
             {
-                Image thumb = ResizeImage(image, new Size(120, 120), true);
-                Bitmap nBitmap = new Bitmap(thumb);
-                thumb.Dispose();
-                thumb = null;
-                nBitmap.Save(Path.Combine(RuntimeSettings.Path2Files + "\\Thumbnails", fileName));
+                try
+                {
+                    Image thumb = ResizeImage(image, new Size(120, 120), true);
+                    Bitmap nBitmap = new Bitmap(thumb);
+                    thumb.Dispose();
+                    thumb = null;
+                    nBitmap.Save(Path.Combine(RuntimeSettings.Path2Files + "\\Thumbnails", fileName));
+                    Logger.Info("EditPart: Zapisano miniaturę zdjęcia w {path}.",path);
+                }
+                catch(Exception ex)
+                {
+                    Logger.Error("Błąd w ProduceThumbnail. Path={path}. Szczegóły: {Message}", path, ex.ToString());
+                }
+                
             }
         }
 
