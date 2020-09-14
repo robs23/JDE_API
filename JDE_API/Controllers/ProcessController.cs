@@ -818,6 +818,8 @@ namespace JDE_API.Controllers
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join s in db.JDE_Sets on pl.SetId equals s.SetId
+                                 join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.ProcessId==id
                                  select new
                                  {
@@ -837,6 +839,10 @@ namespace JDE_API.Controllers
                                      IsSuccessfull = p.IsSuccessfull,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
+                                     SetId = pl.SetId,
+                                     SetName = s.Name,
+                                     AreaId = pl.AreaId,
+                                     AreaName = a.Name,
                                      Output = p.Output,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,

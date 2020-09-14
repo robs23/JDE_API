@@ -343,6 +343,7 @@ namespace JDE_API.Controllers
 
         public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item)
         {
+            Logger.Info("EditPart. Start. This is version without a file");
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
@@ -395,6 +396,7 @@ namespace JDE_API.Controllers
 
         public HttpResponseMessage EditPart(string token, int id, int UserId, string PartJson)
         {
+            Logger.Info("EditPart. Start. PartJso={PartJson}", PartJson);
             try
             {
                 if (token != null && token.Length > 0)
@@ -403,7 +405,7 @@ namespace JDE_API.Controllers
                     if (tenants.Any())
                     {
                         JavaScriptSerializer jss = new JavaScriptSerializer();
-                        JDE_Parts item = jss.Deserialize<JDE_Parts>(PartJson);
+                        JDE_Parts item = jss.Deserialize<JDE_Parts>(Uri.UnescapeDataString(PartJson));
 
                         try
                         {
@@ -495,7 +497,7 @@ namespace JDE_API.Controllers
             catch (Exception ex)
             {
                 Logger.Error("Błąd w EditPart. Id={id}, UserId={UserId}. Szczegóły: {Message}", id, UserId, ex.ToString());
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.ToString());
             }
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
