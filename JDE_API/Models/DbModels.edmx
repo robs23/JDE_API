@@ -276,6 +276,7 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="Comment" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="JDE_PlaceActions">
           <Key>
@@ -370,6 +371,7 @@
           <Property Name="LastStatusBy" Type="int" />
           <Property Name="LastStatusOn" Type="datetime" />
           <Property Name="Comment" Type="nvarchar(max)" />
+          <Property Name="ComponentId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
@@ -592,6 +594,7 @@
           <Property Name="LastStatusBy" Type="Int32" />
           <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
           <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ComponentId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Boms">
           <Key>
@@ -870,6 +873,7 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Components">
           <Key>
@@ -993,6 +997,7 @@
           <EntitySetMapping Name="JDE_Processes">
             <EntityTypeMapping TypeName="DbModels.JDE_Processes">
               <MappingFragment StoreEntitySet="JDE_Processes">
+                <ScalarProperty Name="ComponentId" ColumnName="ComponentId" />
                 <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="LastStatusOn" ColumnName="LastStatusOn" />
                 <ScalarProperty Name="LastStatusBy" ColumnName="LastStatusBy" />
@@ -1306,6 +1311,7 @@
           <EntitySetMapping Name="JDE_PartUsages">
             <EntityTypeMapping TypeName="DbModels.JDE_PartUsages">
               <MappingFragment StoreEntitySet="JDE_PartUsages">
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />

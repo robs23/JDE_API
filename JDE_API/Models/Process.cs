@@ -144,7 +144,10 @@ namespace JDE_API.Models
         }
     }
 
-        public float? FinishRate { get; set; }
+    public int? ComponentId { get; set; }
+    public string ComponentName { get; set; }
+
+    public float? FinishRate { get; set; }
     }
     public enum ProcessStatus
     {

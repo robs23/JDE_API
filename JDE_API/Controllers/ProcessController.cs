@@ -42,6 +42,8 @@ namespace JDE_API.Controllers
                              join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                              from lStat in lastStatus.DefaultIfEmpty()
                              join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                             join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
+                             from components in comps.DefaultIfEmpty()
                              join s in db.JDE_Sets on pl.SetId equals s.SetId
                              join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                              join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
@@ -84,6 +86,8 @@ namespace JDE_API.Controllers
                                  FinishedByName = fin.Name + " " + fin.Surname,
                                  StartedByName = star.Name + " " + star.Surname,
                                  PlaceName = pl.Name,
+                                 ComponentId = p.ComponentId,
+                                 ComponentName = components.Name,
                                  LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                              p.LastStatusBy,
                                  LastStatusByName = lStat.Name + " " + lStat.Surname,
@@ -124,6 +128,8 @@ namespace JDE_API.Controllers
                                  Reason = grp.Key.Reason,
                                  MesDate = grp.Key.MesDate,
                                  Comment = grp.Key.Comment,
+                                 ComponentId = grp.Key.ComponentId,
+                                 ComponentName = grp.Key.ComponentName,
                                  PlannedStart = grp.Key.PlannedStart,
                                  PlannedFinish = grp.Key.PlannedFinish,
                                  LastStatus = grp.Key.LastStatus,
@@ -632,6 +638,8 @@ namespace JDE_API.Controllers
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
+                                 from components in comps.DefaultIfEmpty()
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && pl.PlaceToken == PlaceToken
                                  orderby p.CreatedOn descending
                                  select new
@@ -652,6 +660,8 @@ namespace JDE_API.Controllers
                                      IsSuccessfull = p.IsSuccessfull,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
+                                     ComponentId = p.ComponentId,
+                                     ComponentName = components.Name,
                                      Output = p.Output,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,
@@ -724,6 +734,8 @@ namespace JDE_API.Controllers
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
+                                 from components in comps.DefaultIfEmpty()
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && pl.PlaceId == PlaceId
                                  orderby p.CreatedOn descending
                                  select new
@@ -744,6 +756,8 @@ namespace JDE_API.Controllers
                                      IsSuccessfull = p.IsSuccessfull,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
+                                     ComponentId = p.ComponentId,
+                                     ComponentName = components.Name,
                                      Output = p.Output,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,
@@ -818,6 +832,8 @@ namespace JDE_API.Controllers
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
+                                 from components in comps.DefaultIfEmpty()
                                  join s in db.JDE_Sets on pl.SetId equals s.SetId
                                  join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.ProcessId==id
@@ -839,6 +855,8 @@ namespace JDE_API.Controllers
                                      IsSuccessfull = p.IsSuccessfull,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
+                                     ComponentId = p.ComponentId,
+                                     ComponentName = components.Name,
                                      SetId = pl.SetId,
                                      SetName = s.Name,
                                      AreaId = pl.AreaId,
@@ -905,6 +923,8 @@ namespace JDE_API.Controllers
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
                                  join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                                 join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
+                                 from components in comps.DefaultIfEmpty()
                                  where p.TenantId == tenants.FirstOrDefault().TenantId && p.MesId.Equals(mesId)
                                  select new
                                  {
@@ -924,6 +944,8 @@ namespace JDE_API.Controllers
                                      IsSuccessfull = p.IsSuccessfull,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
+                                     ComponentId = p.ComponentId,
+                                     ComponentName = components.Name,
                                      Output = p.Output,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,
