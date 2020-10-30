@@ -42,5 +42,6 @@ namespace JDE_API.Models
         public Nullable<System.DateTime> LastStatusOn { get; set; }
         public string Comment { get; set; }
         public Nullable<int> ComponentId { get; set; }
+        public Nullable<bool> IsResurrected { get; set; }
     }
 }

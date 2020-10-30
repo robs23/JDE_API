@@ -82,6 +82,7 @@ namespace JDE_API.Controllers
                                  p.IsCompleted,
                                  p.IsFrozen,
                                  p.IsSuccessfull,
+                                 p.IsResurrected,
                                  ActionTypeName = at.Name,
                                  FinishedByName = fin.Name + " " + fin.Surname,
                                  StartedByName = star.Name + " " + star.Surname,
@@ -136,6 +137,7 @@ namespace JDE_API.Controllers
                                  LastStatusBy = grp.Key.LastStatusBy,
                                  LastStatusByName = grp.Key.LastStatusByName,
                                  LastStatusOn = grp.Key.LastStatusOn,
+                                 IsResurrected = grp.Key.IsResurrected,
                                  OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
                                  AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
                                  AssignedUsers = (from pras in db.JDE_ProcessAssigns
@@ -337,6 +339,7 @@ namespace JDE_API.Controllers
                                      p.IsCompleted,
                                      p.IsFrozen,
                                      p.IsSuccessfull,
+                                     p.IsResurrected,
                                      ActionTypeName = at.Name,
                                      FinishedByName = fin.Name + " " + fin.Surname,
                                      StartedByName = star.Name + " " + star.Surname,
@@ -387,6 +390,7 @@ namespace JDE_API.Controllers
                                      LastStatusBy = grp.Key.LastStatusBy,
                                      LastStatusByName = grp.Key.LastStatusByName,
                                      LastStatusOn = grp.Key.LastStatusOn,
+                                     IsResurrected = grp.Key.IsResurrected,
                                      OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
                                      AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count()
                                  });
@@ -675,6 +679,7 @@ namespace JDE_API.Controllers
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
                                      PlannedFinish = p.PlannedFinish,
+                                     IsResurrected = p.IsResurrected,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
                                      LastStatusByName = lStat.Name + " " + lStat.Surname,
@@ -772,6 +777,7 @@ namespace JDE_API.Controllers
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
                                      PlannedFinish = p.PlannedFinish,
+                                     IsResurrected = p.IsResurrected,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
                                      LastStatusByName = lStat.Name + " " + lStat.Surname,
@@ -853,6 +859,7 @@ namespace JDE_API.Controllers
                                      IsFrozen = p.IsFrozen,
                                      IsCompleted = p.IsCompleted,
                                      IsSuccessfull = p.IsSuccessfull,
+                                     IsResurrected = p.IsResurrected,
                                      PlaceId = p.PlaceId,
                                      PlaceName = pl.Name,
                                      ComponentId = p.ComponentId,
@@ -960,6 +967,7 @@ namespace JDE_API.Controllers
                                      MesDate = p.MesDate,
                                      PlannedStart = p.PlannedStart,
                                      PlannedFinish = p.PlannedFinish,
+                                     IsResurrected = p.IsResurrected,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      LastStatusBy = p.LastStatusBy,
                                      LastStatusByName = lStat.Name + " " +lStat.Surname,
@@ -1041,6 +1049,15 @@ namespace JDE_API.Controllers
                                 item.LastStatus = (int)ProcessStatus.Resumed;
                                 item.LastStatusBy = UserId;
                                 item.LastStatusOn = DateTime.Now;
+                            }
+                            else if ((bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted==false)
+                            {
+                                //it was completed and it's not anymore - it's been resurrected
+                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało reaktywowane przez {UserId}", id, UserId);
+                                item.LastStatus = (int)ProcessStatus.Resumed;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                                item.IsResurrected = true;
                             }
                             else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
                             {
@@ -1577,6 +1594,10 @@ namespace JDE_API.Controllers
                 else if ((bool)nv["IsFrozen"] == false && (bool)ov["IsFrozen"])
                 {
                     res = "Wznowienie zgłoszenia";
+                }
+                else if((bool)nv["IsCompleted"] == false && (bool)ov["IsCompleted"] == true)
+                {
+                    res = "Reaktywacja zgłoszenia";
                 }
             }
             catch (Exception ex)

@@ -148,6 +148,8 @@ namespace JDE_API.Models
     public string ComponentName { get; set; }
 
     public float? FinishRate { get; set; }
+
+    public bool? IsResurrected { get; set; }
     }
     public enum ProcessStatus
     {

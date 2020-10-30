@@ -372,6 +372,7 @@
           <Property Name="LastStatusOn" Type="datetime" />
           <Property Name="Comment" Type="nvarchar(max)" />
           <Property Name="ComponentId" Type="int" />
+          <Property Name="IsResurrected" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Sets">
           <Key>
@@ -595,6 +596,7 @@
           <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
           <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ComponentId" Type="Int32" />
+          <Property Name="IsResurrected" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Boms">
           <Key>
@@ -997,6 +999,7 @@
           <EntitySetMapping Name="JDE_Processes">
             <EntityTypeMapping TypeName="DbModels.JDE_Processes">
               <MappingFragment StoreEntitySet="JDE_Processes">
+                <ScalarProperty Name="IsResurrected" ColumnName="IsResurrected" />
                 <ScalarProperty Name="ComponentId" ColumnName="ComponentId" />
                 <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="LastStatusOn" ColumnName="LastStatusOn" />

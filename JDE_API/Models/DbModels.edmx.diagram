@@ -24,7 +24,7 @@
         <EntityTypeShape EntityType="DbModels.JDE_PlaceActions" Width="1.5" PointX="7.375" PointY="14.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessActions" Width="1.5" PointX="14.375" PointY="8.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessAssigns" Width="1.5" PointX="9.375" PointY="14.75" />
-        <EntityTypeShape EntityType="DbModels.JDE_Handlings" Width="1.5" PointX="7" PointY="6.625" />
+        <EntityTypeShape EntityType="DbModels.JDE_Handlings" Width="1.5" PointX="6.875" PointY="7.125" />
         <EntityTypeShape EntityType="DbModels.JDE_Companies" Width="1.5" PointX="3.375" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Parts" Width="1.5" PointX="11.375" PointY="12.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Places" Width="1.5" PointX="13.375" PointY="12.75" />
