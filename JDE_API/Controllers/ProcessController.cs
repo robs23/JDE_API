@@ -1034,7 +1034,15 @@ namespace JDE_API.Controllers
                                 }
                             }
                             string descr = "Edycja zgłoszenia";
-                            if ((bool)items.FirstOrDefault().IsActive && (bool)item.IsFrozen)
+                            if ((bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted == false)
+                            {
+                                //it was completed and it's not anymore - it's been resurrected
+                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało reaktywowane przez {UserId}", id, UserId);
+                                item.LastStatus = (int)ProcessStatus.Resumed;
+                                item.LastStatusBy = UserId;
+                                item.LastStatusOn = DateTime.Now;
+                                item.IsResurrected = true;
+                            }else if ((bool)items.FirstOrDefault().IsActive && (bool)item.IsFrozen)
                             {
                                 Logger.Info("EditProcess - zgłoszenie Id={id} zostało wstrzymane przez {UserId}", id, UserId);
                                 //was active and it no longer is. It has been paused
@@ -1049,15 +1057,6 @@ namespace JDE_API.Controllers
                                 item.LastStatus = (int)ProcessStatus.Resumed;
                                 item.LastStatusBy = UserId;
                                 item.LastStatusOn = DateTime.Now;
-                            }
-                            else if ((bool)items.FirstOrDefault().IsCompleted && (bool)item.IsCompleted==false)
-                            {
-                                //it was completed and it's not anymore - it's been resurrected
-                                Logger.Info("EditProcess - zgłoszenie Id={id} zostało reaktywowane przez {UserId}", id, UserId);
-                                item.LastStatus = (int)ProcessStatus.Resumed;
-                                item.LastStatusBy = UserId;
-                                item.LastStatusOn = DateTime.Now;
-                                item.IsResurrected = true;
                             }
                             else if (!(bool)items.FirstOrDefault().IsActive && (bool)item.IsActive)
                             {
