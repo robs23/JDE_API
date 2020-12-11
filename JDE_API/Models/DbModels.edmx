@@ -181,6 +181,8 @@
           <Property Name="Token" Type="nvarchar(max)" />
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
+          <Property Name="IsUploaded" Type="bit" />
+          <Property Name="Type" Type="nchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="JDE_Handlings">
           <Key>
@@ -906,6 +908,8 @@
           <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="IsUploaded" Type="Boolean" />
+          <Property Name="Type" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1347,6 +1351,8 @@
           <EntitySetMapping Name="JDE_Files">
             <EntityTypeMapping TypeName="DbModels.JDE_Files">
               <MappingFragment StoreEntitySet="JDE_Files">
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="IsUploaded" ColumnName="IsUploaded" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
                 <ScalarProperty Name="Token" ColumnName="Token" />

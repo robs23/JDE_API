@@ -24,5 +24,7 @@ namespace JDE_API.Models
         public string Token { get; set; }
         public Nullable<int> LmBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
+        public Nullable<bool> IsUploaded { get; set; }
+        public string Type { get; set; }
     }
 }

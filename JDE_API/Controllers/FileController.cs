@@ -1,7 +1,6 @@
 ﻿using JDE_API.Models;
 using JDE_API.Static;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.IO;
@@ -9,11 +8,11 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Script.Serialization;
+using File = JDE_API.Models.File;
 
 namespace JDE_API.Controllers
 {
@@ -223,9 +222,6 @@ namespace JDE_API.Controllers
                                      Description = f.Description,
                                      Token = f.Token,
                                      Link = f.Link,
-                                     PartId = fa.PartId,
-                                     PlaceId = fa.PlaceId,
-                                     ProcessId = fa.ProcessId,
                                      CreatedOn = fa.CreatedOn,
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -405,6 +401,119 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("CreateFile")]
+        [ResponseType(typeof(JDE_Files))]
+        public IHttpActionResult CreateFile(string token, JDE_Files item, int UserId, int? PlaceId = null, int? PartId = null, int? ProcessId = null)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    try
+                    {
+                        item.TenantId = tenants.FirstOrDefault().TenantId;
+                        item.CreatedOn = DateTime.Now;
+                        item.Token = Static.Utilities.GetToken();
+                        db.JDE_Files.Add(item);
+                        db.SaveChanges();
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie pliku", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                        db.JDE_Logs.Add(Log);
+                        db.SaveChanges();
+
+                        JDE_FileAssigns FileAssing = new JDE_FileAssigns { FileId = item.FileId, CreatedBy = UserId, CreatedOn = DateTime.Now, TenantId = tenants.FirstOrDefault().TenantId, PartId = PartId, PlaceId = PlaceId, ProcessId = ProcessId };
+                        string word = "";
+                        if (PlaceId != null)
+                        {
+                            word = "zasobu";
+                        }
+                        else if (PartId != null)
+                        {
+                            word = "części";
+                        }
+                        else
+                        {
+                            word = "zgłoszenia";
+                        }
+                        db.JDE_FileAssigns.Add(FileAssing);
+                        db.SaveChanges();
+                        JDE_Logs Log2 = new JDE_Logs { UserId = UserId, Description = $"Przypisanie pliku do {word}", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                        db.JDE_Logs.Add(Log2);
+                        db.SaveChanges();
+                        return Ok(item);
+                    }catch(Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                    
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost]
+        [Route("UploadFile")]
+        public HttpResponseMessage UploadFile(string token, string fileToken)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var httpRequest = HttpContext.Current.Request;
+
+                    if (httpRequest.ContentLength > 0)
+                    {
+                        if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
+                        {
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, $"Przekroczono dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB)");
+                        }
+
+                        var postedFile = httpRequest.Files[0];
+                        string filePath = "";
+                        if (postedFile != null && postedFile.ContentLength > 0)
+                        {
+                            var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                            filePath = $"{Static.RuntimeSettings.Path2Files}{fileToken + ext.ToLower()}";
+
+                            postedFile.SaveAs(filePath);
+                            if (postedFile.IsImage())
+                            {
+                                Static.Utilities.ProduceThumbnail(filePath);
+                            }
+                            return Request.CreateResponse(HttpStatusCode.OK);
+                        }
+                        else
+                        {
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, "Brak pliku");
+                        }
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.BadRequest, "Plik nieprawidłowy (plik zawiera 0 bajtów)");
+
+                    }
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+        }
+
         [HttpGet]
         [Route("GetAttachment")]
         public HttpResponseMessage GetAttachment(string token, string name, bool min)
@@ -439,11 +548,6 @@ namespace JDE_API.Controllers
                 return Request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
-
-        //private Task<string> SaveFile()
-        //{
-
-        //}
 
         [HttpDelete]
         [Route("DeleteFile")]
@@ -494,22 +598,5 @@ namespace JDE_API.Controllers
         {
             return db.JDE_Files.Count(e => e.FileId == id) > 0;
         }
-    }
-
-    class File
-    {
-        public int FileId { get; set; }
-        public string Description { get; set; }
-        public string Name { get; set; }
-        public string Token { get; set; }
-        public string Link { get; set; }
-        public int? PartId { get; set; }
-        public int? PlaceId { get; set; }
-        public int? ProcessId { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public string CreatedByName { get; set; }
-        public int? TenantId { get; set; }
-        public string TenantName { get; set; }
     }
 }

@@ -237,6 +237,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DbModels.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\File.cs" />
     <Compile Include="Models\Handling.cs" />
     <Compile Include="Models\JDE_Actions.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
@@ -321,6 +322,7 @@
     </Compile>
     <Compile Include="Models\Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Static\Extensions.cs" />
     <Compile Include="Static\RuntimeSettings.cs" />
     <Compile Include="Static\Utilities.cs" />
   </ItemGroup>
