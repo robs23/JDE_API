@@ -490,6 +490,24 @@ namespace JDE_API.Controllers
                             {
                                 Static.Utilities.ProduceThumbnail(filePath);
                             }
+                            //edit file data to mark IsUploaded as true
+
+                            try
+                            {
+                                JDE_Files file = db.JDE_Files.Where(f => f.Token == fileToken).FirstOrDefault();
+                                if (file != null)
+                                {
+                                    file.IsUploaded = true;
+                                    file.Link = RuntimeSettings.Path2Files;
+                                    db.Entry(file).State = EntityState.Modified;
+                                    db.SaveChanges();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+
                             return Request.CreateResponse(HttpStatusCode.OK);
                         }
                         else
