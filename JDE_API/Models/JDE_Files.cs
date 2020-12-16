@@ -26,5 +26,6 @@ namespace JDE_API.Models
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<bool> IsUploaded { get; set; }
         public string Type { get; set; }
+        public Nullable<long> Size { get; set; }
     }
 }

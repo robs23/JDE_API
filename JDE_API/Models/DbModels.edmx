@@ -183,6 +183,7 @@
           <Property Name="LmOn" Type="datetime" />
           <Property Name="IsUploaded" Type="bit" />
           <Property Name="Type" Type="nchar" MaxLength="10" />
+          <Property Name="Size" Type="bigint" />
         </EntityType>
         <EntityType Name="JDE_Handlings">
           <Key>
@@ -910,6 +911,7 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="IsUploaded" Type="Boolean" />
           <Property Name="Type" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="Size" Type="Int64" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1351,6 +1353,7 @@
           <EntitySetMapping Name="JDE_Files">
             <EntityTypeMapping TypeName="DbModels.JDE_Files">
               <MappingFragment StoreEntitySet="JDE_Files">
+                <ScalarProperty Name="Size" ColumnName="Size" />
                 <ScalarProperty Name="Type" ColumnName="Type" />
                 <ScalarProperty Name="IsUploaded" ColumnName="IsUploaded" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />

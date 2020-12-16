@@ -21,5 +21,6 @@ namespace JDE_API.Models
         public string Type { get; set; }
         public int? LmBy { get; set; }
         public DateTime? LmOn { get; set; }
+        public long Size { get; set; }
     }
 }

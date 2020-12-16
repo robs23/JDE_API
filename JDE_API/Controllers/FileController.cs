@@ -50,7 +50,9 @@ namespace JDE_API.Controllers
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      TenantId = f.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     Type = f.Type,
+                                     Size = f.Size
                                  });
                     if (items.Any())
                     {
@@ -141,7 +143,9 @@ namespace JDE_API.Controllers
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      TenantId = fa.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     Type = f.Type,
+                                     Size = f.Size
                                  });
                     if (items.Any())
                     {
@@ -227,7 +231,9 @@ namespace JDE_API.Controllers
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      TenantId = f.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     Type = f.Type,
+                                     Size = (long)f.Size
                                  });
 
                     if (items.Any())
