@@ -387,7 +387,7 @@ namespace JDE_API.Static
                     thumb.Dispose();
                     thumb = null;
                     nBitmap.Save(Path.Combine(RuntimeSettings.Path2Files + "\\Thumbnails", fileName));
-                    Logger.Info("EditPart: Zapisano miniaturę zdjęcia w {path}.",path);
+                    Logger.Info("ProduceThumbnail: Zapisano miniaturę zdjęcia w {path}.",path);
                 }
                 catch(Exception ex)
                 {

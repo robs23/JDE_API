@@ -41,7 +41,7 @@ namespace JDE_API.Static
         {
             get
             {
-                return 1024 * 1024 * 5; //Size = 5 MB;
+                return 1024 * 1024 * 2000; //Size = 5 MB;
             }
         }
     }

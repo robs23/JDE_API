@@ -1,5 +1,6 @@
 ﻿using JDE_API.Models;
 using JDE_API.Static;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -20,6 +21,7 @@ namespace JDE_API.Controllers
     public class FileController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [HttpGet]
         [Route("GetFiles")]
@@ -49,6 +51,7 @@ namespace JDE_API.Controllers
                                      CreatedOn = fa.CreatedOn,
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
+                                     IsUploaded = f.IsUploaded,
                                      TenantId = f.TenantId,
                                      TenantName = t.TenantName,
                                      Type = f.Type,
@@ -142,6 +145,7 @@ namespace JDE_API.Controllers
                                      CreatedOn = fa.CreatedOn,
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
+                                     IsUploaded = f.IsUploaded,
                                      TenantId = fa.TenantId,
                                      TenantName = t.TenantName,
                                      Type = f.Type,
@@ -230,6 +234,7 @@ namespace JDE_API.Controllers
                                      CreatedOn = fa.CreatedOn,
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
+                                     IsUploaded = (bool)f.IsUploaded,
                                      TenantId = f.TenantId,
                                      TenantName = t.TenantName,
                                      Type = f.Type,
@@ -473,6 +478,7 @@ namespace JDE_API.Controllers
         {
             if (token != null && token.Length > 0)
             {
+                Logger.Info("UploadFile: Start");
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
@@ -482,6 +488,7 @@ namespace JDE_API.Controllers
                     {
                         if (httpRequest.ContentLength > Static.RuntimeSettings.MaxFileContentLength)
                         {
+                            Logger.Warn("Uploadfile: Plik przekracza dopuszczalną wielkość {limit} MB dla JDE_Files={token}.", Static.RuntimeSettings.MaxFileContentLength, fileToken);
                             return Request.CreateResponse(HttpStatusCode.BadRequest, $"Przekroczono dopuszczalną wielość pliku ({Static.RuntimeSettings.MaxFileContentLength} MB)");
                         }
 
@@ -489,14 +496,22 @@ namespace JDE_API.Controllers
                         string filePath = "";
                         if (postedFile != null && postedFile.ContentLength > 0)
                         {
-                            var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
-
-                            filePath = $"{Static.RuntimeSettings.Path2Files}{fileToken + ext.ToLower()}";
-
-                            postedFile.SaveAs(filePath);
-                            if (postedFile.IsImage())
+                            try
                             {
-                                Static.Utilities.ProduceThumbnail(filePath);
+                                var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
+
+                                filePath = $"{Static.RuntimeSettings.Path2Files}{fileToken + ext.ToLower()}";
+
+                                postedFile.SaveAs(filePath);
+                                if (postedFile.IsImage())
+                                {
+                                    Static.Utilities.ProduceThumbnail(filePath);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error("UploadFile: Błąd podczas próby zapisania pliku w {path} JDE_Files={token}. Szczegóły: {details}", filePath ,fileToken, ex);
+                                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
                             }
                             //edit file data to mark IsUploaded as true
 
@@ -513,18 +528,21 @@ namespace JDE_API.Controllers
                             }
                             catch (Exception ex)
                             {
-
+                                Logger.Error("UploadFile: Błąd podczas próby edycji JDE_Files={token}. Szczegóły: {details}",fileToken, ex);
+                                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
                             }
 
                             return Request.CreateResponse(HttpStatusCode.OK);
                         }
                         else
                         {
+                            Logger.Warn("Uploadfile: Brak pliku dla JDE_Files={token}.", fileToken);
                             return Request.CreateResponse(HttpStatusCode.BadRequest, "Brak pliku");
                         }
                     }
                     else
                     {
+                        Logger.Warn("Uploadfile: Próba wysłania pustego pliku dla JDE_Files={token}.", fileToken);
                         return Request.CreateResponse(HttpStatusCode.BadRequest, "Plik nieprawidłowy (plik zawiera 0 bajtów)");
 
                     }
