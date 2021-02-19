@@ -1,5 +1,6 @@
 ﻿using JDE_API.Models;
 using JDE_API.Static;
+using Microsoft.SqlServer.Server;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -590,6 +591,69 @@ namespace JDE_API.Controllers
             else
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetStream")]
+        public HttpResponseMessage GetStream(string token, string fileName)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    string filePath = string.Empty;
+                    filePath = RuntimeSettings.Path2Files + fileName;
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        HttpContext.Current.Items["filePath"] = filePath;
+                        HttpResponseMessage response = Request.CreateResponse();
+                        response.Content = new PushStreamContent((Action<Stream, HttpContent, TransportContext>)WriteContentToStream);
+                        return response;
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                    
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+        }
+
+        public async void WriteContentToStream(Stream outputStream, HttpContent content, TransportContext transportContext)
+        {
+            //path of file which we have to read//  
+            string filePath = HttpContext.Current.Items["filePth"].ToString();
+            //var filePath = HttpContext.Current.Server.MapPath("~/MicrosoftBizSparkWorksWithStartups.mp4");
+            //here set the size of buffer, you can set any size  
+            int bufferSize = 1000;
+            byte[] buffer = new byte[bufferSize];
+            //here we re using FileStream to read file from server//  
+            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                int totalSize = (int)fileStream.Length;
+                /*here we are saying read bytes from file as long as total size of file 
+
+                is greater then 0*/
+                while (totalSize > 0)
+                {
+                    int count = totalSize > bufferSize ? bufferSize : totalSize;
+                    //here we are reading the buffer from orginal file  
+                    int sizeOfReadedBuffer = fileStream.Read(buffer, 0, count);
+                    //here we are writing the readed buffer to output//  
+                    await outputStream.WriteAsync(buffer, 0, sizeOfReadedBuffer);
+                    //and finally after writing to output stream decrementing it to total size of file.  
+                    totalSize -= sizeOfReadedBuffer;
+                }
             }
         }
 
