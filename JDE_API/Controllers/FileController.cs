@@ -663,38 +663,54 @@ namespace JDE_API.Controllers
         {
             //File should only be deleted if we're deleting last fileAssign
             //otherwise we're deleting only fileAssign
-            if (token != null && token.Length > 0)
-            {
-                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
-                if (tenants.Any())
-                {
-                    var items = db.JDE_Files.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.FileId == id);
-                    if (items.Any())
-                    {
-                        JDE_Files item = items.FirstOrDefault();
-                        var fileAssigns = db.JDE_FileAssigns.Where(fi => fi.FileId == id);
-                        if (fileAssigns.Any())
-                        {
-                            //at least 1 fileAssign
-                            //otherwise it would be weird
-                            _DeleteFileAssigns(id, UserId, (int)fileAssigns.FirstOrDefault().TenantId, PlaceId, PartId, ProcessId);
-                            if (fileAssigns.Count() == 1)
-                            {
-                                //there's only 1 assigns so more it's the last one
-                                _DeleteFile(items.FirstOrDefault().Token, items.FirstOrDefault().Type, UserId, (int)items.FirstOrDefault().TenantId);
 
+            try
+            {
+                if (token != null && token.Length > 0)
+                {
+                    var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                    if (tenants.Any())
+                    {
+                        var items = db.JDE_Files.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.FileId == id);
+                        if (items.Any())
+                        {
+                            JDE_Files item = items.FirstOrDefault();
+                            if (PlaceId == null && PartId == null && ProcessId == null)
+                            {
+                                //well, we don't care for fileAssigns whatsover, just delete the file and all assigns pointing to it
+                                //such a request must come from uploadKeeper
+                                _DeleteFile(items.FirstOrDefault().Token, items.FirstOrDefault().Type, UserId, (int)items.FirstOrDefault().TenantId);
                             }
+                            else
+                            {
+                                var fileAssigns = db.JDE_FileAssigns.Where(fi => fi.FileId == id);
+                                if (fileAssigns.Any())
+                                {
+                                    //at least 1 fileAssign
+                                    //otherwise it would be weird
+                                    _DeleteFileAssigns(id, UserId, (int)fileAssigns.FirstOrDefault().TenantId, PlaceId, PartId, ProcessId);
+                                    if (fileAssigns.Count() == 1)
+                                    {
+                                        //there's only 1 assigns so more it's the last one
+                                        _DeleteFile(items.FirstOrDefault().Token, items.FirstOrDefault().Type, UserId, (int)items.FirstOrDefault().TenantId);
+
+                                    }
+                                }
+                                else
+                                {
+                                    //there's no fileAssign
+                                    //existing file should be deleted
+                                    //should never happen in the first place
+                                    _DeleteFile(items.FirstOrDefault().Token, items.FirstOrDefault().Type, UserId, (int)items.FirstOrDefault().TenantId);
+                                }
+                            }
+
+                            return Ok();
                         }
                         else
                         {
-                            //there's no fileAssign
-                            //existing file should be deleted
-                            //should never happen in the first place
-                            _DeleteFile(items.FirstOrDefault().Token, items.FirstOrDefault().Type, UserId, (int)items.FirstOrDefault().TenantId);
+                            return NotFound();
                         }
-
-
-                        return Ok();
                     }
                     else
                     {
@@ -706,45 +722,71 @@ namespace JDE_API.Controllers
                     return NotFound();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound();
+                Logger.Error("Błąd podczas próby usuwania pliku {FileId}. Szczegóły: {details}", id, ex);
+                return InternalServerError(ex);
             }
         }
 
         private void _DeleteFile(string token, string type, int UserId, int tenantId)
         {
-            var items = db.JDE_Files.Where(f=>f.Token==token);
-            if (items.Any())
+            try
             {
-                JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie pliku", TenantId = tenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
-                db.JDE_Files.Remove(items.FirstOrDefault());
-                db.JDE_Logs.Add(Log);
-                db.SaveChanges();
-                //delete physical file
-                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(type))
+                var items = db.JDE_Files.Where(f => f.Token == token);
+                if (items.Any())
                 {
-                    // There was a file, must delete it first
-                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, $"{token}.{type}"));
-                    System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, $"{token}.{type}"));
+                    var assigns = db.JDE_FileAssigns.Where(fa => fa.FileId == items.FirstOrDefault().FileId);
+                    if (assigns.Any())
+                    {
+                        //delete all assigns
+                        foreach (var a in assigns)
+                        {
+                            db.JDE_FileAssigns.Remove(a);
+                        }
+                    }
+                    JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie pliku", TenantId = tenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
+                    db.JDE_Files.Remove(items.FirstOrDefault());
+                    db.JDE_Logs.Add(Log);
+                    db.SaveChanges();
+                    //delete physical file
+                    if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(type))
+                    {
+                        // There was a file, must delete it first
+                        System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, $"{token}.{type}"));
+                        System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, $"{token}.{type}"));
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
 
         private void _DeleteFileAssigns(int fileId, int UserId, int tenantId, int? PlaceId = null, int? PartId = null, int? ProcessId = null)
         {
-            var fileAssigns = db.JDE_FileAssigns.Where(f => f.FileId == fileId && ((f.PlaceId==PlaceId && PlaceId!=null) || (f.PartId==PartId && PartId!=null) || (f.ProcessId==ProcessId && ProcessId!=null)));
-            List<JDE_Logs> logs = new List<JDE_Logs>();
-            if (fileAssigns.Any())
+            try
             {
-                foreach(var i in fileAssigns)
+                var fileAssigns = db.JDE_FileAssigns.Where(f => f.FileId == fileId && ((f.PlaceId == PlaceId && PlaceId != null) || (f.PartId == PartId && PartId != null) || (f.ProcessId == ProcessId && ProcessId != null)));
+                List<JDE_Logs> logs = new List<JDE_Logs>();
+                if (fileAssigns.Any())
                 {
-                    logs.Add(new JDE_Logs { UserId = UserId, Description = "Usunięcie przypisania pliku", TenantId = tenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(i)});
-                    db.JDE_FileAssigns.Remove(i);
+                    foreach (var i in fileAssigns)
+                    {
+                        logs.Add(new JDE_Logs { UserId = UserId, Description = "Usunięcie przypisania pliku", TenantId = tenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(i) });
+                        db.JDE_FileAssigns.Remove(i);
+                    }
+
+                    db.JDE_Logs.AddRange(logs);
+                    db.SaveChanges();
                 }
-                
-                db.JDE_Logs.AddRange(logs);
-                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
 
