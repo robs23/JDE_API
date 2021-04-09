@@ -149,7 +149,8 @@ namespace JDE_API.Controllers
                                      PlaceToken = pl.PlaceToken,
                                      LmBy = pl.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
-                                     LmOn = pl.LmOn
+                                     LmOn = pl.LmOn,
+                                     IsArchived = pl.IsArchived
                                  }
                           ).Take(1);
                     if (!place.Any())
@@ -208,7 +209,8 @@ namespace JDE_API.Controllers
                                      PlaceToken = pl.PlaceToken,
                                      LmBy = pl.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
-                                     LmOn = pl.LmOn
+                                     LmOn = pl.LmOn,
+                                     IsArchived = pl.IsArchived
                                  }
                           ).Take(1);
                     if (!place.Any())

@@ -479,7 +479,7 @@ namespace JDE_API.Controllers
         {
             if (token != null && token.Length > 0)
             {
-                Logger.Info("UploadFile: Start");
+                Logger.Info("UploadFile: Start. fileToken={fileToken}",fileToken);
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {

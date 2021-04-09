@@ -24,6 +24,7 @@ namespace JDE_API.Models
     public bool? IsSuccessfull { get; set; }
     public int? PlaceId { get; set; }
     public string PlaceName { get; set; }
+    public string PlaceImage { get; set; }
     public int? SetId { get; set; }
     public string SetName { get; set; }
     public int? AreaId { get; set; }
