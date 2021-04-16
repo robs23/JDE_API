@@ -94,7 +94,8 @@ namespace JDE_API.Controllers
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,
-                                     IsArchived = p.IsArchived
+                                     IsArchived = p.IsArchived,
+                                     HasAttachments = db.JDE_FileAssigns.Any(f=>f.PartId==p.PartId)
                                  });
                     if (items.Any())
                     {
@@ -341,7 +342,7 @@ namespace JDE_API.Controllers
         [Route("EditPart")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item)
+        public IHttpActionResult EditPart(string token, int id, int UserId, JDE_Parts item, bool DeleteImage = false)
         {
             Logger.Info("EditPart. Start. This is version without a file");
             if (token != null && token.Length > 0)
@@ -357,15 +358,19 @@ namespace JDE_API.Controllers
                         db.JDE_Logs.Add(Log);
                         item.LmBy = UserId;
                         item.LmOn = DateTime.Now;
-                        // Not any image was sent so I'm removing it
-                        string oFileName = item.Image;
-                        if (!string.IsNullOrEmpty(oFileName))
+                        // Check if to remove image
+                        if (DeleteImage)
                         {
-                            // There was a file, must delete it first
-                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
-                            System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                            string oFileName = item.Image;
+                            if (!string.IsNullOrEmpty(oFileName))
+                            {
+                                // There was a file, must delete it first
+                                System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Files, oFileName));
+                                System.IO.File.Delete(Path.Combine(RuntimeSettings.Path2Thumbs, oFileName));
+                            }
+                            item.Image = null;
                         }
-                        item.Image = null;
+                        
 
                         db.Entry(item).State = EntityState.Modified;
                         try

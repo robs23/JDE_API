@@ -153,7 +153,7 @@ namespace JDE_API.Controllers
                                  FinishRate = finishRate == null || finishRate == false ? 0 : db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId)==0 
                                                                                             ? 100 : (((float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId && i.IsChecked == true)
                                                                                             / (float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId))*100),
-
+                                 HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == grp.Key.ProcessId)
                              });
             }
             catch (Exception ex)

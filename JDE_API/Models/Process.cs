@@ -151,6 +151,8 @@ namespace JDE_API.Models
     public float? FinishRate { get; set; }
 
     public bool? IsResurrected { get; set; }
+
+    public bool HasAttachments { get; set; } = false;
     }
     public enum ProcessStatus
     {
