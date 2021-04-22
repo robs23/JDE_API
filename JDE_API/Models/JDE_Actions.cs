@@ -23,5 +23,6 @@ namespace JDE_API.Models
         public Nullable<int> TenantId { get; set; }
         public Nullable<int> GivenTime { get; set; }
         public string Type { get; set; }
+        public Nullable<int> ActionTypeId { get; set; }
     }
 }

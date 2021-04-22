@@ -18,6 +18,7 @@
           <Property Name="TenantId" Type="int" />
           <Property Name="GivenTime" Type="int" />
           <Property Name="Type" Type="nvarchar" MaxLength="10" />
+          <Property Name="ActionTypeId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_ActionTypes">
           <Key>
@@ -725,6 +726,7 @@
           <Property Name="TenantId" Type="Int32" />
           <Property Name="GivenTime" Type="Int32" />
           <Property Name="Type" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="ActionTypeId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_PlaceActions">
           <Key>
@@ -1159,6 +1161,7 @@
           <EntitySetMapping Name="JDE_Actions">
             <EntityTypeMapping TypeName="DbModels.JDE_Actions">
               <MappingFragment StoreEntitySet="JDE_Actions">
+                <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
                 <ScalarProperty Name="Type" ColumnName="Type" />
                 <ScalarProperty Name="GivenTime" ColumnName="GivenTime" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />

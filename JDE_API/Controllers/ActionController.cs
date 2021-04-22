@@ -46,7 +46,8 @@ namespace JDE_API.Controllers
                                      LmBy = a.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = a.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     ActionTypeId = a.ActionTypeId
                                  });
                     if (items.Any())
                     {
@@ -130,7 +131,8 @@ namespace JDE_API.Controllers
                                      LmBy = a.LmBy,
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = a.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     ActionTypeId = a.ActionTypeId
                                  });
                     if (items.Any())
                     {
