@@ -29,5 +29,6 @@ namespace JDE_API.Models
         public Nullable<bool> ClosePreviousInSamePlace { get; set; }
         public Nullable<bool> PartsApplicable { get; set; }
         public Nullable<bool> ActionsApplicable { get; set; }
+        public Nullable<bool> RequireUsersAssignment { get; set; }
     }
 }

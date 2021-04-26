@@ -47,6 +47,7 @@ namespace JDE_API.Controllers
                                      ClosePreviousInSamePlace = at.ClosePreviousInSamePlace,
                                      PartsApplicable = at.PartsApplicable,
                                      ActionsApplicable = at.ActionsApplicable,
+                                     RequireUsersAssignment = at.RequireUsersAssignment,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -127,6 +128,7 @@ namespace JDE_API.Controllers
                                      ClosePreviousInSamePlace = at.ClosePreviousInSamePlace,
                                      PartsApplicable = at.PartsApplicable,
                                      ActionsApplicable = at.ActionsApplicable,
+                                     RequireUsersAssignment = at.RequireUsersAssignment,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -187,6 +189,7 @@ namespace JDE_API.Controllers
                             ClosePreviousInSamePlace = false,
                             PartsApplicable = false,
                             ActionsApplicable = false,
+                            RequireUsersAssignment = false,
                             CreatedBy = UserId,
                             CreatedOn = DateTime.Now,
                             TenantId = tenants.FirstOrDefault().TenantId

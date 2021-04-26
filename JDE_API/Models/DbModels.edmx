@@ -39,6 +39,7 @@
           <Property Name="ClosePreviousInSamePlace" Type="bit" />
           <Property Name="PartsApplicable" Type="bit" />
           <Property Name="ActionsApplicable" Type="bit" />
+          <Property Name="RequireUsersAssignment" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -481,6 +482,7 @@
           <Property Name="ClosePreviousInSamePlace" Type="Boolean" />
           <Property Name="PartsApplicable" Type="Boolean" />
           <Property Name="ActionsApplicable" Type="Boolean" />
+          <Property Name="RequireUsersAssignment" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -924,6 +926,7 @@
           <EntitySetMapping Name="JDE_ActionTypes">
             <EntityTypeMapping TypeName="DbModels.JDE_ActionTypes">
               <MappingFragment StoreEntitySet="JDE_ActionTypes">
+                <ScalarProperty Name="RequireUsersAssignment" ColumnName="RequireUsersAssignment" />
                 <ScalarProperty Name="ActionsApplicable" ColumnName="ActionsApplicable" />
                 <ScalarProperty Name="PartsApplicable" ColumnName="PartsApplicable" />
                 <ScalarProperty Name="ClosePreviousInSamePlace" ColumnName="ClosePreviousInSamePlace" />
