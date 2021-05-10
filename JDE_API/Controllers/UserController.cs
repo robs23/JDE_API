@@ -108,7 +108,8 @@ namespace JDE_API.Controllers
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LastLoggedOn = us.lastLoggedOn,
                                      MesLogin = us.MesLogin,
-                                     IsArchived = us.IsArchived
+                                     IsArchived = us.IsArchived,
+                                     IsOperator = us.IsOperator
                                  });
                     if (users.Any())
                     {
@@ -310,7 +311,9 @@ namespace JDE_API.Controllers
                                      CreatedBy = us.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
                                      LastLoggedOn = us.lastLoggedOn,
-                                     MesLogin = us.MesLogin
+                                     MesLogin = us.MesLogin,
+                                     IsArchived = us.IsArchived,
+                                     IsOperator = us.IsOperator
                                  });
                     if (users.Any())
                     {

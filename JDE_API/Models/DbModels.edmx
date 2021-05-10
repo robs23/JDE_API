@@ -429,6 +429,7 @@
           <Property Name="TenantId" Type="int" />
           <Property Name="MesLogin" Type="nvarchar(max)" />
           <Property Name="IsArchived" Type="bit" />
+          <Property Name="IsOperator" Type="bit" />
         </EntityType>
         <EntityContainer Name="DbModelsStoreContainer">
           <EntitySet Name="JDE_Actions" EntityType="Self.JDE_Actions" Schema="dbo" store:Type="Tables" />
@@ -867,6 +868,7 @@
           <Property Name="TenantId" Type="Int32" />
           <Property Name="MesLogin" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="IsArchived" Type="Boolean" />
+          <Property Name="IsOperator" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_PartUsages">
           <Key>
@@ -1309,6 +1311,7 @@
           <EntitySetMapping Name="JDE_Users">
             <EntityTypeMapping TypeName="DbModels.JDE_Users">
               <MappingFragment StoreEntitySet="JDE_Users">
+                <ScalarProperty Name="IsOperator" ColumnName="IsOperator" />
                 <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
                 <ScalarProperty Name="MesLogin" ColumnName="MesLogin" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
