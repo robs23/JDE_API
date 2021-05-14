@@ -487,6 +487,7 @@ namespace JDE_API.Controllers
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
+
         [HttpPost]
         [Route("CreatePlace")]
         [ResponseType(typeof(JDE_Places))]

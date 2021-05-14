@@ -239,6 +239,7 @@
     </Compile>
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\Handling.cs" />
+    <Compile Include="Models\ImageInfo.cs" />
     <Compile Include="Models\JDE_Actions.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>

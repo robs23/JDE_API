@@ -657,6 +657,146 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetImages")]
+        public IHttpActionResult GetImages(string token, DateTime dateFrom, DateTime dateTo, int page = 0, int total = 0, string query = null)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var Files = new DirectoryInfo(RuntimeSettings.Path2Thumbs).EnumerateFiles().Select(x =>
+                    {
+                        x.Refresh();
+                        return x;
+                    }).Where(x => x.LastWriteTime.Date >= dateFrom && x.LastWriteTime.Date < dateTo).ToList();
+
+                    if (Files.Any())
+                    {
+                        var FileNames = Files.Select(f => f.Name).ToList();
+                        var items = (from f in db.JDE_Files
+                                     join fa in db.JDE_FileAssigns on f.FileId equals fa.FileId
+                                     join us in db.JDE_Users on f.CreatedBy equals us.UserId
+                                     join proc in db.JDE_Processes on fa.ProcessId equals proc.ProcessId into process
+                                     from p in process.DefaultIfEmpty()
+                                     join atype in db.JDE_ActionTypes on p.ActionTypeId equals atype.ActionTypeId into actiontype
+                                     from at in actiontype.DefaultIfEmpty()
+                                     join pla2 in db.JDE_Places on p.PlaceId equals pla2.PlaceId into place2
+                                     from pl2 in place2.DefaultIfEmpty()
+                                     join pla in db.JDE_Places on fa.PlaceId equals pla.PlaceId into place
+                                     from pl in place.DefaultIfEmpty()
+                                     join par in db.JDE_Parts on fa.PartId equals par.PartId into part
+                                     from pt in part.DefaultIfEmpty()
+                                     join t in db.JDE_Tenants on f.TenantId equals t.TenantId
+                                     where t.TenantId == tenants.FirstOrDefault().TenantId && FileNames.Contains(f.Token + "." + f.Type)
+                                     orderby f.CreatedOn descending
+                                     select new ImageInfo
+                                     {
+                                         Name = f.Name,
+                                         LinkName = f.Token + "." + f.Type,
+                                         ProcessId = fa.ProcessId,
+                                         PlaceId = fa.PlaceId,
+                                         PartId = fa.PartId,
+                                         Description = fa.ProcessId != null ? at.Name + " na " + pl2.Name : fa.PlaceId != null ? pl.Name : pt.Name,
+                                         CreatedByName = us.Name + " " + us.Surname,
+                                         CreatedOn = f.CreatedOn,
+                                         TenantId = t.TenantId,
+                                         TenantName = t.TenantName
+                                     }
+                          ).ToList();
+                        var placeImages = (from pl in db.JDE_Places
+                                           join us in db.JDE_Users on pl.LmBy equals us.UserId
+                                           join t in db.JDE_Tenants on pl.TenantId equals t.TenantId
+                                           where t.TenantId == tenants.FirstOrDefault().TenantId && FileNames.Contains(pl.Image)
+                                           orderby pl.LmOn descending
+                                           select new ImageInfo
+                                           {
+                                               Name = pl.Image,
+                                               LinkName = pl.Image,
+                                               ProcessId = null,
+                                               PlaceId = pl.PlaceId,
+                                               PartId = null,
+                                               Description = pl.Name,
+                                               CreatedByName = us.Name + " " + us.Surname,
+                                               CreatedOn = pl.LmOn,
+                                               TenantId = t.TenantId,
+                                               TenantName = t.TenantName
+                                           }
+                          ).ToList();
+                        items.AddRange(placeImages);
+                        var partImages = (from pt in db.JDE_Parts
+                                           join us in db.JDE_Users on pt.LmBy equals us.UserId
+                                           join t in db.JDE_Tenants on pt.TenantId equals t.TenantId
+                                           where t.TenantId == tenants.FirstOrDefault().TenantId && FileNames.Contains(pt.Image)
+                                           orderby pt.LmOn descending
+                                           select new ImageInfo
+                                           {
+                                               Name = pt.Image,
+                                               LinkName = pt.Image,
+                                               ProcessId = null,
+                                               PlaceId = null,
+                                               PartId = pt.PartId,
+                                               Description = pt.Name,
+                                               CreatedByName = us.Name + " " + us.Surname,
+                                               CreatedOn = pt.LmOn,
+                                               TenantId = t.TenantId,
+                                               TenantName = t.TenantName
+                                           }
+                          ).ToList();
+                        items.AddRange(partImages);
+                        if (items.Any())
+                        {
+                            if (query != null)
+                            {
+                                items = items.AsQueryable().Where(query).ToList();
+                            }
+                            if (total == 0 && page > 0)
+                            {
+                                int pageSize = RuntimeSettings.PageSize;
+                                var skip = pageSize * (page - 1);
+                                if (skip < items.Count())
+                                {
+                                    items = items.Skip(skip).Take(pageSize).ToList();
+                                    return Ok(items);
+                                }
+                                else
+                                {
+                                    return NotFound();
+                                }
+                            }
+                            else if (total > 0 && page == 0)
+                            {
+                                items = items.Take(total).ToList();
+                                return Ok(items);
+                            }
+                            else
+                            {
+                                return Ok(items);
+                            }
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         [HttpDelete]
         [Route("DeleteFile")]
         public IHttpActionResult DeleteFile(string token, int id, int UserId, int? PlaceId = null, int? PartId = null, int? ProcessId = null)
