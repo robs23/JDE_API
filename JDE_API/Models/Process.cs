@@ -56,6 +56,7 @@ namespace JDE_API.Models
             }
         }
     }
+    public double? HandlingsLength { get; set; }
     public string MesId { get; set; }
     public string InitialDiagnosis { get; set; }
     public string RepairActions { get; set; }

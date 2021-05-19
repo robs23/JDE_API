@@ -263,3 +263,4 @@ __pycache__/
 Web.Debug.config
 /JDE_API/Properties/PublishProfiles/jde-test-api.robs23.hostingasp.pl - Web Deploy.pubxml
 /JDE_API/Files
+/JDE_API/Static/Secrets.cs

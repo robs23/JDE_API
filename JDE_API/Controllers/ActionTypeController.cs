@@ -48,6 +48,7 @@ namespace JDE_API.Controllers
                                      PartsApplicable = at.PartsApplicable,
                                      ActionsApplicable = at.ActionsApplicable,
                                      RequireUsersAssignment = at.RequireUsersAssignment,
+                                     ShowOnDashboard = at.ShowOnDashboard,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -129,6 +130,7 @@ namespace JDE_API.Controllers
                                      PartsApplicable = at.PartsApplicable,
                                      ActionsApplicable = at.ActionsApplicable,
                                      RequireUsersAssignment = at.RequireUsersAssignment,
+                                     ShowOnDashboard = at.ShowOnDashboard,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -190,6 +192,7 @@ namespace JDE_API.Controllers
                             PartsApplicable = false,
                             ActionsApplicable = false,
                             RequireUsersAssignment = false,
+                            ShowOnDashboard = false,
                             CreatedBy = UserId,
                             CreatedOn = DateTime.Now,
                             TenantId = tenants.FirstOrDefault().TenantId

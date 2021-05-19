@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using NLog;
 using JDE_API.Interfaces;
 using System.Runtime.CompilerServices;
+using System.Data.SqlClient;
 
 namespace JDE_API.Controllers
 {
@@ -140,6 +141,7 @@ namespace JDE_API.Controllers
                                  LastStatusByName = grp.Key.LastStatusByName,
                                  LastStatusOn = grp.Key.LastStatusOn,
                                  IsResurrected = grp.Key.IsResurrected,
+                                 HandlingsLength = grp.Where(ph => ph.ha.HandlingId > 0).Sum(h=>(h.ha.FinishedOn - h.ha.StartedOn).Value.TotalMinutes),
                                  OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
                                  AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
                                  AssignedUsers = (from pras in db.JDE_ProcessAssigns
@@ -1161,6 +1163,104 @@ namespace JDE_API.Controllers
                     db.SaveChanges();
                     return Ok(item);
                     //return CreatedAtRoute("DefaultApi", new { id = item.ProcessId }, item);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetProcessStats")]
+        public IHttpActionResult GetProcessStats(string token, DateTime dateFrom, DateTime dateTo)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    try
+                    {
+                        using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
+                        {
+                            string sql = $@"SELECT at.Name, at.ShowOnDashboard, at.ActionsApplicable, COUNT(p.ProcessId) AS [Count], SUM(DATEDIFF(mi, h.StartedOn, h.FinishedOn)) AS [HandlingSum], SUM(DATEDIFF(mi, p.StartedOn, p.FinishedOn)) AS [ProcessSum] 
+                                FROM JDE_Handlings h LEFT JOIN JDE_Processes p ON h.ProcessId = p.ProcessId 
+	                                LEFT JOIN JDE_ActionTypes at ON p.ActionTypeId = at.ActionTypeId
+                                WHERE h.StartedOn >= @dateFrom AND h.FinishedOn < @dateTo
+                                GROUP BY at.Name, at.ShowOnDashboard, at.ActionsApplicable";
+                            SqlParameter[] parameters = new SqlParameter[2];
+                            parameters[0] = new SqlParameter("@dateFrom", dateFrom);
+                            parameters[1] = new SqlParameter("@dateTo", dateTo);
+
+                            SqlCommand command = new SqlCommand(sql, Con);
+                            command.Parameters.AddRange(parameters);
+
+                            if (Con.State == ConnectionState.Closed || Con.State == ConnectionState.Broken)
+                            {
+                                Con.Open();
+                            }
+
+                            List<dynamic> processes = new List<dynamic>();
+                            List<dynamic> newProcesses = new List<dynamic>();
+
+                            SqlDataReader reader = command.ExecuteReader();
+                            int totalResult = 0;
+
+                            while (reader.Read())
+                            {
+                                int hs = 0;
+                                int ps = 0;
+                                bool parsable = int.TryParse(reader["HandlingSum"].ToString(), out hs);
+                                parsable = int.TryParse(reader["ProcessSum"].ToString(), out ps);
+                                int result = hs < ps ? hs : ps;
+                                bool showOnDashboard = reader.IsDBNull(reader.GetOrdinal("ShowOnDashboard")) == true ? false : Convert.ToBoolean(reader["ShowOnDashboard"].ToString());
+                                bool actionsApplicable = reader.IsDBNull(reader.GetOrdinal("ActionsApplicable")) == true ? false : Convert.ToBoolean(reader["ActionsApplicable"].ToString());
+                                totalResult += result;
+
+                                var item = new
+                                {
+                                    Name = reader["Name"],
+                                    ShowOnDashboard = showOnDashboard,
+                                    ActionsApplicable = actionsApplicable,
+                                    Count = reader.GetInt32(reader.GetOrdinal("Count")),
+                                    HandlingSum = hs,
+                                    ProcessSum = ps,
+                                    Result = result,
+                                };
+                                processes.Add(item);
+                            }
+                            if (processes.Any())
+                            {
+                                foreach(var item in processes)
+                                {
+                                    var newItem = new
+                                    {
+                                        Name = item.Name,
+                                        ShowOnDashboard = item.ShowOnDashboard,
+                                        ActionsApplicable = item.ActionsApplicable,
+                                        Count = item.Count,
+                                        HandlingSum = item.HandlingSum,
+                                        ProcessSum = item.ProcessSum,
+                                        Result = item.Result,
+                                        PercentOfAll = ((double)item.Result / (double)totalResult) * 100
+                                    };
+                                    newProcesses.Add(newItem);
+                                }
+                            }
+
+                            return Ok(newProcesses);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        return InternalServerError(ex);
+                    }
                 }
                 else
                 {
