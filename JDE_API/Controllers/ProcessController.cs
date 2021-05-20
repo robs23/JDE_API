@@ -141,7 +141,6 @@ namespace JDE_API.Controllers
                                  LastStatusByName = grp.Key.LastStatusByName,
                                  LastStatusOn = grp.Key.LastStatusOn,
                                  IsResurrected = grp.Key.IsResurrected,
-                                 HandlingsLength = grp.Where(ph => ph.ha.HandlingId > 0).Sum(h=>(h.ha.FinishedOn - h.ha.StartedOn).Value.TotalMinutes),
                                  OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
                                  AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
                                  AssignedUsers = (from pras in db.JDE_ProcessAssigns
@@ -155,7 +154,8 @@ namespace JDE_API.Controllers
                                  FinishRate = finishRate == null || finishRate == false ? 0 : db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId)==0 
                                                                                             ? 100 : (((float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId && i.IsChecked == true)
                                                                                             / (float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId))*100),
-                                 HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == grp.Key.ProcessId)
+                                 HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == grp.Key.ProcessId),
+                                 HandlingsLength = grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn) ) == null ? grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, DateTime.Now)) : grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn))
                              });
             }
             catch (Exception ex)
