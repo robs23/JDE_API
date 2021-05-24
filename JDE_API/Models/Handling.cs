@@ -53,5 +53,7 @@ namespace JDE_API.Models
         public string AssignedUserNames { get; }
         public int? GivenTime { get; set; }
         public string TimingVsPlan { get; }
+        public int? ProcessLength { get; }
+        public int? HandlingsLength { get; set; }
     }
 }

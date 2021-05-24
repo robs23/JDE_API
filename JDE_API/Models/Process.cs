@@ -1,4 +1,5 @@
 ﻿using JDE_API.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,23 @@ namespace JDE_API.Models
     {
         get
         {
+            //take the shorter from handlingsLenght vs processLength
+            if(HandlingsLength <= ProcessLength)
+            {
+                return HandlingsLength;
+            }
+            else
+            {
+                return ProcessLength;
+            }
+
+        }
+    }
+    public int? HandlingsLength { get; set; }
+    public int? ProcessLength
+    {
+        get
+        {
             if (StartedOn == null)
             {
                 return null;
@@ -56,8 +74,6 @@ namespace JDE_API.Models
             }
         }
     }
-    public double? HandlingsLength { get; set; }
-    public double? ProcessLength { get; set; }
     public string MesId { get; set; }
     public string InitialDiagnosis { get; set; }
     public string RepairActions { get; set; }

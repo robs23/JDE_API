@@ -108,6 +108,74 @@ namespace JDE_API.Static
             return nItems;
         }
 
+        public static List<IProcessable> FilterByProcessLength(List<IProcessable> nItems, string length)
+        {
+            var min = Regex.Match(length, @"\d+").Value;
+            int mins = 0;
+            int.TryParse(min, out mins);
+            var sign = length.Substring(0, length.Length - min.Length);
+            if ((sign.Equals(">") || sign.Equals("<") || sign.Equals("=<") || sign.Equals("<=") || sign.Equals("=>") || sign.Equals(">=") || sign.Equals("=")) && mins >= 0)
+            {
+                // don't do anything unless you've got both min and sign
+                if (sign.Equals("="))
+                {
+                    nItems = nItems.Where(i => i.ProcessLength == mins).ToList();
+                }
+                else if (sign.Equals("<=") || sign.Equals("=<"))
+                {
+                    nItems = nItems.Where(i => i.ProcessLength <= mins).ToList();
+                }
+                else if (sign.Equals(">=") || sign.Equals("=>"))
+                {
+                    nItems = nItems.Where(i => i.ProcessLength >= mins).ToList();
+                }
+                else if (sign.Equals(">"))
+                {
+                    nItems = nItems.Where(i => i.ProcessLength > mins).ToList();
+                }
+                else if (sign.Equals("<"))
+                {
+                    nItems = nItems.Where(i => i.ProcessLength < mins).ToList();
+                }
+
+            }
+            return nItems;
+        }
+
+        public static List<IProcessable> FilterByHandlingsLength(List<IProcessable> nItems, string length)
+        {
+            var min = Regex.Match(length, @"\d+").Value;
+            int mins = 0;
+            int.TryParse(min, out mins);
+            var sign = length.Substring(0, length.Length - min.Length);
+            if ((sign.Equals(">") || sign.Equals("<") || sign.Equals("=<") || sign.Equals("<=") || sign.Equals("=>") || sign.Equals(">=") || sign.Equals("=")) && mins >= 0)
+            {
+                // don't do anything unless you've got both min and sign
+                if (sign.Equals("="))
+                {
+                    nItems = nItems.Where(i => i.HandlingsLength == mins).ToList();
+                }
+                else if (sign.Equals("<=") || sign.Equals("=<"))
+                {
+                    nItems = nItems.Where(i => i.HandlingsLength <= mins).ToList();
+                }
+                else if (sign.Equals(">=") || sign.Equals("=>"))
+                {
+                    nItems = nItems.Where(i => i.HandlingsLength >= mins).ToList();
+                }
+                else if (sign.Equals(">"))
+                {
+                    nItems = nItems.Where(i => i.HandlingsLength > mins).ToList();
+                }
+                else if (sign.Equals("<"))
+                {
+                    nItems = nItems.Where(i => i.HandlingsLength < mins).ToList();
+                }
+
+            }
+            return nItems;
+        }
+
         public static List<IProcessable> FilterByStatus(List<IProcessable> nItems, string status)
         {
             int start = 0;

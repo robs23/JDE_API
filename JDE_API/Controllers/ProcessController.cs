@@ -27,7 +27,7 @@ namespace JDE_API.Controllers
         private Models.DbModel db = new Models.DbModel();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private IQueryable<Process> FetchProcesses (int TenantId, DateTime dFrom, DateTime dTo, bool? givenTime=null, bool? finishRate=null)
+        private IQueryable<Process> FetchProcesses (int TenantId, DateTime dFrom, DateTime dTo, bool? givenTime=null, bool? finishRate=null, bool? handlingsLength=null)
         {
             IQueryable<Process> items; 
             try
@@ -155,7 +155,7 @@ namespace JDE_API.Controllers
                                                                                             ? 100 : (((float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId && i.IsChecked == true)
                                                                                             / (float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId))*100),
                                  HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == grp.Key.ProcessId),
-                                 HandlingsLength = grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn) ) == null ? grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, DateTime.Now)) : grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn))
+                                 HandlingsLength = handlingsLength == null || handlingsLength == false ? null : grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn)) == null ? grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, DateTime.Now)) : grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn))
                              });
             }
             catch (Exception ex)
@@ -197,9 +197,9 @@ namespace JDE_API.Controllers
             }
         }
 
-        private IQueryable<IProcessable> AdvancedFilter(IQueryable<Process> items, string length = null, string status = null, string assignedUserNames = null, string timingStatus=null, string timingVsPlan = null)
+        private IQueryable<IProcessable> AdvancedFilter(IQueryable<Process> items, string length = null, string status = null, string assignedUserNames = null, string timingStatus=null, string timingVsPlan = null, string processLength = null, string handlingsLength = null)
         {
-            if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status) || !string.IsNullOrEmpty(assignedUserNames) || !string.IsNullOrEmpty(timingStatus) || !string.IsNullOrEmpty(timingVsPlan))
+            if (!string.IsNullOrEmpty(length) || !string.IsNullOrEmpty(status) || !string.IsNullOrEmpty(assignedUserNames) || !string.IsNullOrEmpty(timingStatus) || !string.IsNullOrEmpty(timingVsPlan) || !string.IsNullOrEmpty(processLength) || !string.IsNullOrEmpty(handlingsLength))
             {
                 List<IProcessable> nItems = items.ToList<IProcessable>();
                 if (!string.IsNullOrEmpty(length)) { nItems = Static.Utilities.FilterByLength(nItems, length); }
@@ -207,6 +207,8 @@ namespace JDE_API.Controllers
                 if (!string.IsNullOrEmpty(assignedUserNames)) { nItems = Static.Utilities.FilterByAssignedUserNames(nItems, assignedUserNames); }
                 if (!string.IsNullOrEmpty(timingStatus)) { nItems = Static.Utilities.FilterByTimingStatus(nItems, timingStatus); }
                 if (!string.IsNullOrEmpty(timingVsPlan)) { nItems = Static.Utilities.FilterByTimingVsPlan(nItems, timingVsPlan); }
+                if (!string.IsNullOrEmpty(processLength)) { nItems = Static.Utilities.FilterByProcessLength(nItems, processLength); }
+                if (!string.IsNullOrEmpty(handlingsLength)) { nItems = Static.Utilities.FilterByHandlingsLength(nItems, handlingsLength); }
                 return nItems.AsQueryable();
             }
             else
@@ -218,7 +220,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcesses")]
-        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate=null, int? pageSize=null)
+        public IHttpActionResult GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate=null, int? pageSize=null, bool? handlingsLength=null)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -231,13 +233,16 @@ namespace JDE_API.Controllers
                     string assignedUserNames = null;
                     string timingStatus = null;
                     string timingVsPlan = null;
-                    var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate);
+                    string processLength = null;
+                    string _handlingsLength = null;
+
+                    var items = FetchProcesses(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate, handlingsLength);
                     
                     if (items.Any())
                     {
                         if (query != null)
                         {
-                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0 || query.IndexOf("TimingStatus") >= 0 || query.IndexOf("TimingVsPlan") >= 0)
+                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0 || query.IndexOf("TimingStatus") >= 0 || query.IndexOf("TimingVsPlan") >= 0 || query.IndexOf("HandlingsLength") >= 0 || query.IndexOf("ProcessLength") >= 0)
                             {
                                 ProcessQuery pq = new ProcessQuery(query);
                                 length = pq.Length;
@@ -245,6 +250,8 @@ namespace JDE_API.Controllers
                                 assignedUserNames = pq.AssignedUserNames;
                                 timingStatus = pq.TimingStatus;
                                 timingVsPlan = pq.TimingVsPlan;
+                                _handlingsLength = pq.HandlingsLength;
+                                processLength = pq.ProcessLength;
                                 query = pq.Query;
 
                             }
@@ -255,7 +262,7 @@ namespace JDE_API.Controllers
                             }
                         }
 
-                        IQueryable<IProcessable> nItems = AdvancedFilter(items, length, status, assignedUserNames, timingStatus, timingVsPlan);
+                        IQueryable<IProcessable> nItems = AdvancedFilter(items, length, status, assignedUserNames, timingStatus, timingVsPlan, processLength, _handlingsLength);
 
                         return PrepareResponse(nItems, page, total, pageSize);
                     }
@@ -1743,6 +1750,8 @@ namespace JDE_API.Controllers
         public string OrginalQuery { get; set; }
         public string Query { get; set; }
         public string Length { get; set; }
+        public string ProcessLength { get; set; }
+        public string HandlingsLength { get; set; }
         public string Status { get; set; }
         public string AssignedUserNames { get; set; }
         public string TimingStatus { get; set; }
@@ -1755,6 +1764,62 @@ namespace JDE_API.Controllers
             this.Query = query;
             int start = 0;
             int end = 0;
+            if (query.IndexOf("ProcessLength") >= 0)
+            {
+                //contains length
+                start = query.IndexOf("ProcessLength");
+
+                if (query.IndexOf("AND", start) >= 0)
+                {
+                    //it has got more parameters later
+                    end = query.IndexOf(" ", start);
+                }
+                else
+                {
+                    //it's the last parameter
+                    end = query.Length;
+                }
+
+                this.ProcessLength = query.Substring(start, end - start);
+                this.Query = query.Replace(this.ProcessLength, "");
+                //check if we need to remove some ANDs from query
+                DropAnd();
+
+                if (this.ProcessLength.Contains("ProcessLength"))
+                {
+                    //still contains length keyword
+                    int x = this.ProcessLength.IndexOf("ProcessLength") + 6;
+                    this.ProcessLength = this.ProcessLength.Remove(0, x);
+                }
+            }
+            if (query.IndexOf("HandlingsLength") >= 0)
+            {
+                //contains length
+                start = query.IndexOf("HandlingsLength");
+
+                if (query.IndexOf("AND", start) >= 0)
+                {
+                    //it has got more parameters later
+                    end = query.IndexOf(" ", start);
+                }
+                else
+                {
+                    //it's the last parameter
+                    end = query.Length;
+                }
+
+                this.HandlingsLength = query.Substring(start, end - start);
+                this.Query = query.Replace(this.HandlingsLength, "");
+                //check if we need to remove some ANDs from query
+                DropAnd();
+
+                if (this.HandlingsLength.Contains("HandlingsLength"))
+                {
+                    //still contains length keyword
+                    int x = this.HandlingsLength.IndexOf("HandlingsLength") + 6;
+                    this.HandlingsLength = this.HandlingsLength.Remove(0, x);
+                }
+            }
             if (query.IndexOf("Length")>=0)
             {
                 //contains length
@@ -1783,6 +1848,7 @@ namespace JDE_API.Controllers
                     this.Length = this.Length.Remove(0, x);
                 }
             }
+            
             if (this.Query.IndexOf("TimingStatus") >= 0)
             {
                 if (this.Query.Contains("!TimingStatus"))

@@ -16,5 +16,7 @@ namespace JDE_API.Interfaces
         string AssignedUserNames { get; }
         int? GivenTime { get; set; }
         string TimingVsPlan { get; }
+        int? ProcessLength { get; }
+        int? HandlingsLength { get; set; }
     }
 }
