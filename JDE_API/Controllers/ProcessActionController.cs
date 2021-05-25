@@ -1,10 +1,14 @@
-﻿using JDE_API.Models;
+﻿using Antlr.Runtime.Tree;
+using JDE_API.Models;
 using JDE_API.Static;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Net;
@@ -195,6 +199,110 @@ namespace JDE_API.Controllers
                         return StatusCode(HttpStatusCode.NoContent);
                     }
 
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetDoneActionsDaily")]
+        public IHttpActionResult GetDoneActionsDaily(string token, int year, int week, bool Cumulate = false)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    try
+                    {
+                        List<dynamic> items = new List<dynamic>();
+                        using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
+                        {
+                            string sql = $@"SELECT CAST(p.FinishedOn as DATE) as [Data], 
+	                                            SUM(CASE WHEN pa.IsChecked=1 THEN 1 ELSE 0 END)  as [Wykonane], COUNT(pa.ActionId) as [Wszystkie],
+                                                (SELECT COUNT(pa1.ActionId) FROM JDE_Processes p1 LEFT JOIN JDE_ProcessActions pa1 ON pa1.ProcessId = p1.ProcessId WHERE YEAR(p1.PlannedFinish)=@Year AND DATEPART(ISO_WEEK, p1.PlannedFinish) =@Week AND p1.PlannedStart IS NOT NULL ) as Total 
+                                            FROM JDE_Processes p
+	                                            LEFT JOIN JDE_ProcessActions pa ON pa.ProcessId = p.ProcessId
+                                            WHERE YEAR(p.PlannedFinish)=@Year AND DATEPART(ISO_WEEK, p.PlannedFinish) =@Week AND p.PlannedStart IS NOT NULL AND CAST(p.FinishedOn as DATE) IS NOT NULL
+                                            GROUP BY DATEPART(ISO_WEEK, p.PlannedFinish), YEAR(p.PlannedFinish), DATEPART(dw, p.FinishedOn ), CAST(p.FinishedOn as DATE) 
+                                            ORDER BY [Data]";
+                            SqlParameter[] parameters = new SqlParameter[2];
+                            parameters[0] = new SqlParameter("@Year", year);
+                            parameters[1] = new SqlParameter("@Week", week);
+
+                            SqlCommand command = new SqlCommand(sql, Con);
+                            command.Parameters.AddRange(parameters);
+
+                            if (Con.State == ConnectionState.Closed || Con.State == ConnectionState.Broken)
+                            {
+                                Con.Open();
+                            }
+
+                            SqlDataReader reader = command.ExecuteReader();
+                            if (reader.HasRows)
+                            {
+                                List<dynamic> _items = new List<dynamic>();
+                                int currCum = 0;
+                                int Total = 1;
+
+                                while (reader.Read())
+                                {
+                                    DateTime currDate = Convert.ToDateTime(reader["Data"].ToString());
+                                    int currWeek = currDate.IsoWeekOfYear();
+                                    Total = Convert.ToInt32(reader["Total"].ToString());
+
+                                    currCum += Convert.ToInt32(reader["Wykonane"].ToString());
+
+                                    var item = new
+                                    {
+                                        Date = currDate,
+                                        Weekday = currDate.ToString("dddd", new CultureInfo("pl-PL")),
+                                        Week = currWeek,
+                                        Done = Convert.ToInt32(reader["Wykonane"].ToString()),
+                                        Cumulative = currCum,
+                                        Planned = Convert.ToInt32(reader["Wszystkie"].ToString())
+                                    };
+
+                                    _items.Add(item);
+                                }
+                                if (_items.Any())
+                                {
+                                    foreach (var it in _items)
+                                    {
+                                        var newItem = new
+                                        {
+                                            Date = it.Date,
+                                            Weekday = it.Weekday,
+                                            Done = Cumulate == false ? (double)it.Done / Total * 100 : (double)it.Cumulative / Total * 100
+                                        };
+                                        items.Add(newItem);
+                                    }
+                                }
+                                else
+                                {
+                                    return StatusCode(HttpStatusCode.NoContent);
+                                }
+                            }
+                            else
+                            {
+                                return StatusCode(HttpStatusCode.NoContent);
+                            }
+                            
+                        }
+                        return Ok(items);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
                 else
                 {
