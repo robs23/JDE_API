@@ -214,7 +214,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetDoneActionsDaily")]
-        public IHttpActionResult GetDoneActionsDaily(string token, int year, int week, bool Cumulate = false)
+        public IHttpActionResult GetDoneActionsDaily(string token, int year, int week, int actionTypeId, bool cumulate = false)
         {
             if (token != null && token.Length > 0)
             {
@@ -227,16 +227,17 @@ namespace JDE_API.Controllers
                         using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
                         {
                             string sql = $@"SELECT CAST(p.FinishedOn as DATE) as [Data], 
+                                                p.ActionTypeId as [Typ],
 	                                            SUM(CASE WHEN pa.IsChecked=1 THEN 1 ELSE 0 END)  as [Wykonane], COUNT(pa.ActionId) as [Wszystkie],
-                                                (SELECT COUNT(pa1.ActionId) FROM JDE_Processes p1 LEFT JOIN JDE_ProcessActions pa1 ON pa1.ProcessId = p1.ProcessId WHERE YEAR(p1.PlannedFinish)=@Year AND DATEPART(ISO_WEEK, p1.PlannedFinish) =@Week AND p1.PlannedStart IS NOT NULL ) as Total 
+                                                (SELECT COUNT(pa1.ActionId) FROM JDE_Processes p1 LEFT JOIN JDE_ProcessActions pa1 ON pa1.ProcessId = p1.ProcessId WHERE YEAR(p1.PlannedFinish)=@Year AND DATEPART(ISO_WEEK, p1.PlannedFinish) =@Week AND p1.PlannedStart IS NOT NULL AND p1.ActionTypeId=@ActionTypeId) as Total
                                             FROM JDE_Processes p
-	                                            LEFT JOIN JDE_ProcessActions pa ON pa.ProcessId = p.ProcessId
-                                            WHERE YEAR(p.PlannedFinish)=@Year AND DATEPART(ISO_WEEK, p.PlannedFinish) =@Week AND p.PlannedStart IS NOT NULL AND CAST(p.FinishedOn as DATE) IS NOT NULL
-                                            GROUP BY DATEPART(ISO_WEEK, p.PlannedFinish), YEAR(p.PlannedFinish), DATEPART(dw, p.FinishedOn ), CAST(p.FinishedOn as DATE) 
-                                            ORDER BY [Data]";
-                            SqlParameter[] parameters = new SqlParameter[2];
+	                                            LEFT JOIN JDE_ProcessActions pa ON pa.ProcessId = p.ProcessId 
+                                            WHERE YEAR(p.PlannedFinish)=@Year AND DATEPART(ISO_WEEK, p.PlannedFinish) =@Week AND p.PlannedStart IS NOT NULL AND CAST(p.FinishedOn as DATE) IS NOT NULL AND p.ActionTypeId=@ActionTypeId
+                                            GROUP BY DATEPART(ISO_WEEK, p.PlannedFinish), YEAR(p.PlannedFinish), DATEPART(dw, p.FinishedOn ), CAST(p.FinishedOn as DATE), p.ActionTypeId ";
+                            SqlParameter[] parameters = new SqlParameter[3];
                             parameters[0] = new SqlParameter("@Year", year);
                             parameters[1] = new SqlParameter("@Week", week);
+                            parameters[2] = new SqlParameter("@ActionTypeId", actionTypeId);
 
                             SqlCommand command = new SqlCommand(sql, Con);
                             command.Parameters.AddRange(parameters);
@@ -266,6 +267,7 @@ namespace JDE_API.Controllers
                                         Date = currDate,
                                         Weekday = currDate.ToString("dddd", new CultureInfo("pl-PL")),
                                         Week = currWeek,
+                                        ActionTypeId = Convert.ToInt32(reader["Typ"].ToString()),
                                         Done = Convert.ToInt32(reader["Wykonane"].ToString()),
                                         Cumulative = currCum,
                                         Planned = Convert.ToInt32(reader["Wszystkie"].ToString())
@@ -280,8 +282,9 @@ namespace JDE_API.Controllers
                                         var newItem = new
                                         {
                                             Date = it.Date,
+                                            Type = it.ActionTypeId,
                                             Weekday = it.Weekday,
-                                            Done = Cumulate == false ? (double)it.Done / Total * 100 : (double)it.Cumulative / Total * 100
+                                            Done = cumulate == false ? (double)it.Done / Total * 100 : (double)it.Cumulative / Total * 100
                                         };
                                         items.Add(newItem);
                                     }
