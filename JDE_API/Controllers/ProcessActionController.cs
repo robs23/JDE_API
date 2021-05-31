@@ -319,6 +319,172 @@ namespace JDE_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetDoneActionsWeekly")]
+        public IHttpActionResult GetDoneActionsWeekly(string token, int actionTypeId, int total = 10)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    try
+                    {
+                        List<dynamic> items = new List<dynamic>();
+                        using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
+                        {
+                            string sql = $@"SELECT TOP(@Total) DATEPART(ISO_WEEK, p.PlannedFinish) as [Tydz], YEAR(p.PlannedStart) as [Rok],
+                                                p.ActionTypeId as [Typ],
+	                                            SUM(CASE WHEN pa.IsChecked=1 THEN 1 ELSE 0 END)  as [Wykonane], COUNT(pa.ActionId) as [Wszystkie],
+	                                            (CAST(SUM(CASE WHEN pa.IsChecked=1 THEN 1 ELSE 0 END) as float) /CAST(COUNT(pa.ActionId) as float))*100 as [Procent]
+                                            FROM JDE_Processes p
+	                                            LEFT JOIN JDE_ProcessActions pa ON pa.ProcessId = p.ProcessId
+                                            WHERE p.PlannedStart IS NOT NULL AND p.ActionTypeId=@ActionTypeId 
+                                            GROUP BY DATEPART(ISO_WEEK, p.PlannedFinish), YEAR(p.PlannedStart), p.ActionTypeId 
+                                            ORDER BY Rok DESC, Tydz DESC";
+                            SqlParameter[] parameters = new SqlParameter[2];
+                            parameters[0] = new SqlParameter("@Total", total);
+                            parameters[1] = new SqlParameter("@ActionTypeId", actionTypeId);
+
+                            SqlCommand command = new SqlCommand(sql, Con);
+                            command.Parameters.AddRange(parameters);
+
+                            if (Con.State == ConnectionState.Closed || Con.State == ConnectionState.Broken)
+                            {
+                                Con.Open();
+                            }
+
+                            SqlDataReader reader = command.ExecuteReader();
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+
+                                    var item = new
+                                    {
+                                        Week = Convert.ToInt32(reader["Tydz"].ToString()),
+                                        Year = Convert.ToInt32(reader["Rok"].ToString()),
+                                        Type = Convert.ToInt32(reader["Typ"].ToString()),
+                                        Executed = Convert.ToInt32(reader["Wykonane"].ToString()),
+                                        Planned = Convert.ToInt32(reader["Wszystkie"].ToString()),
+                                        Done = Convert.ToDouble(reader["Procent"].ToString())
+                                    };
+
+                                    items.Add(item);
+                                }
+                                if (!items.Any())
+                                {
+                                    return StatusCode(HttpStatusCode.NoContent);
+                                }
+                            }
+                            else
+                            {
+                                return StatusCode(HttpStatusCode.NoContent);
+                            }
+
+                        }
+                        return Ok(items);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetDoneActionsMonthly")]
+        public IHttpActionResult GetDoneActionsMonthly(string token, int actionTypeId, int total = 10)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    try
+                    {
+                        List<dynamic> items = new List<dynamic>();
+                        using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
+                        {
+                            string sql = $@"SELECT TOP(@Total) MONTH(p.PlannedStart) as [Period], YEAR(p.PlannedStart) as [Rok],
+	                                            p.ActionTypeId as [Typ],
+	                                            SUM(CASE WHEN pa.IsChecked=1 THEN 1 ELSE 0 END)  as [Wykonane], COUNT(pa.ActionId) as [Wszystkie],
+	                                            (CAST(SUM(CASE WHEN pa.IsChecked=1 THEN 1 ELSE 0 END) as float) /CAST(COUNT(pa.ActionId) as float))*100 as [Procent]
+                                            FROM JDE_Processes p
+	                                            LEFT JOIN JDE_ProcessActions pa ON pa.ProcessId = p.ProcessId
+                                            WHERE p.PlannedStart IS NOT NULL AND p.ActionTypeId=@ActionTypeId 
+                                            GROUP BY  MONTH(p.PlannedStart), YEAR(p.PlannedStart), p.ActionTypeId
+                                            ORDER BY Rok DESC, Period DESC";
+                            SqlParameter[] parameters = new SqlParameter[2];
+                            parameters[0] = new SqlParameter("@Total", total);
+                            parameters[1] = new SqlParameter("@ActionTypeId", actionTypeId);
+
+                            SqlCommand command = new SqlCommand(sql, Con);
+                            command.Parameters.AddRange(parameters);
+
+                            if (Con.State == ConnectionState.Closed || Con.State == ConnectionState.Broken)
+                            {
+                                Con.Open();
+                            }
+
+                            SqlDataReader reader = command.ExecuteReader();
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+
+                                    var item = new
+                                    {
+                                        Month = Convert.ToInt32(reader["Period"].ToString()),
+                                        Year = Convert.ToInt32(reader["Rok"].ToString()),
+                                        Type = Convert.ToInt32(reader["Typ"].ToString()),
+                                        Executed = Convert.ToInt32(reader["Wykonane"].ToString()),
+                                        Planned = Convert.ToInt32(reader["Wszystkie"].ToString()),
+                                        Done = Convert.ToDouble(reader["Procent"].ToString())
+                                    };
+
+                                    items.Add(item);
+                                }
+                                if (!items.Any())
+                                {
+                                    return StatusCode(HttpStatusCode.NoContent);
+                                }
+                            }
+                            else
+                            {
+                                return StatusCode(HttpStatusCode.NoContent);
+                            }
+
+                        }
+                        return Ok(items);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         [HttpPut]
         [Route("EditProcessAction")]
         [ResponseType(typeof(void))]
