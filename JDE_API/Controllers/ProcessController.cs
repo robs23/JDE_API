@@ -1195,11 +1195,11 @@ namespace JDE_API.Controllers
                     {
                         using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
                         {
-                            string sql = $@"SELECT at.Name, at.ShowOnDashboard, at.ActionsApplicable, COUNT(p.ProcessId) AS [Count], SUM(DATEDIFF(mi, h.StartedOn, h.FinishedOn)) AS [HandlingSum], SUM(DATEDIFF(mi, p.StartedOn, p.FinishedOn)) AS [ProcessSum] 
+                            string sql = $@"SELECT at.ActionTypeId, at.Name, at.ShowOnDashboard, at.ActionsApplicable, COUNT(p.ProcessId) AS [Count], SUM(DATEDIFF(mi, h.StartedOn, h.FinishedOn)) AS [HandlingSum], SUM(DATEDIFF(mi, p.StartedOn, p.FinishedOn)) AS [ProcessSum] 
                                 FROM JDE_Handlings h LEFT JOIN JDE_Processes p ON h.ProcessId = p.ProcessId 
 	                                LEFT JOIN JDE_ActionTypes at ON p.ActionTypeId = at.ActionTypeId
                                 WHERE h.StartedOn >= @dateFrom AND h.FinishedOn < @dateTo
-                                GROUP BY at.Name, at.ShowOnDashboard, at.ActionsApplicable";
+                                GROUP BY at.ActionTypeId, at.Name, at.ShowOnDashboard, at.ActionsApplicable";
                             SqlParameter[] parameters = new SqlParameter[2];
                             parameters[0] = new SqlParameter("@dateFrom", dateFrom);
                             parameters[1] = new SqlParameter("@dateTo", dateTo);
@@ -1231,6 +1231,7 @@ namespace JDE_API.Controllers
 
                                 var item = new
                                 {
+                                    ActionTypeId = reader["ActionTypeId"],
                                     Name = reader["Name"],
                                     ShowOnDashboard = showOnDashboard,
                                     ActionsApplicable = actionsApplicable,
@@ -1247,6 +1248,7 @@ namespace JDE_API.Controllers
                                 {
                                     var newItem = new
                                     {
+                                        ActionTypeId = item.ActionTypeId,
                                         Name = item.Name,
                                         ShowOnDashboard = item.ShowOnDashboard,
                                         ActionsApplicable = item.ActionsApplicable,

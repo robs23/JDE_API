@@ -442,11 +442,15 @@ namespace JDE_API.Controllers
                             {
                                 while (reader.Read())
                                 {
+                                    int year = Convert.ToInt32(reader["Rok"].ToString());
+                                    int month = Convert.ToInt32(reader["Period"].ToString());
+                                    DateTime firstDate = new DateTime(year, month, 1);
 
                                     var item = new
                                     {
-                                        Month = Convert.ToInt32(reader["Period"].ToString()),
-                                        Year = Convert.ToInt32(reader["Rok"].ToString()),
+                                        Month = month,
+                                        Year = year,
+                                        FirstDate = firstDate,
                                         Type = Convert.ToInt32(reader["Typ"].ToString()),
                                         Executed = Convert.ToInt32(reader["Wykonane"].ToString()),
                                         Planned = Convert.ToInt32(reader["Wszystkie"].ToString()),
