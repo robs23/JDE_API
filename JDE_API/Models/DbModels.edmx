@@ -244,6 +244,21 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="TenantId" Type="int" />
         </EntityType>
+        <EntityType Name="JDE_PartPrices">
+          <Key>
+            <PropertyRef Name="PartPriceId" />
+          </Key>
+          <Property Name="PartPriceId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="Price" Type="smallmoney" />
+          <Property Name="Currency" Type="nvarchar" MaxLength="20" />
+          <Property Name="ValidFrom" Type="datetime" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Parts">
           <Key>
             <PropertyRef Name="PartId" />
@@ -406,6 +421,19 @@
           <Property Name="TenantId" Type="int" />
           <Property Name="StorageBinId" Type="int" />
         </EntityType>
+        <EntityType Name="JDE_StockTakings">
+          <Key>
+            <PropertyRef Name="StockTakingId" />
+          </Key>
+          <Property Name="StockTakingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PartId" Type="int" />
+          <Property Name="Amount" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Tenants">
           <Key>
             <PropertyRef Name="TenantId" />
@@ -449,6 +477,7 @@
           <EntitySet Name="JDE_Logs" EntityType="Self.JDE_Logs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_OrderItems" EntityType="Self.JDE_OrderItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Orders" EntityType="Self.JDE_Orders" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_PartPrices" EntityType="Self.JDE_PartPrices" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Parts" EntityType="Self.JDE_Parts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_PartUsages" EntityType="Self.JDE_PartUsages" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_PlaceActions" EntityType="Self.JDE_PlaceActions" Schema="dbo" store:Type="Tables" />
@@ -458,6 +487,7 @@
           <EntitySet Name="JDE_Processes" EntityType="Self.JDE_Processes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Stocks" EntityType="Self.JDE_Stocks" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_StockTakings" EntityType="Self.JDE_StockTakings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
@@ -572,6 +602,8 @@
           <EntitySet Name="JDE_PartUsages" EntityType="DbModels.JDE_PartUsages" />
           <EntitySet Name="JDE_Components" EntityType="DbModels.JDE_Components" />
           <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
+          <EntitySet Name="JDE_PartPrices" EntityType="DbModels.JDE_PartPrices" />
+          <EntitySet Name="JDE_StockTakings" EntityType="DbModels.JDE_StockTakings" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -920,6 +952,34 @@
           <Property Name="IsUploaded" Type="Boolean" />
           <Property Name="Type" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
           <Property Name="Size" Type="Int64" />
+        </EntityType>
+        <EntityType Name="JDE_PartPrices">
+          <Key>
+            <PropertyRef Name="PartPriceId" />
+          </Key>
+          <Property Name="PartPriceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="Price" Type="Decimal" Precision="10" Scale="4" />
+          <Property Name="ValidFrom" Type="DateTime" Precision="3" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="Currency" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="JDE_StockTakings">
+          <Key>
+            <PropertyRef Name="StockTakingId" />
+          </Key>
+          <Property Name="StockTakingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PartId" Type="Int32" />
+          <Property Name="Amount" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1378,6 +1438,36 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="FileId" ColumnName="FileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_PartPrices">
+            <EntityTypeMapping TypeName="DbModels.JDE_PartPrices">
+              <MappingFragment StoreEntitySet="JDE_PartPrices">
+                <ScalarProperty Name="Currency" ColumnName="Currency" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="ValidFrom" ColumnName="ValidFrom" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="PartPriceId" ColumnName="PartPriceId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_StockTakings">
+            <EntityTypeMapping TypeName="DbModels.JDE_StockTakings">
+              <MappingFragment StoreEntitySet="JDE_StockTakings">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PartId" ColumnName="PartId" />
+                <ScalarProperty Name="StockTakingId" ColumnName="StockTakingId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

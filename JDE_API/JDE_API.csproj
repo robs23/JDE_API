@@ -206,6 +206,7 @@
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\OrderItemController.cs" />
     <Compile Include="Controllers\PartController.cs" />
+    <Compile Include="Controllers\PartPricesController.cs" />
     <Compile Include="Controllers\PartUsageController.cs" />
     <Compile Include="Controllers\PlaceActionController.cs" />
     <Compile Include="Controllers\PlacesController.cs" />
@@ -215,6 +216,7 @@
     <Compile Include="Controllers\SetController.cs" />
     <Compile Include="Controllers\SettingController.cs" />
     <Compile Include="Controllers\StockController.cs" />
+    <Compile Include="Controllers\StockTakingController.cs" />
     <Compile Include="Controllers\TenantController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -288,6 +290,9 @@
     <Compile Include="Models\JDE_Orders.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\JDE_PartPrices.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\JDE_Parts.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
@@ -313,6 +318,9 @@
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\JDE_Stocks.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JDE_StockTakings.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\JDE_Tenants.cs">

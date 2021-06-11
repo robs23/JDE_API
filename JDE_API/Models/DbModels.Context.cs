@@ -52,5 +52,7 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_PartUsages> JDE_PartUsages { get; set; }
         public virtual DbSet<JDE_Components> JDE_Components { get; set; }
         public virtual DbSet<JDE_Files> JDE_Files { get; set; }
+        public virtual DbSet<JDE_PartPrices> JDE_PartPrices { get; set; }
+        public virtual DbSet<JDE_StockTakings> JDE_StockTakings { get; set; }
     }
 }
