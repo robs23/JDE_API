@@ -32,12 +32,15 @@ namespace JDE_API.Controllers
                 {
                     var items = (from pu in db.JDE_PartUsages
                                  join p in db.JDE_Parts on pu.PartId equals p.PartId
-                                 join pl in db.JDE_Places on pu.PlaceId equals pl.PlaceId
+                                 join pl in db.JDE_Places on pu.PlaceId equals pl.PlaceId into place
+                                 from pla in place.DefaultIfEmpty()
                                  join u in db.JDE_Users on pu.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on pu.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
                                  join comp in db.JDE_Companies on p.ProducerId equals comp.CompanyId into producer
                                  from pr in producer.DefaultIfEmpty()
+                                 join stbin in db.JDE_StorageBins on pu.StorageBinId equals stbin.StorageBinId into storagebin
+                                 from sbin in storagebin.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pu.TenantId equals t.TenantId
                                  where pu.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby pu.CreatedOn descending
@@ -47,7 +50,7 @@ namespace JDE_API.Controllers
                                      PartId = p.PartId,
                                      Name = p.Name,
                                      PlaceId = pu.PlaceId,
-                                     PlaceName = pl.Name,
+                                     PlaceName = pla.Name,
                                      ProcessId = pu.ProcessId,
                                      ProducerId = pu.ProcessId,
                                      ProducerName = pr.Name,
@@ -56,6 +59,8 @@ namespace JDE_API.Controllers
                                      Comment = pu.Comment,
                                      Image = p.Image,
                                      Amount = pu.Amount,
+                                     StorageBinId = pu.StorageBinId,
+                                     StorageBinNumber = sbin.Number,
                                      CreatedOn = pu.CreatedOn,
                                      CreatedBy = pu.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -132,12 +137,15 @@ namespace JDE_API.Controllers
                 {
                     var items = (from pu in db.JDE_PartUsages
                                  join p in db.JDE_Parts on pu.PartId equals p.PartId
-                                 join pl in db.JDE_Places on pu.PlaceId equals pl.PlaceId
+                                 join pl in db.JDE_Places on pu.PlaceId equals pl.PlaceId into place
+                                 from pla in place.DefaultIfEmpty()
                                  join u in db.JDE_Users on pu.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on pu.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
                                  join comp in db.JDE_Companies on p.ProducerId equals comp.CompanyId into producer
                                  from pr in producer.DefaultIfEmpty()
+                                 join stbin in db.JDE_StorageBins on pu.StorageBinId equals stbin.StorageBinId into storagebin
+                                 from sbin in storagebin.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pu.TenantId equals t.TenantId
                                  where pu.TenantId == tenants.FirstOrDefault().TenantId && pu.PartUsageId == id
                                  orderby pu.CreatedOn descending
@@ -147,7 +155,7 @@ namespace JDE_API.Controllers
                                      PartId = p.PartId,
                                      Name = p.Name,
                                      PlaceId = pu.PlaceId,
-                                     PlaceName = pl.Name,
+                                     PlaceName = pla.Name,
                                      ProcessId = pu.ProcessId,
                                      ProducerId = pu.ProcessId,
                                      ProducerName = pr.Name,
@@ -156,6 +164,8 @@ namespace JDE_API.Controllers
                                      Commnent = pu.Comment,
                                      Image = p.Image,
                                      Amount = pu.Amount,
+                                     StorageBinId = pu.StorageBinId,
+                                     StorageBinNumber = sbin.Number,
                                      CreatedOn = pu.CreatedOn,
                                      CreatedBy = pu.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,

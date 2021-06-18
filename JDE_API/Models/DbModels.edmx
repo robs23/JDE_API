@@ -289,6 +289,7 @@
           </Key>
           <Property Name="PartUsageId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PartId" Type="int" />
+          <Property Name="StorageBinId" Type="int" />
           <Property Name="Amount" Type="float" />
           <Property Name="PlaceId" Type="int" />
           <Property Name="ProcessId" Type="int" />
@@ -428,11 +429,27 @@
           <Property Name="StockTakingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PartId" Type="int" />
           <Property Name="Amount" Type="int" />
+          <Property Name="StorageBinId" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
           <Property Name="TenantId" Type="int" />
+        </EntityType>
+        <EntityType Name="JDE_StorageBins">
+          <Key>
+            <PropertyRef Name="StorageBinId" />
+          </Key>
+          <Property Name="StorageBinId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Number" Type="nvarchar" MaxLength="50" />
+          <Property Name="Name" Type="nvarchar" MaxLength="100" />
+          <Property Name="Token" Type="nvarchar(max)" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Tenants">
           <Key>
@@ -488,6 +505,7 @@
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Stocks" EntityType="Self.JDE_Stocks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_StockTakings" EntityType="Self.JDE_StockTakings" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_StorageBins" EntityType="Self.JDE_StorageBins" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
@@ -604,6 +622,7 @@
           <EntitySet Name="JDE_Files" EntityType="DbModels.JDE_Files" />
           <EntitySet Name="JDE_PartPrices" EntityType="DbModels.JDE_PartPrices" />
           <EntitySet Name="JDE_StockTakings" EntityType="DbModels.JDE_StockTakings" />
+          <EntitySet Name="JDE_StorageBins" EntityType="DbModels.JDE_StorageBins" />
         </EntityContainer>
         <EntityType Name="JDE_Processes">
           <Key>
@@ -919,6 +938,7 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
           <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StorageBinId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Components">
           <Key>
@@ -980,6 +1000,22 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="StorageBinId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="JDE_StorageBins">
+          <Key>
+            <PropertyRef Name="StorageBinId" />
+          </Key>
+          <Property Name="StorageBinId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Number" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsArchived" Type="Boolean" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1392,6 +1428,7 @@
           <EntitySetMapping Name="JDE_PartUsages">
             <EntityTypeMapping TypeName="DbModels.JDE_PartUsages">
               <MappingFragment StoreEntitySet="JDE_PartUsages">
+                <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
                 <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
@@ -1460,6 +1497,7 @@
           <EntitySetMapping Name="JDE_StockTakings">
             <EntityTypeMapping TypeName="DbModels.JDE_StockTakings">
               <MappingFragment StoreEntitySet="JDE_StockTakings">
+                <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
@@ -1468,6 +1506,22 @@
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="PartId" ColumnName="PartId" />
                 <ScalarProperty Name="StockTakingId" ColumnName="StockTakingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_StorageBins">
+            <EntityTypeMapping TypeName="DbModels.JDE_StorageBins">
+              <MappingFragment StoreEntitySet="JDE_StorageBins">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Number" ColumnName="Number" />
+                <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

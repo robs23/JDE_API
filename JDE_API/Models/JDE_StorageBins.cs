@@ -12,16 +12,17 @@ namespace JDE_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class JDE_StockTakings
+    public partial class JDE_StorageBins
     {
-        public int StockTakingId { get; set; }
-        public Nullable<int> PartId { get; set; }
-        public Nullable<int> Amount { get; set; }
+        public int StorageBinId { get; set; }
+        public string Number { get; set; }
+        public string Name { get; set; }
+        public string Token { get; set; }
         public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> LmBy { get; set; }
         public Nullable<int> TenantId { get; set; }
-        public Nullable<int> StorageBinId { get; set; }
+        public Nullable<bool> IsArchived { get; set; }
     }
 }

@@ -15,14 +15,14 @@ using System.Web.Script.Serialization;
 
 namespace JDE_API.Controllers
 {
-    public class StockTakingController : ApiController
+    public class StorageBinController : ApiController
     {
         private Models.DbModel db = new Models.DbModel();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [HttpGet]
-        [Route("GetStockTakings")]
-        public IHttpActionResult GetStockTakings(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
+        [Route("GetStorageBins")]
+        public IHttpActionResult GetStorageBins(string token, int page = 0, int pageSize = 0, int total = 0, string query = null)
         {
 
             if (token != null && token.Length > 0)
@@ -30,29 +30,19 @@ namespace JDE_API.Controllers
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from st in db.JDE_StockTakings
-                                 join p in db.JDE_Parts on st.PartId equals p.PartId
+                    var items = (from st in db.JDE_StorageBins
                                  join u in db.JDE_Users on st.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on st.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
-                                 join comp in db.JDE_Companies on p.ProducerId equals comp.CompanyId into producer
-                                 from pr in producer.DefaultIfEmpty()
-                                 join stbin in db.JDE_StorageBins on st.StorageBinId equals stbin.StorageBinId into storagebin
-                                 from sbin in storagebin.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on st.TenantId equals t.TenantId
                                  where st.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby st.CreatedOn descending
                                  select new
                                  {
-                                     StockTakingId = st.StockTakingId,
-                                     PartId = p.PartId,
-                                     Name = p.Name,
-                                     ProducerId = p.ProducerId,
-                                     ProducerName = pr.Name,
-                                     Image = p.Image,
-                                     Amount = st.Amount,
                                      StorageBinId = st.StorageBinId,
-                                     StorageBinNumber = sbin.Number,
+                                     Number = st.Number,
+                                     Name = st.Name,
+                                     Token = st.Token,
                                      CreatedOn = st.CreatedOn,
                                      CreatedBy = st.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -60,7 +50,8 @@ namespace JDE_API.Controllers
                                      LmBy = st.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = st.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = st.IsArchived
                                  });
                     if (items.Any())
                     {
@@ -118,38 +109,28 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetStockTaking")]
-        [ResponseType(typeof(JDE_StockTakings))]
-        public IHttpActionResult GetStockTaking(string token, int id)
+        [Route("GetStorageBin")]
+        [ResponseType(typeof(JDE_StorageBins))]
+        public IHttpActionResult GetStorageBin(string token, int id)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = (from st in db.JDE_StockTakings
-                                 join p in db.JDE_Parts on st.PartId equals p.PartId
+                    var items = (from st in db.JDE_StorageBins
                                  join u in db.JDE_Users on st.CreatedBy equals u.UserId
                                  join u2 in db.JDE_Users on st.LmBy equals u2.UserId into modifiedBy
                                  from mb in modifiedBy.DefaultIfEmpty()
-                                 join comp in db.JDE_Companies on p.ProducerId equals comp.CompanyId into producer
-                                 from pr in producer.DefaultIfEmpty()
-                                 join stbin in db.JDE_StorageBins on st.StorageBinId equals stbin.StorageBinId into storagebin
-                                 from sbin in storagebin.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on st.TenantId equals t.TenantId
-                                 where st.TenantId == tenants.FirstOrDefault().TenantId && st.StockTakingId == id
+                                 where st.TenantId == tenants.FirstOrDefault().TenantId && st.StorageBinId == id
                                  orderby st.CreatedOn descending
                                  select new
                                  {
-                                     StockTakingId = st.StockTakingId,
-                                     PartId = p.PartId,
-                                     Name = p.Name,
-                                     ProducerId = p.ProducerId,
-                                     ProducerName = pr.Name,
-                                     Image = p.Image,
-                                     Amount = st.Amount,
                                      StorageBinId = st.StorageBinId,
-                                     StorageBinNumber = sbin.Number,
+                                     Number = st.Number,
+                                     Name = st.Name,
+                                     Token = st.Token,
                                      CreatedOn = st.CreatedOn,
                                      CreatedBy = st.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -157,7 +138,8 @@ namespace JDE_API.Controllers
                                      LmBy = st.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = st.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = st.IsArchived
                                  });
 
                     if (items.Any())
@@ -186,7 +168,7 @@ namespace JDE_API.Controllers
         [Route("EditStockTaking")]
         [ResponseType(typeof(void))]
 
-        public IHttpActionResult EditStockTaking(string token, int id, int UserId, JDE_StockTakings item)
+        public IHttpActionResult EditStorageBin(string token, int id, int UserId, JDE_StorageBins item)
         {
             string methodName = System.Reflection.MethodInfo.GetCurrentMethod().Name;
             Logger.Info("Start {methodName}. Id={id}, UserId={UserId}", methodName, id, UserId);
@@ -198,15 +180,15 @@ namespace JDE_API.Controllers
                     string newItem = "";
                     try
                     {
-                        var items = db.JDE_StockTakings.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.StockTakingId == id);
+                        var items = db.JDE_StorageBins.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.StorageBinId == id);
                         if (items.Any())
                         {
-                            Logger.Info("{methodName}: Znalazłem odpowiednie StockTaking. Przystępuję do edycji Id={id}, UserId={UserId}", methodName, id, UserId);
+                            Logger.Info("{methodName}: Znalazłem odpowiedni StorageBin. Przystępuję do edycji Id={id}, UserId={UserId}", methodName, id, UserId);
                             item.CreatedOn = items.FirstOrDefault().CreatedOn; //switch back to original createdOn date
                             item.LmBy = UserId;
                             item.LmOn = DateTime.Now;
                             newItem = new JavaScriptSerializer().Serialize(item);
-                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja inwentaryzacji części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                            JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Edycja regału", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
                             db.JDE_Logs.Add(Log);
                             db.Entry(item).State = EntityState.Modified;
                             try
@@ -216,7 +198,7 @@ namespace JDE_API.Controllers
                             }
                             catch (DbUpdateConcurrencyException)
                             {
-                                if (!JDE_StockTakingExists(id))
+                                if (!JDE_StorageBinExists(id))
                                 {
                                     return NotFound();
                                 }
@@ -239,12 +221,12 @@ namespace JDE_API.Controllers
         }
 
         [HttpPost]
-        [Route("CreateStockTaking")]
-        [ResponseType(typeof(JDE_StockTakings))]
-        public IHttpActionResult CreateStockTaking(string token, JDE_StockTakings item, int UserId)
+        [Route("CreateStorageBin")]
+        [ResponseType(typeof(JDE_StorageBins))]
+        public IHttpActionResult CreateStorageBin(string token, JDE_StorageBins item, int UserId)
         {
             string methodName = System.Reflection.MethodInfo.GetCurrentMethod().Name;
-            Logger.Info("Start {methodName}. PartId={PartId}, UserId={UserId}", methodName, item.PartId, UserId);
+            Logger.Info("Start {methodName}. Name={Name}, UserId={UserId}", methodName, item.Name, UserId);
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
@@ -254,17 +236,17 @@ namespace JDE_API.Controllers
                     {
                         item.TenantId = tenants.FirstOrDefault().TenantId;
                         item.CreatedOn = DateTime.Now;
-                        db.JDE_StockTakings.Add(item);
+                        db.JDE_StorageBins.Add(item);
                         db.SaveChanges();
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Inwentaryzacja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie regału", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
-                        Logger.Info("{methodName}: Zapis zakończony powodzeniem. StockTakingId={StockTakingId}, UserId={UserId}", methodName, item.StockTakingId, UserId);
+                        Logger.Info("{methodName}: Zapis zakończony powodzeniem. ID={ID}, UserId={UserId}", methodName, item.StorageBinId, UserId);
                         return Ok(item);
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Błąd w {methodName}. StockTakingId={StockTakingId}, UserId={UserId}. Szczegóły: {Message}", methodName, item.StockTakingId, UserId, ex.ToString());
+                        Logger.Error("Błąd w {methodName}. ID={ID}, UserId={UserId}. Szczegóły: {Message}", methodName, item.StorageBinId, UserId, ex.ToString());
                         return StatusCode(HttpStatusCode.InternalServerError);
                     }
                 }
@@ -280,20 +262,20 @@ namespace JDE_API.Controllers
         }
 
         [HttpDelete]
-        [Route("DeleteStockTaking")]
-        [ResponseType(typeof(JDE_StockTakings))]
-        public IHttpActionResult DeleteStockTaking(string token, int id, int UserId)
+        [Route("DeleteStorageBin")]
+        [ResponseType(typeof(JDE_StorageBins))]
+        public IHttpActionResult DeleteStorageBin(string token, int id, int UserId)
         {
             if (token != null && token.Length > 0)
             {
                 var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
                 if (tenants.Any())
                 {
-                    var items = db.JDE_StockTakings.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.StockTakingId == id);
+                    var items = db.JDE_StorageBins.Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.StorageBinId == id);
                     if (items.Any())
                     {
-                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie inwentaryzacji", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
-                        db.JDE_StockTakings.Remove(items.FirstOrDefault());
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Usunięcie regału", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()) };
+                        db.JDE_StorageBins.Remove(items.FirstOrDefault());
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
 
@@ -324,9 +306,9 @@ namespace JDE_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool JDE_StockTakingExists(int id)
+        private bool JDE_StorageBinExists(int id)
         {
-            return db.JDE_StockTakings.Count(e => e.StockTakingId == id) > 0;
+            return db.JDE_StorageBins.Count(e => e.StorageBinId == id) > 0;
         }
     }
 }

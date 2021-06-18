@@ -217,6 +217,7 @@
     <Compile Include="Controllers\SettingController.cs" />
     <Compile Include="Controllers\StockController.cs" />
     <Compile Include="Controllers\StockTakingController.cs" />
+    <Compile Include="Controllers\StorageBinController.cs" />
     <Compile Include="Controllers\TenantController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -323,6 +324,9 @@
     <Compile Include="Models\JDE_StockTakings.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\JDE_StorageBins.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\JDE_Tenants.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
@@ -421,6 +425,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\StorageBin\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
