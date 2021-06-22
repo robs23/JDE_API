@@ -56,7 +56,13 @@ namespace JDE_API.Static
                     {
                         if (!db.JDE_Parts.Where(x => x.Token == token).Any())
                         {
-                            duplicate = false;
+                            if(!db.JDE_Files.Where(x=> x.Token == token).Any())
+                            {
+                                if(!db.JDE_StorageBins.Where(x=>x.Token == token).Any())
+                                {
+                                    duplicate = false;
+                                }
+                            }
                         }
                     }
                 }

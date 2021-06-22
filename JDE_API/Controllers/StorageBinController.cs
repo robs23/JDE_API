@@ -165,7 +165,7 @@ namespace JDE_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditStockTaking")]
+        [Route("EditStorageBin")]
         [ResponseType(typeof(void))]
 
         public IHttpActionResult EditStorageBin(string token, int id, int UserId, JDE_StorageBins item)
@@ -220,6 +220,52 @@ namespace JDE_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [HttpGet]
+        [Route("ArchiveStorageBin")]
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage ArchiveStorageBin(string token, int id, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_StorageBins.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.StorageBinId == id);
+                    if (items.Any())
+                    {
+                        JDE_StorageBins orgItem = items.FirstOrDefault();
+
+                        orgItem.IsArchived = true;
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Archiwizacja regału", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = "" };
+                        db.JDE_Logs.Add(Log);
+
+                        try
+                        {
+                            db.Entry(orgItem).State = EntityState.Modified;
+                            db.SaveChanges();
+
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!JDE_StorageBinExists(id))
+                            {
+                                return Request.CreateResponse(HttpStatusCode.NotFound);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                        }
+                    }
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
         [HttpPost]
         [Route("CreateStorageBin")]
         [ResponseType(typeof(JDE_StorageBins))]
@@ -236,6 +282,7 @@ namespace JDE_API.Controllers
                     {
                         item.TenantId = tenants.FirstOrDefault().TenantId;
                         item.CreatedOn = DateTime.Now;
+                        item.Token = Static.Utilities.GetToken();
                         db.JDE_StorageBins.Add(item);
                         db.SaveChanges();
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie regału", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
