@@ -53,6 +53,7 @@ namespace JDE_API.Controllers
                                      Amount = st.Amount,
                                      StorageBinId = st.StorageBinId,
                                      StorageBinNumber = sbin.Number,
+                                     TakingDate = st.TakingDate,
                                      CreatedOn = st.CreatedOn,
                                      CreatedBy = st.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -150,6 +151,7 @@ namespace JDE_API.Controllers
                                      Amount = st.Amount,
                                      StorageBinId = st.StorageBinId,
                                      StorageBinNumber = sbin.Number,
+                                     TakingDate = st.TakingDate,
                                      CreatedOn = st.CreatedOn,
                                      CreatedBy = st.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -254,6 +256,10 @@ namespace JDE_API.Controllers
                     {
                         item.TenantId = tenants.FirstOrDefault().TenantId;
                         item.CreatedOn = DateTime.Now;
+                        if(item.TakingDate == null)
+                        {
+                            item.TakingDate = DateTime.Now;
+                        }
                         db.JDE_StockTakings.Add(item);
                         db.SaveChanges();
                         JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Inwentaryzacja części", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };

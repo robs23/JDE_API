@@ -430,6 +430,7 @@
           <Property Name="PartId" Type="int" />
           <Property Name="Amount" Type="int" />
           <Property Name="StorageBinId" Type="int" />
+          <Property Name="TakingDate" Type="datetime" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
@@ -1001,6 +1002,7 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
           <Property Name="StorageBinId" Type="Int32" />
+          <Property Name="TakingDate" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="JDE_StorageBins">
           <Key>
@@ -1497,6 +1499,7 @@
           <EntitySetMapping Name="JDE_StockTakings">
             <EntityTypeMapping TypeName="DbModels.JDE_StockTakings">
               <MappingFragment StoreEntitySet="JDE_StockTakings">
+                <ScalarProperty Name="TakingDate" ColumnName="TakingDate" />
                 <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />

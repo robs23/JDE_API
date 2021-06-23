@@ -23,5 +23,6 @@ namespace JDE_API.Models
         public Nullable<int> LmBy { get; set; }
         public Nullable<int> TenantId { get; set; }
         public Nullable<int> StorageBinId { get; set; }
+        public Nullable<System.DateTime> TakingDate { get; set; }
     }
 }
