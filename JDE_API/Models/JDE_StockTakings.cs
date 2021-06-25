@@ -16,13 +16,13 @@ namespace JDE_API.Models
     {
         public int StockTakingId { get; set; }
         public Nullable<int> PartId { get; set; }
+        public Nullable<int> StorageBinId { get; set; }
         public Nullable<int> Amount { get; set; }
+        public Nullable<System.DateTime> TakingDate { get; set; }
         public Nullable<System.DateTime> CreatedOn { get; set; }
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> LmBy { get; set; }
         public Nullable<int> TenantId { get; set; }
-        public Nullable<int> StorageBinId { get; set; }
-        public Nullable<System.DateTime> TakingDate { get; set; }
     }
 }

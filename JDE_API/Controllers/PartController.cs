@@ -95,7 +95,9 @@ namespace JDE_API.Controllers
                                      TenantId = p.TenantId,
                                      TenantName = t.TenantName,
                                      IsArchived = p.IsArchived,
-                                     HasAttachments = db.JDE_FileAssigns.Any(f=>f.PartId==p.PartId)
+                                     HasAttachments = db.JDE_FileAssigns.Any(f=>f.PartId==p.PartId),
+                                     Price = db.JDE_PartPrices.Where(i=>i.PartId == p.PartId && i.ValidFrom <= DateTime.Now).OrderByDescending(i => i.ValidFrom).FirstOrDefault().Price,
+                                     Currency = db.JDE_PartPrices.Where(i => i.PartId == p.PartId && i.ValidFrom <= DateTime.Now).OrderByDescending(i => i.ValidFrom).FirstOrDefault().Currency
                                  });
                     if (items.Any())
                     {
@@ -197,7 +199,11 @@ namespace JDE_API.Controllers
                                      LmBy = p.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = p.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = p.IsArchived,
+                                     HasAttachments = db.JDE_FileAssigns.Any(f => f.PartId == p.PartId),
+                                     Price = db.JDE_PartPrices.Where(i => i.PartId == p.PartId && i.ValidFrom <= DateTime.Now).OrderByDescending(i => i.ValidFrom).FirstOrDefault().Price,
+                                     Currency = db.JDE_PartPrices.Where(i => i.PartId == p.PartId && i.ValidFrom <= DateTime.Now).OrderByDescending(i => i.ValidFrom).FirstOrDefault().Currency
                                  });
 
                     if (items.Any())
@@ -267,7 +273,11 @@ namespace JDE_API.Controllers
                                      LmBy = p.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = p.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = p.IsArchived,
+                                     HasAttachments = db.JDE_FileAssigns.Any(f => f.PartId == p.PartId),
+                                     Price = db.JDE_PartPrices.Where(i => i.PartId == p.PartId && i.ValidFrom <= DateTime.Now).OrderByDescending(i => i.ValidFrom).FirstOrDefault().Price,
+                                     Currency = db.JDE_PartPrices.Where(i => i.PartId == p.PartId && i.ValidFrom <= DateTime.Now).OrderByDescending(i => i.ValidFrom).FirstOrDefault().Currency
                                  });
 
                     if (items.Any())

@@ -39,7 +39,7 @@ namespace JDE_API.Controllers
                                  from pr in producer.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pp.TenantId equals t.TenantId
                                  where pp.TenantId == tenants.FirstOrDefault().TenantId
-                                 orderby pp.CreatedOn descending
+                                 orderby pp.ValidFrom descending
                                  select new
                                  {
                                      PartPriceId = pp.PartPriceId,
@@ -49,6 +49,7 @@ namespace JDE_API.Controllers
                                      ProducerName = pr.Name,
                                      Image = p.Image,
                                      Price = pp.Price,
+                                     ValidFrom = pp.ValidFrom,
                                      Currency = pp.Currency,
                                      CreatedOn = pp.CreatedOn,
                                      CreatedBy = pp.CreatedBy,
@@ -144,6 +145,7 @@ namespace JDE_API.Controllers
                                      Image = p.Image,
                                      Price = pp.Price,
                                      Currency = pp.Currency,
+                                     ValidFrom = pp.ValidFrom,
                                      CreatedOn = pp.CreatedOn,
                                      CreatedBy = pp.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
