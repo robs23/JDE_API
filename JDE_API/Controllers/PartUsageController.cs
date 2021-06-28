@@ -68,7 +68,9 @@ namespace JDE_API.Controllers
                                      LmBy = pu.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = pu.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     Cost = db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault() == null ? null : (double)db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault().Price * pu.Amount,
+                                     CostCurrency = db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault() == null ? null : db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault().Currency
                                  });
                     if (items.Any())
                     {
@@ -173,7 +175,9 @@ namespace JDE_API.Controllers
                                      LmBy = pu.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = pu.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     Cost = db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn &&  pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault() == null ? null : (double)db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault().Price * pu.Amount,
+                                     CostCurrency = db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault() == null ? null : db.JDE_PartPrices.Where(pp => pp.ValidFrom <= pu.CreatedOn && pp.PartId == pu.PartId).OrderByDescending(pp => pp.ValidFrom).FirstOrDefault().Currency
                                  });
 
                     if (items.Any())
