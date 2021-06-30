@@ -223,6 +223,9 @@
           <Property Name="OrderId" Type="int" />
           <Property Name="PartId" Type="int" />
           <Property Name="Amount" Type="float" />
+          <Property Name="Unit" Type="nvarchar" MaxLength="20" />
+          <Property Name="Price" Type="smallmoney" />
+          <Property Name="Currency" Type="nvarchar" MaxLength="20" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
@@ -727,6 +730,9 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="Unit" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Price" Type="Decimal" Precision="10" Scale="4" />
+          <Property Name="Currency" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="JDE_Orders">
           <Key>
@@ -1207,6 +1213,9 @@
           <EntitySetMapping Name="JDE_OrderItems">
             <EntityTypeMapping TypeName="DbModels.JDE_OrderItems">
               <MappingFragment StoreEntitySet="JDE_OrderItems">
+                <ScalarProperty Name="Currency" ColumnName="Currency" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />

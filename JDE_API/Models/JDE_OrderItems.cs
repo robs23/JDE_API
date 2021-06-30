@@ -23,5 +23,8 @@ namespace JDE_API.Models
         public Nullable<int> LmBy { get; set; }
         public Nullable<System.DateTime> LmOn { get; set; }
         public Nullable<int> TenantId { get; set; }
+        public string Unit { get; set; }
+        public Nullable<decimal> Price { get; set; }
+        public string Currency { get; set; }
     }
 }
