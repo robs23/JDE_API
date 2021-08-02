@@ -189,6 +189,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\AbandonReasonController.cs" />
     <Compile Include="Controllers\ActionController.cs" />
     <Compile Include="Controllers\ActionTypeController.cs" />
     <Compile Include="Controllers\AreaController.cs" />
@@ -243,6 +244,9 @@
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\Handling.cs" />
     <Compile Include="Models\ImageInfo.cs" />
+    <Compile Include="Models\JDE_AbandonReasons.cs">
+      <DependentUpon>DbModels.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\JDE_Actions.cs">
       <DependentUpon>DbModels.tt</DependentUpon>
     </Compile>
@@ -425,6 +429,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\AbandonReason\" />
     <Folder Include="Views\StorageBin\" />
   </ItemGroup>
   <ItemGroup>

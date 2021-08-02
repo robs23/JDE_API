@@ -45,6 +45,8 @@ namespace JDE_API.Controllers
                                  join u2 in db.JDE_Users on pa.LmBy equals u2.UserId into LmByNames
                                  from lms in LmByNames.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pa.TenantId equals t.TenantId
+                                 join ar in db.JDE_AbandonReasons on pa.AbandonReasonId equals ar.AbandonReasonId into ars
+                                 from abandon in ars.DefaultIfEmpty()
                                  where pa.TenantId == tenants.FirstOrDefault().TenantId
                                  orderby pa.CreatedOn descending
                                  select new
@@ -69,6 +71,8 @@ namespace JDE_API.Controllers
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
                                      TenantName = t.TenantName,
+                                     AbandonReasonId = pa.AbandonReasonId,
+                                     AbandonReasonName = abandon.Name,
                                      AssignedUsers = (from pras in db.JDE_ProcessAssigns
                                                         join uu in db.JDE_Users on pras.UserId equals uu.UserId
                                                         where pras.ProcessId == pa.ProcessId
@@ -166,6 +170,8 @@ namespace JDE_API.Controllers
                                  join u2 in db.JDE_Users on pa.LmBy equals u2.UserId into LmByNames
                                  from lms in LmByNames.DefaultIfEmpty()
                                  join t in db.JDE_Tenants on pa.TenantId equals t.TenantId
+                                 join ar in db.JDE_AbandonReasons on pa.AbandonReasonId equals ar.AbandonReasonId into ars
+                                 from abandon in ars.DefaultIfEmpty()
                                  where pa.TenantId == tenants.FirstOrDefault().TenantId && pa.ProcessActionId==id
                                  orderby pa.CreatedOn descending
                                  select new
@@ -183,6 +189,8 @@ namespace JDE_API.Controllers
                                      LmByName = lms.Name + " " + lms.Surname,
                                      TenantId = pa.TenantId,
                                      TenantName = t.TenantName,
+                                     AbandonReasonId = pa.AbandonReasonId,
+                                     AbandonReasonName = abandon.Name,
                                      LastChecks = (from pact in db.JDE_ProcessActions
                                                    join h in db.JDE_Handlings on pact.HandlingId equals h.HandlingId into Handlings
                                                    from hs in Handlings.DefaultIfEmpty()

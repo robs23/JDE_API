@@ -5,6 +5,19 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="DbModels.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="JDE_AbandonReasons">
+          <Key>
+            <PropertyRef Name="AbandonReasonId" />
+          </Key>
+          <Property Name="AbandonReasonId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
+        </EntityType>
         <EntityType Name="JDE_Actions">
           <Key>
             <PropertyRef Name="ActionId" />
@@ -351,6 +364,7 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="AbandonReasonId" Type="int" />
         </EntityType>
         <EntityType Name="JDE_ProcessAssigns">
           <Key>
@@ -482,6 +496,7 @@
           <Property Name="IsOperator" Type="bit" />
         </EntityType>
         <EntityContainer Name="DbModelsStoreContainer">
+          <EntitySet Name="JDE_AbandonReasons" EntityType="Self.JDE_AbandonReasons" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Actions" EntityType="Self.JDE_Actions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_ActionTypes" EntityType="Self.JDE_ActionTypes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Areas" EntityType="Self.JDE_Areas" Schema="dbo" store:Type="Tables" />
@@ -603,7 +618,6 @@
           <EntitySet Name="JDE_Sets" EntityType="Self.JDE_Sets" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" />
           <EntitySet Name="JDE_Errors" EntityType="Self.JDE_Errors" />
-          <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
           <EntitySet Name="JDE_Boms" EntityType="DbModels.JDE_Boms" />
           <EntitySet Name="JDE_Deliveries" EntityType="DbModels.JDE_Deliveries" />
           <EntitySet Name="JDE_DeliveryItems" EntityType="DbModels.JDE_DeliveryItems" />
@@ -627,41 +641,9 @@
           <EntitySet Name="JDE_PartPrices" EntityType="DbModels.JDE_PartPrices" />
           <EntitySet Name="JDE_StorageBins" EntityType="DbModels.JDE_StorageBins" />
           <EntitySet Name="JDE_StockTakings" EntityType="DbModels.JDE_StockTakings" />
+          <EntitySet Name="JDE_AbandonReasons" EntityType="DbModels.JDE_AbandonReasons" />
+          <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
         </EntityContainer>
-        <EntityType Name="JDE_Processes">
-          <Key>
-            <PropertyRef Name="ProcessId" />
-          </Key>
-          <Property Name="ProcessId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="StartedOn" Type="DateTime" Precision="3" />
-          <Property Name="StartedBy" Type="Int32" />
-          <Property Name="FinishedOn" Type="DateTime" Precision="3" />
-          <Property Name="FinishedBy" Type="Int32" />
-          <Property Name="ActionTypeId" Type="Int32" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="IsFrozen" Type="Boolean" />
-          <Property Name="IsCompleted" Type="Boolean" />
-          <Property Name="IsSuccessfull" Type="Boolean" />
-          <Property Name="PlaceId" Type="Int32" />
-          <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
-          <Property Name="CreatedBy" Type="Int32" />
-          <Property Name="TenantId" Type="Int32" />
-          <Property Name="MesId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="InitialDiagnosis" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="RepairActions" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Reason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="MesDate" Type="DateTime" Precision="3" />
-          <Property Name="PlannedStart" Type="DateTime" Precision="3" />
-          <Property Name="PlannedFinish" Type="DateTime" Precision="3" />
-          <Property Name="LastStatus" Type="Int32" />
-          <Property Name="LastStatusBy" Type="Int32" />
-          <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
-          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ComponentId" Type="Int32" />
-          <Property Name="IsResurrected" Type="Boolean" />
-        </EntityType>
         <EntityType Name="JDE_Boms">
           <Key>
             <PropertyRef Name="BomId" />
@@ -818,6 +800,7 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
           <Property Name="IsChecked" Type="Boolean" />
+          <Property Name="AbandonReasonId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_ProcessAssigns">
           <Key>
@@ -1025,6 +1008,53 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
         </EntityType>
+        <EntityType Name="JDE_AbandonReasons">
+          <Key>
+            <PropertyRef Name="AbandonReasonId" />
+          </Key>
+          <Property Name="AbandonReasonId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsArchived" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="JDE_Processes">
+          <Key>
+            <PropertyRef Name="ProcessId" />
+          </Key>
+          <Property Name="ProcessId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StartedOn" Type="DateTime" Precision="3" />
+          <Property Name="StartedBy" Type="Int32" />
+          <Property Name="FinishedOn" Type="DateTime" Precision="3" />
+          <Property Name="FinishedBy" Type="Int32" />
+          <Property Name="ActionTypeId" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="IsFrozen" Type="Boolean" />
+          <Property Name="IsCompleted" Type="Boolean" />
+          <Property Name="IsSuccessfull" Type="Boolean" />
+          <Property Name="PlaceId" Type="Int32" />
+          <Property Name="Output" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="TenantId" Type="Int32" />
+          <Property Name="MesId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InitialDiagnosis" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RepairActions" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Reason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MesDate" Type="DateTime" Precision="3" />
+          <Property Name="PlannedStart" Type="DateTime" Precision="3" />
+          <Property Name="PlannedFinish" Type="DateTime" Precision="3" />
+          <Property Name="LastStatus" Type="Int32" />
+          <Property Name="LastStatusBy" Type="Int32" />
+          <Property Name="LastStatusOn" Type="DateTime" Precision="3" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ComponentId" Type="Int32" />
+          <Property Name="IsResurrected" Type="Boolean" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1113,41 +1143,6 @@
                 <ScalarProperty Name="Method" ColumnName="Method" />
                 <ScalarProperty Name="Class" ColumnName="Class" />
                 <ScalarProperty Name="Message" ColumnName="Message" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JDE_Processes">
-            <EntityTypeMapping TypeName="DbModels.JDE_Processes">
-              <MappingFragment StoreEntitySet="JDE_Processes">
-                <ScalarProperty Name="IsResurrected" ColumnName="IsResurrected" />
-                <ScalarProperty Name="ComponentId" ColumnName="ComponentId" />
-                <ScalarProperty Name="Comment" ColumnName="Comment" />
-                <ScalarProperty Name="LastStatusOn" ColumnName="LastStatusOn" />
-                <ScalarProperty Name="LastStatusBy" ColumnName="LastStatusBy" />
-                <ScalarProperty Name="LastStatus" ColumnName="LastStatus" />
-                <ScalarProperty Name="PlannedFinish" ColumnName="PlannedFinish" />
-                <ScalarProperty Name="PlannedStart" ColumnName="PlannedStart" />
-                <ScalarProperty Name="MesDate" ColumnName="MesDate" />
-                <ScalarProperty Name="Reason" ColumnName="Reason" />
-                <ScalarProperty Name="RepairActions" ColumnName="RepairActions" />
-                <ScalarProperty Name="InitialDiagnosis" ColumnName="InitialDiagnosis" />
-                <ScalarProperty Name="MesId" ColumnName="MesId" />
-                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
-                <ScalarProperty Name="Output" ColumnName="Output" />
-                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
-                <ScalarProperty Name="IsSuccessfull" ColumnName="IsSuccessfull" />
-                <ScalarProperty Name="IsCompleted" ColumnName="IsCompleted" />
-                <ScalarProperty Name="IsFrozen" ColumnName="IsFrozen" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
-                <ScalarProperty Name="FinishedBy" ColumnName="FinishedBy" />
-                <ScalarProperty Name="FinishedOn" ColumnName="FinishedOn" />
-                <ScalarProperty Name="StartedBy" ColumnName="StartedBy" />
-                <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1306,6 +1301,7 @@
           <EntitySetMapping Name="JDE_ProcessActions">
             <EntityTypeMapping TypeName="DbModels.JDE_ProcessActions">
               <MappingFragment StoreEntitySet="JDE_ProcessActions">
+                <ScalarProperty Name="AbandonReasonId" ColumnName="AbandonReasonId" />
                 <ScalarProperty Name="IsChecked" ColumnName="IsChecked" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
@@ -1534,6 +1530,55 @@
                 <ScalarProperty Name="StorageBinId" ColumnName="StorageBinId" />
                 <ScalarProperty Name="PartId" ColumnName="PartId" />
                 <ScalarProperty Name="StockTakingId" ColumnName="StockTakingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_AbandonReasons">
+            <EntityTypeMapping TypeName="DbModels.JDE_AbandonReasons">
+              <MappingFragment StoreEntitySet="JDE_AbandonReasons">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="AbandonReasonId" ColumnName="AbandonReasonId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_Processes">
+            <EntityTypeMapping TypeName="DbModels.JDE_Processes">
+              <MappingFragment StoreEntitySet="JDE_Processes">
+                <ScalarProperty Name="IsResurrected" ColumnName="IsResurrected" />
+                <ScalarProperty Name="ComponentId" ColumnName="ComponentId" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="LastStatusOn" ColumnName="LastStatusOn" />
+                <ScalarProperty Name="LastStatusBy" ColumnName="LastStatusBy" />
+                <ScalarProperty Name="LastStatus" ColumnName="LastStatus" />
+                <ScalarProperty Name="PlannedFinish" ColumnName="PlannedFinish" />
+                <ScalarProperty Name="PlannedStart" ColumnName="PlannedStart" />
+                <ScalarProperty Name="MesDate" ColumnName="MesDate" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="RepairActions" ColumnName="RepairActions" />
+                <ScalarProperty Name="InitialDiagnosis" ColumnName="InitialDiagnosis" />
+                <ScalarProperty Name="MesId" ColumnName="MesId" />
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Output" ColumnName="Output" />
+                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+                <ScalarProperty Name="IsSuccessfull" ColumnName="IsSuccessfull" />
+                <ScalarProperty Name="IsCompleted" ColumnName="IsCompleted" />
+                <ScalarProperty Name="IsFrozen" ColumnName="IsFrozen" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ActionTypeId" ColumnName="ActionTypeId" />
+                <ScalarProperty Name="FinishedBy" ColumnName="FinishedBy" />
+                <ScalarProperty Name="FinishedOn" ColumnName="FinishedOn" />
+                <ScalarProperty Name="StartedBy" ColumnName="StartedBy" />
+                <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

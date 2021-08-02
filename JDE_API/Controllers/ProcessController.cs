@@ -49,7 +49,7 @@ namespace JDE_API.Controllers
                              join a in db.JDE_Areas on pl.AreaId equals a.AreaId
                              join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
                              from ha in hans.DefaultIfEmpty()
-                             where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
+                         where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                              group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
                              by new
                              {
@@ -92,7 +92,7 @@ namespace JDE_API.Controllers
                                  ComponentId = p.ComponentId,
                                  ComponentName = components.Name,
                                  LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
-                             p.LastStatusBy,
+                                p.LastStatusBy,
                                  LastStatusByName = lStat.Name + " " + lStat.Surname,
                                  p.LastStatusOn
                              } into grp

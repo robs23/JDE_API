@@ -31,7 +31,6 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_Sets> JDE_Sets { get; set; }
         public virtual DbSet<JDE_Tenants> JDE_Tenants { get; set; }
         public virtual DbSet<JDE_Errors> JDE_Errors { get; set; }
-        public virtual DbSet<JDE_Processes> JDE_Processes { get; set; }
         public virtual DbSet<JDE_Boms> JDE_Boms { get; set; }
         public virtual DbSet<JDE_Deliveries> JDE_Deliveries { get; set; }
         public virtual DbSet<JDE_DeliveryItems> JDE_DeliveryItems { get; set; }
@@ -55,5 +54,7 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_PartPrices> JDE_PartPrices { get; set; }
         public virtual DbSet<JDE_StorageBins> JDE_StorageBins { get; set; }
         public virtual DbSet<JDE_StockTakings> JDE_StockTakings { get; set; }
+        public virtual DbSet<JDE_AbandonReasons> JDE_AbandonReasons { get; set; }
+        public virtual DbSet<JDE_Processes> JDE_Processes { get; set; }
     }
 }

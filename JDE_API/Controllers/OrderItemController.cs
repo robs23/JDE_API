@@ -232,6 +232,7 @@ namespace JDE_API.Controllers
                 {
                     item.TenantId = tenants.FirstOrDefault().TenantId;
                     item.CreatedOn = DateTime.Now;
+                    item.CreatedBy = UserId;
                     db.JDE_OrderItems.Add(item);
                     db.SaveChanges();
                     JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Utworzenie pozycji w zamówieniu", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, NewValue = new JavaScriptSerializer().Serialize(item) };
