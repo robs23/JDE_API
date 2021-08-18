@@ -49,6 +49,7 @@ namespace JDE_API.Controllers
                                      ActionsApplicable = at.ActionsApplicable,
                                      RequireUsersAssignment = at.RequireUsersAssignment,
                                      ShowOnDashboard = at.ShowOnDashboard,
+                                     Leaveable = at.Leaveable,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -131,6 +132,7 @@ namespace JDE_API.Controllers
                                      ActionsApplicable = at.ActionsApplicable,
                                      RequireUsersAssignment = at.RequireUsersAssignment,
                                      ShowOnDashboard = at.ShowOnDashboard,
+                                     Leaveable = at.Leaveable,
                                      TenantId = at.TenantId,
                                      TenantName = t.TenantName,
                                      CreatedOn = at.CreatedOn,
@@ -193,6 +195,7 @@ namespace JDE_API.Controllers
                             ActionsApplicable = false,
                             RequireUsersAssignment = false,
                             ShowOnDashboard = false,
+                            Leaveable = true,
                             CreatedBy = UserId,
                             CreatedOn = DateTime.Now,
                             TenantId = tenants.FirstOrDefault().TenantId

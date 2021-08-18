@@ -54,6 +54,7 @@
           <Property Name="ActionsApplicable" Type="bit" />
           <Property Name="RequireUsersAssignment" Type="bit" />
           <Property Name="ShowOnDashboard" Type="bit" />
+          <Property Name="Leaveable" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -553,6 +554,7 @@
           <Property Name="ActionsApplicable" Type="Boolean" />
           <Property Name="RequireUsersAssignment" Type="Boolean" />
           <Property Name="ShowOnDashboard" Type="Boolean" />
+          <Property Name="Leaveable" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Areas">
           <Key>
@@ -1064,6 +1066,7 @@
           <EntitySetMapping Name="JDE_ActionTypes">
             <EntityTypeMapping TypeName="DbModels.JDE_ActionTypes">
               <MappingFragment StoreEntitySet="JDE_ActionTypes">
+                <ScalarProperty Name="Leaveable" ColumnName="Leaveable" />
                 <ScalarProperty Name="ShowOnDashboard" ColumnName="ShowOnDashboard" />
                 <ScalarProperty Name="RequireUsersAssignment" ColumnName="RequireUsersAssignment" />
                 <ScalarProperty Name="ActionsApplicable" ColumnName="ActionsApplicable" />
