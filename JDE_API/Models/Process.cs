@@ -171,7 +171,27 @@ namespace JDE_API.Models
     public bool? IsResurrected { get; set; }
 
     public bool HasAttachments { get; set; } = false;
-    }
+    public IQueryable<string> AbandonReasons { get; set; }
+
+    //public string AbandonReasonNames
+    //{
+    //    get
+    //    {
+    //        string res = "";
+    //        if (AbandonReasons != null)
+    //        {
+    //            if (AbandonReasons.ToList<string>().Any())
+    //            {
+    //                res = string.Join(", ", AbandonReasons);
+    //            }
+    //        }
+    //        return res;
+    //    }
+    //}
+}
+
+    
+
     public enum ProcessStatus
     {
         None,
