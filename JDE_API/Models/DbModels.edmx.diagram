@@ -10,8 +10,8 @@
         <EntityTypeShape EntityType="DbModels.JDE_Logs" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModels.JDE_Sets" Width="1.5" PointX="0.875" PointY="5.125" IsExpanded="true" />
         <EntityTypeShape EntityType="DbModels.JDE_Tenants" Width="1.5" PointX="0.75" PointY="7.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DbModels.JDE_Errors" Width="1.5" PointX="7.375" PointY="4.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="DbModels.JDE_Boms" Width="1.5" PointX="5.75" PointY="9.75" />
+        <EntityTypeShape EntityType="DbModels.JDE_Errors" Width="1.5" PointX="5.25" PointY="4.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DbModels.JDE_Boms" Width="1.5" PointX="3.5" PointY="10.375" />
         <EntityTypeShape EntityType="DbModels.JDE_Deliveries" Width="1.5" PointX="0.75" PointY="10.75" />
         <EntityTypeShape EntityType="DbModels.JDE_DeliveryItems" Width="1.5" PointX="11.75" PointY="0.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Stocks" Width="1.5" PointX="13.75" PointY="0.75" />
@@ -23,7 +23,7 @@
         <EntityTypeShape EntityType="DbModels.JDE_PlaceActions" Width="1.5" PointX="7.375" PointY="14.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessActions" Width="1.5" PointX="14.375" PointY="8.75" />
         <EntityTypeShape EntityType="DbModels.JDE_ProcessAssigns" Width="1.5" PointX="9.375" PointY="14.75" />
-        <EntityTypeShape EntityType="DbModels.JDE_Handlings" Width="1.5" PointX="6.5" PointY="7.5" />
+        <EntityTypeShape EntityType="DbModels.JDE_Handlings" Width="1.5" PointX="7.125" PointY="1.5" />
         <EntityTypeShape EntityType="DbModels.JDE_Companies" Width="1.5" PointX="3.375" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Parts" Width="1.5" PointX="11.375" PointY="12.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Places" Width="1.5" PointX="13.375" PointY="12.75" />
@@ -36,6 +36,7 @@
         <EntityTypeShape EntityType="DbModels.JDE_StockTakings" Width="1.5" PointX="17.375" PointY="4.75" />
         <EntityTypeShape EntityType="DbModels.JDE_AbandonReasons" Width="1.5" PointX="17.375" PointY="12.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Processes" Width="1.5" PointX="9.25" PointY="0.5" />
+        <AssociationConnector Association="DbModels.JDE_ProcessesJDE_Handlings" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
