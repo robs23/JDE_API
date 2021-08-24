@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Web;
 using System.Web.Mvc;
 
@@ -31,7 +32,33 @@ namespace JDE_API.Controllers
                 }
             }
 
-            return View(tokens);
+            return View("GenerateUniqueTokens", tokens);
+        }
+
+        public ActionResult ClearCache()
+        {
+            string msg = string.Empty;
+            try
+            {
+                foreach (System.Collections.DictionaryEntry entry in System.Web.HttpContext.Current.Cache)
+                {
+                    System.Web.HttpContext.Current.Cache.Remove((string)entry.Key);
+                }
+                MemoryCache cache = MemoryCache.Default;
+                List<string> cacheKeys = cache.Select(kvp => kvp.Key).ToList();
+
+                foreach (string cacheKey in cacheKeys)
+                {
+                    cache.Remove(cacheKey);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                msg = ex.Message;
+            }
+            
+            return View("ClearCache", msg);
         }
     }
 }

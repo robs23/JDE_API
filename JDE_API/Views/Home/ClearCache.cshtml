@@ -1,0 +1,12 @@
+﻿@model string
+
+@{
+    if (string.IsNullOrEmpty(Model))
+    { 
+        <h2>Brak komunikatu</h2>
+    }
+    else
+    {
+        <h2>@Model</h2>
+    }
+}            

@@ -294,10 +294,10 @@ namespace JDE_API.Controllers
                              IsResurrected = grp.Key.IsResurrected,
                              OpenHandlings = grp.Where(ph => ph.ha.HandlingId > 0 && (ph.ha.IsCompleted == null || ph.ha.IsCompleted == false)).Count(),
                              AllHandlings = grp.Where(ph => ph.ha.HandlingId > 0).Count(),
-                             AssignedUsers = (from pras in db.JDE_ProcessAssigns
-                                              join uu in db.JDE_Users on pras.UserId equals uu.UserId
-                                              where pras.ProcessId == grp.Key.ProcessId
-                                              select uu.Name + " " + uu.Surname),
+                             //AssignedUsers = (from pras in db.JDE_ProcessAssigns
+                             //                 join uu in db.JDE_Users on pras.UserId equals uu.UserId
+                             //                 where pras.ProcessId == grp.Key.ProcessId
+                             //                 select uu.Name + " " + uu.Surname),
                              GivenTime = givenTime == null || givenTime == false ? 0 : (from prac in db.JDE_ProcessActions
                                                                                         join a in db.JDE_Actions on prac.ActionId equals a.ActionId
                                                                                         where prac.ProcessId == grp.Key.ProcessId
@@ -325,6 +325,24 @@ namespace JDE_API.Controllers
                 throw;
             }
             return await itemsQuery;
+        }
+
+        private async Task<List<ProcessAssign>> GetProcessAssigns()
+        {
+            using (Models.DbModel _db = new Models.DbModel())
+            {
+                var items = (from pras in _db.JDE_ProcessAssigns
+                              join uu in _db.JDE_Users on pras.UserId equals uu.UserId
+                              select new ProcessAssign
+                              {
+                                  ProcessAssignId = pras.ProcessAssignId,
+                                  ProcessId = pras.ProcessId,
+                                  UserId = pras.UserId,
+                                  UserName = uu.Name + " " + uu.Surname
+                              }).ToListAsync();
+
+                return await items;
+            }
         }
 
         private async Task<List<ProcessActionAbandonReason>> GetAbandonReasons()
@@ -486,12 +504,15 @@ namespace JDE_API.Controllers
 
                     var processesTask = FetchProcessesAsync(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate, handlingsLength);
                     var abandonsTask = GetAbandonReasons();
-                    await Task.WhenAll(processesTask, abandonsTask);
+                    var assignedUsersTask = GetProcessAssigns();
+                    await Task.WhenAll(processesTask, abandonsTask, assignedUsersTask);
                     var items = await processesTask;
                     var abandons = await abandonsTask;
+                    var assigns = await assignedUsersTask;
 
                     var processes = from process in items
                                     join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
+                                    join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
                                     select new Process
                                     {
                                         ProcessId = process.ProcessId,
@@ -538,12 +559,13 @@ namespace JDE_API.Controllers
                                         IsResurrected = process.IsResurrected,
                                         OpenHandlings = process.OpenHandlings,
                                         AllHandlings = process.AllHandlings,
-                                        AssignedUsers = process.AssignedUsers,
+                                        AssignedUsers = ProcessAssigns.Select(x=>x.UserName).AsQueryable(),
                                         GivenTime = process.GivenTime,
                                         FinishRate = process.FinishRate,
                                         HasAttachments = process.HasAttachments,
                                         HandlingsLength = process.HandlingsLength,
-                                        AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable()
+                                        AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
+                                        AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
                                     };
 
                     if (items.Any())
