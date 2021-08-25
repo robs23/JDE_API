@@ -159,12 +159,12 @@ namespace JDE_API.Controllers
                                                     where has.ProcessId == grp.Key.ProcessId
                                                     select has.FinishedOn == null ? System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value : System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value).Sum(),
 
-                                 AbandonReasons = (from pas in db.JDE_ProcessActions
-                                                   join ars in db.JDE_AbandonReasons on pas.AbandonReasonId equals ars.AbandonReasonId into ar
-                                                   from reasons in ar.DefaultIfEmpty()
-                                                   where pas.ProcessId == grp.Key.ProcessId
-                                                   select reasons.Name
-                                                   ).Distinct()
+                                 //AbandonReasons = (from pas in db.JDE_ProcessActions
+                                 //                  join ars in db.JDE_AbandonReasons on pas.AbandonReasonId equals ars.AbandonReasonId into ar
+                                 //                  from reasons in ar.DefaultIfEmpty()
+                                 //                  where pas.ProcessId == grp.Key.ProcessId
+                                 //                  select reasons.Name
+                                 //                  ).Distinct()
                                  /*handlingsLength == null || handlingsLength == false ? null : grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn)) == null ? grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, DateTime.Now)) : grp.Where(ph => ph.ha.HandlingId > 0).Sum(h => DbFunctions.DiffMinutes(h.ha.StartedOn, h.ha.FinishedOn))*/
                              }).AsNoTracking();;
             }
