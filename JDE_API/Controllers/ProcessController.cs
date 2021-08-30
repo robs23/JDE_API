@@ -298,13 +298,13 @@ namespace JDE_API.Controllers
                              //                 join uu in db.JDE_Users on pras.UserId equals uu.UserId
                              //                 where pras.ProcessId == grp.Key.ProcessId
                              //                 select uu.Name + " " + uu.Surname),
-                             GivenTime = givenTime == null || givenTime == false ? 0 : (from prac in db.JDE_ProcessActions
-                                                                                        join a in db.JDE_Actions on prac.ActionId equals a.ActionId
-                                                                                        where prac.ProcessId == grp.Key.ProcessId
-                                                                                        select a.GivenTime).Sum(),
-                             FinishRate = finishRate == null || finishRate == false ? 0 : db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId) == 0
-                                                                                        ? 100 : (((float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId && i.IsChecked == true)
-                                                                                        / (float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId)) * 100),
+                             //GivenTime = givenTime == null || givenTime == false ? 0 : (from prac in db.JDE_ProcessActions
+                             //                                                           join a in db.JDE_Actions on prac.ActionId equals a.ActionId
+                             //                                                           where prac.ProcessId == grp.Key.ProcessId
+                             //                                                           select a.GivenTime).Sum(),
+                             //FinishRate = finishRate == null || finishRate == false ? 0 : db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId) == 0
+                             //                                                           ? 100 : (((float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId && i.IsChecked == true)
+                             //                                                           / (float)db.JDE_ProcessActions.Count(i => i.ProcessId == grp.Key.ProcessId)) * 100),
                              HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == grp.Key.ProcessId),
                              HandlingsLength = (from has in db.JDE_Handlings
                                                 where has.ProcessId == grp.Key.ProcessId
@@ -325,6 +325,42 @@ namespace JDE_API.Controllers
                 throw;
             }
             return await itemsQuery;
+        }
+
+        private async Task<List<Process>> GetGivenTimes()
+        {
+            using (Models.DbModel _db = new Models.DbModel())
+            {
+                var items = (from prac in _db.JDE_ProcessActions
+                             join a in _db.JDE_Actions on prac.ActionId equals a.ActionId
+                             where a.GivenTime != null 
+                             select new Process
+                             {
+                                 ProcessId = (int)prac.ProcessId,
+                                 GivenTime = a.GivenTime
+                             }).ToListAsync();
+
+
+                return await items;
+            }
+        }
+
+        private async Task<List<Process>> GetFinishRates()
+        {
+            using (Models.DbModel _db = new Models.DbModel())
+            {
+                var items = _db.JDE_ProcessActions.Select(p => new
+                {
+                    ProcessId = p.ProcessId,
+                    IsChecked = p.IsChecked
+                }).GroupBy(pa => new { pa.ProcessId }).Select(pr => new Process
+                {
+                    ProcessId = (int)pr.Key.ProcessId,
+                    FinishRate = pr.Count() == 0 ? 100 : ((float)pr.Count(item => item.IsChecked == true) / (float)pr.Count()) * 100
+                }).ToListAsync();
+
+                return await items;
+            }
         }
 
         private async Task<List<ProcessAssign>> GetProcessAssigns()
@@ -505,14 +541,21 @@ namespace JDE_API.Controllers
                     var processesTask = FetchProcessesAsync(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate, handlingsLength);
                     var abandonsTask = GetAbandonReasons();
                     var assignedUsersTask = GetProcessAssigns();
-                    await Task.WhenAll(processesTask, abandonsTask, assignedUsersTask);
+                    var givenTimesTask = GetGivenTimes();
+                    var finishRateTask = GetFinishRates();
+                    await Task.WhenAll(processesTask, abandonsTask, assignedUsersTask, givenTimesTask, finishRateTask);
                     var items = await processesTask;
                     var abandons = await abandonsTask;
                     var assigns = await assignedUsersTask;
+                    var givenTimes = await givenTimesTask;
+                    var finishRates = await finishRateTask;
 
                     var processes = from process in items
                                     join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
                                     join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
+                                    join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes 
+                                    //join finishRate in finishRates on process.ProcessId equals finishRate.ProcessId into FinishRates
+                                    //from fRates in FinishRates.DefaultIfEmpty()
                                     select new Process
                                     {
                                         ProcessId = process.ProcessId,
@@ -560,12 +603,12 @@ namespace JDE_API.Controllers
                                         OpenHandlings = process.OpenHandlings,
                                         AllHandlings = process.AllHandlings,
                                         AssignedUsers = ProcessAssigns.Select(x=>x.UserName).AsQueryable(),
-                                        GivenTime = process.GivenTime,
-                                        FinishRate = process.FinishRate,
+                                        GivenTime = GivenTimes.Sum(x=>x.GivenTime),
+                                        FinishRate = finishRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
                                         HasAttachments = process.HasAttachments,
                                         HandlingsLength = process.HandlingsLength,
-                                        AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
-                                        AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
+                                        //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
+                                        //AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
                                     };
 
                     if (items.Any())

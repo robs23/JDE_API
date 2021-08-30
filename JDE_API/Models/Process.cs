@@ -173,7 +173,7 @@ namespace JDE_API.Models
     public bool HasAttachments { get; set; } = false;
     public IQueryable<string> AbandonReasons { get; set; }
 
-    public string AbandonReasonNames { get; set; }
+    public string AbandonReasonNames { get; set; } = "";
     }
 
     
