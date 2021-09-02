@@ -40,9 +40,13 @@ namespace JDE_API.Controllers
             string msg = string.Empty;
             try
             {
+                int httpContextCashRemovedCount = 0;
+                int memoryCashRemovedCount = 0;
+
                 foreach (System.Collections.DictionaryEntry entry in System.Web.HttpContext.Current.Cache)
                 {
                     System.Web.HttpContext.Current.Cache.Remove((string)entry.Key);
+                    httpContextCashRemovedCount++;
                 }
                 MemoryCache cache = MemoryCache.Default;
                 List<string> cacheKeys = cache.Select(kvp => kvp.Key).ToList();
@@ -50,8 +54,12 @@ namespace JDE_API.Controllers
                 foreach (string cacheKey in cacheKeys)
                 {
                     cache.Remove(cacheKey);
+                    memoryCashRemovedCount++;
                 }
-
+                if(httpContextCashRemovedCount > 0 || memoryCashRemovedCount > 0)
+                {
+                    msg = $"Usunięto {httpContextCashRemovedCount} pozycji z cashu HttpContext i/lub {memoryCashRemovedCount} pozycji z cashu pamięci";
+                }
             }
             catch (Exception ex)
             {

@@ -522,7 +522,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetProcessesAsync")]
-        public async Task<IHttpActionResult> GetProcessesAsync(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate = null, int? pageSize = null, bool? handlingsLength = null)
+        public async Task<IHttpActionResult> GetProcessesAsync(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate = null, int? pageSize = null, bool? handlingsLength = null, bool? AssignedUsers = null, bool? AbandonReasons = null)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -538,24 +538,71 @@ namespace JDE_API.Controllers
                     string processLength = null;
                     string _handlingsLength = null;
 
+                    var tasks = new List<Task>();
                     var processesTask = FetchProcessesAsync(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate, handlingsLength);
-                    var abandonsTask = GetAbandonReasons();
-                    var assignedUsersTask = GetProcessAssigns();
-                    var givenTimesTask = GetGivenTimes();
-                    var finishRateTask = GetFinishRates();
-                    await Task.WhenAll(processesTask, abandonsTask, assignedUsersTask, givenTimesTask, finishRateTask);
+                    tasks.Add(processesTask);
+
+                    //Set up optional AbandonReasons fetching
+                    Task<List<ProcessActionAbandonReason>> abandonsTask = null;
+                    List<ProcessActionAbandonReason> abandons = new List<ProcessActionAbandonReason>();
+                    if (AbandonReasons == true)
+                    {
+                        abandonsTask = GetAbandonReasons();
+                        tasks.Add(abandonsTask);
+                    }
+
+                    //Set up optional AssignedUsers fetching
+                    Task<List<ProcessAssign>> assignedUsersTask = null;
+                    List<ProcessAssign> assigns = new List<ProcessAssign>();
+                    if (AssignedUsers == true)
+                    {
+                        assignedUsersTask = GetProcessAssigns();
+                        tasks.Add(assignedUsersTask);
+                    }
+
+                    //Set up optional GivenTimes fetching
+                    Task<List<Process>> givenTimesTask =  null;
+                    List<Process> givenTimes = new List<Process>();
+                    if (GivenTime==true)
+                    {
+                        givenTimesTask = GetGivenTimes();
+                        tasks.Add(givenTimesTask);
+                    }
+
+                    //Set up optional FinishRate fetching
+                    Task<List<Process>> finishRateTask = null;
+                    List<Process> finishRates = new List<Process>();
+                    if (FinishRate == true)
+                    {
+                        finishRateTask = GetFinishRates();
+                        tasks.Add(finishRateTask);
+                    }
+
+                    await Task.WhenAll(tasks);
                     var items = await processesTask;
-                    var abandons = await abandonsTask;
-                    var assigns = await assignedUsersTask;
-                    var givenTimes = await givenTimesTask;
-                    var finishRates = await finishRateTask;
+                    if (abandonsTask != null)
+                    {
+                        abandons = await abandonsTask; 
+                    }
+                    if (assignedUsersTask != null)
+                    {
+                        assigns = await assignedUsersTask;  
+                    }                  
+                    if (givenTimesTask != null)
+                    {
+                        givenTimes = await givenTimesTask;
+                    }
+                    if (finishRateTask != null)
+                    {
+                        finishRates = await finishRateTask;
+                    }
 
                     var processes = from process in items
                                     join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
                                     join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
-                                    join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes 
-                                    //join finishRate in finishRates on process.ProcessId equals finishRate.ProcessId into FinishRates
-                                    //from fRates in FinishRates.DefaultIfEmpty()
+                                    join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes
+                                    join finishRate in finishRates on process.ProcessId equals finishRate.ProcessId into FinishRates
+                                    from fRates in FinishRates.DefaultIfEmpty()
                                     select new Process
                                     {
                                         ProcessId = process.ProcessId,
@@ -604,7 +651,7 @@ namespace JDE_API.Controllers
                                         AllHandlings = process.AllHandlings,
                                         AssignedUsers = ProcessAssigns.Select(x=>x.UserName).AsQueryable(),
                                         GivenTime = GivenTimes.Sum(x=>x.GivenTime),
-                                        FinishRate = finishRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
+                                        FinishRate = fRates == null ? null : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
                                         HasAttachments = process.HasAttachments,
                                         HandlingsLength = process.HandlingsLength,
                                         //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
