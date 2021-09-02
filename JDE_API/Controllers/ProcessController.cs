@@ -327,6 +327,114 @@ namespace JDE_API.Controllers
             return await itemsQuery;
         }
 
+        private async Task<List<Process>> FetchProcessesWithoutGroupings(int TenantId, DateTime dFrom, DateTime dTo, bool? givenTime = null, bool? finishRate = null, bool? handlingsLength = null)
+        {
+            Task<List<Process>> itemsQuery;
+            try
+            {
+
+                itemsQuery = (from p in db.JDE_Processes
+                              join uuu in db.JDE_Users on p.FinishedBy equals uuu.UserId into finished
+                              from fin in finished.DefaultIfEmpty()
+                              join t in db.JDE_Tenants on p.TenantId equals t.TenantId
+                              join u in db.JDE_Users on p.CreatedBy equals u.UserId
+                              join at in db.JDE_ActionTypes on p.ActionTypeId equals at.ActionTypeId
+                              join uu in db.JDE_Users on p.StartedBy equals uu.UserId into started
+                              from star in started.DefaultIfEmpty()
+                              join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
+                              from lStat in lastStatus.DefaultIfEmpty()
+                              join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                              join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
+                              from components in comps.DefaultIfEmpty()
+                              join s in db.JDE_Sets on pl.SetId equals s.SetId
+                              join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                              join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
+                              from ha in hans.DefaultIfEmpty()
+                              where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
+                              orderby p.CreatedOn descending
+                              select new Process
+                              {
+                                  ProcessId = p.ProcessId,
+                                  Description = p.Description,
+                                  StartedOn = p.StartedOn,
+                                  StartedBy = p.StartedBy,
+                                  StartedByName = star.Name + " " + star.Surname,
+                                  FinishedOn = p.FinishedOn,
+                                  FinishedBy = p.FinishedBy,
+                                  FinishedByName = fin.Name + " " + fin.Surname,
+                                  ActionTypeId = p.ActionTypeId,
+                                  ActionTypeName = at.Name,
+                                  IsActive = p.IsActive,
+                                  IsFrozen = p.IsFrozen,
+                                  IsCompleted = p.IsCompleted,
+                                  IsSuccessfull = p.IsSuccessfull,
+                                  PlaceId = p.PlaceId,
+                                  PlaceName = pl.Name,
+                                  PlaceImage = pl.Image,
+                                  SetId = pl.SetId,
+                                  SetName = s.Name,
+                                  AreaId = pl.AreaId,
+                                  AreaName = a.Name,
+                                  Output = p.Output,
+                                  TenantId = p.TenantId,
+                                  TenantName = t.TenantName,
+                                  CreatedOn = p.CreatedOn,
+                                  CreatedBy = p.CreatedBy,
+                                  CreatedByName = u.Name + " " + u.Surname,
+                                  MesId = p.MesId,
+                                  InitialDiagnosis = p.InitialDiagnosis,
+                                  RepairActions = p.RepairActions,
+                                  Reason = p.Reason,
+                                  MesDate = p.MesDate,
+                                  Comment = p.Comment,
+                                  ComponentId = p.ComponentId,
+                                  ComponentName = components.Name,
+                                  PlannedStart = p.PlannedStart,
+                                  PlannedFinish = p.PlannedFinish,
+                                  LastStatus = (ProcessStatus)p.LastStatus,
+                                  LastStatusBy = p.LastStatusBy,
+                                  LastStatusByName = lStat.Name + " " + lStat.Surname,
+                                  LastStatusOn = p.LastStatusOn,
+                                  IsResurrected = p.IsResurrected,
+                                  HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == p.ProcessId),
+                                  HandlingsLength = (from has in db.JDE_Handlings
+                                                     where has.ProcessId == p.ProcessId
+                                                     select has.FinishedOn == null ? System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value : System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value).Sum(),
+                              }).ToListAsync(); ;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return await itemsQuery;
+        }
+
+        private async Task<List<Process>> GetHandlingsData()
+        {
+            using (Models.DbModel _db = new Models.DbModel())
+            {
+                var items = _db.JDE_Handlings.Select(h => new
+                {
+                    ProcessId = h.ProcessId,
+                    HandlingId = h.HandlingId,
+                    IsCompleted = h.IsCompleted,
+                    StartedOn = h.StartedOn,
+                    FinishedOn = h.FinishedOn
+                }).GroupBy(pa => new { pa.ProcessId }).Select(pr => new Process
+                {
+                    ProcessId = (int)pr.Key.ProcessId,
+                    OpenHandlings = pr.Count(item=>item.HandlingId > 0 && item.IsCompleted != true),
+                    AllHandlings = pr.Count(item=>item.HandlingId > 0),
+                    HandlingsLength = (from has in pr
+                                       where has.ProcessId == pr.Key.ProcessId
+                                       select has.FinishedOn == null ? System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value : System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value).Sum(),
+                }).ToListAsync();
+
+                return await items;
+            }
+        }
+
         private async Task<List<Process>> GetGivenTimes()
         {
             using (Models.DbModel _db = new Models.DbModel())
@@ -652,8 +760,197 @@ namespace JDE_API.Controllers
                                         AssignedUsers = ProcessAssigns.Select(x=>x.UserName).AsQueryable(),
                                         GivenTime = GivenTimes.Sum(x=>x.GivenTime),
                                         FinishRate = fRates == null ? null : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
+                                        HasAttachments = process.HasAttachments
+                                    };
+
+                    if (items.Any())
+                    {
+                        IQueryable<Process> nItems = processes.AsQueryable();
+
+                        if (query != null)
+                        {
+                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0 || query.IndexOf("TimingStatus") >= 0 || query.IndexOf("TimingVsPlan") >= 0 || query.IndexOf("HandlingsLength") >= 0 || query.IndexOf("ProcessLength") >= 0)
+                            {
+                                ProcessQuery pq = new ProcessQuery(query);
+                                length = pq.Length;
+                                status = pq.Status;
+                                assignedUserNames = pq.AssignedUserNames;
+                                timingStatus = pq.TimingStatus;
+                                timingVsPlan = pq.TimingVsPlan;
+                                _handlingsLength = pq.HandlingsLength;
+                                processLength = pq.ProcessLength;
+                                query = pq.Query;
+
+                            }
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                nItems = nItems.Where(query);
+
+                            }
+                        }
+
+                        IQueryable<IProcessable> nnItems = AdvancedFilter(nItems, length, status, assignedUserNames, timingStatus, timingVsPlan, processLength, _handlingsLength);
+
+                        return PrepareResponse(nItems, page, total, pageSize);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetProcessesWithoutGroupings")]
+        public async Task<IHttpActionResult> GetProcessesWithoutGroupings(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate = null, int? pageSize = null, bool? handlingsLength = null, bool? AssignedUsers = null, bool? AbandonReasons = null)
+        {
+            //if ext=true then there's more columns in the result sent
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    dFrom = dFrom ?? db.JDE_Processes.Min(x => x.CreatedOn).Value.AddDays(-1);
+                    dTo = dTo ?? db.JDE_Processes.Max(x => x.CreatedOn).Value.AddDays(1);
+                    string assignedUserNames = null;
+                    string timingStatus = null;
+                    string timingVsPlan = null;
+                    string processLength = null;
+                    string _handlingsLength = null;
+
+                    var tasks = new List<Task>();
+                    var processesTask = FetchProcessesWithoutGroupings(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate, handlingsLength);
+                    tasks.Add(processesTask);
+
+                    var handlingsTask = GetHandlingsData();
+                    tasks.Add(handlingsTask);
+
+                    //Set up optional AbandonReasons fetching
+                    Task<List<ProcessActionAbandonReason>> abandonsTask = null;
+                    List<ProcessActionAbandonReason> abandons = new List<ProcessActionAbandonReason>();
+                    if (AbandonReasons == true)
+                    {
+                        abandonsTask = GetAbandonReasons();
+                        tasks.Add(abandonsTask);
+                    }
+
+                    //Set up optional AssignedUsers fetching
+                    Task<List<ProcessAssign>> assignedUsersTask = null;
+                    List<ProcessAssign> assigns = new List<ProcessAssign>();
+                    if (AssignedUsers == true)
+                    {
+                        assignedUsersTask = GetProcessAssigns();
+                        tasks.Add(assignedUsersTask);
+                    }
+
+                    //Set up optional GivenTimes fetching
+                    Task<List<Process>> givenTimesTask = null;
+                    List<Process> givenTimes = new List<Process>();
+                    if (GivenTime == true)
+                    {
+                        givenTimesTask = GetGivenTimes();
+                        tasks.Add(givenTimesTask);
+                    }
+
+                    //Set up optional FinishRate fetching
+                    Task<List<Process>> finishRateTask = null;
+                    List<Process> finishRates = new List<Process>();
+                    if (FinishRate == true)
+                    {
+                        finishRateTask = GetFinishRates();
+                        tasks.Add(finishRateTask);
+                    }
+
+                    await Task.WhenAll(tasks);
+                    var items = await processesTask;
+                    var handlings = await handlingsTask;
+
+                    if (abandonsTask != null)
+                    {
+                        abandons = await abandonsTask;
+                    }
+                    if (assignedUsersTask != null)
+                    {
+                        assigns = await assignedUsersTask;
+                    }
+                    if (givenTimesTask != null)
+                    {
+                        givenTimes = await givenTimesTask;
+                    }
+                    if (finishRateTask != null)
+                    {
+                        finishRates = await finishRateTask;
+                    }
+
+                    var processes = from process in items
+                                    join handling in handlings on process.ProcessId equals handling.ProcessId
+                                    join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
+                                    join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
+                                    join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes
+                                    join finishRate in finishRates on process.ProcessId equals finishRate.ProcessId into FinishRates
+                                    from fRates in FinishRates.DefaultIfEmpty()
+                                    select new Process
+                                    {
+                                        ProcessId = process.ProcessId,
+                                        Description = process.Description,
+                                        StartedOn = process.StartedOn,
+                                        StartedBy = process.StartedBy,
+                                        StartedByName = process.StartedByName,
+                                        FinishedOn = process.FinishedOn,
+                                        FinishedBy = process.FinishedBy,
+                                        FinishedByName = process.FinishedByName,
+                                        ActionTypeId = process.ActionTypeId,
+                                        ActionTypeName = process.ActionTypeName,
+                                        IsActive = process.IsActive,
+                                        IsFrozen = process.IsFrozen,
+                                        IsCompleted = process.IsCompleted,
+                                        IsSuccessfull = process.IsSuccessfull,
+                                        PlaceId = process.PlaceId,
+                                        PlaceName = process.PlaceName,
+                                        PlaceImage = process.PlaceImage,
+                                        SetId = process.SetId,
+                                        SetName = process.SetName,
+                                        AreaId = process.AreaId,
+                                        AreaName = process.AreaName,
+                                        Output = process.Output,
+                                        TenantId = process.TenantId,
+                                        TenantName = process.TenantName,
+                                        CreatedOn = process.CreatedOn,
+                                        CreatedBy = process.CreatedBy,
+                                        CreatedByName = process.CreatedByName,
+                                        MesId = process.MesId,
+                                        InitialDiagnosis = process.InitialDiagnosis,
+                                        RepairActions = process.RepairActions,
+                                        Reason = process.Reason,
+                                        MesDate = process.MesDate,
+                                        Comment = process.Comment,
+                                        ComponentId = process.ComponentId,
+                                        ComponentName = process.ComponentName,
+                                        PlannedStart = process.PlannedStart,
+                                        PlannedFinish = process.PlannedFinish,
+                                        LastStatus = process.LastStatus,
+                                        LastStatusBy = process.LastStatusBy,
+                                        LastStatusByName = process.LastStatusByName,
+                                        LastStatusOn = process.LastStatusOn,
+                                        IsResurrected = process.IsResurrected,
+                                        OpenHandlings = handling.OpenHandlings,
+                                        AllHandlings = handling.AllHandlings,
+                                        AssignedUsers = ProcessAssigns.Select(x => x.UserName).AsQueryable(),
+                                        GivenTime = GivenTimes.Sum(x => x.GivenTime),
+                                        FinishRate = fRates == null ? null : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
                                         HasAttachments = process.HasAttachments,
-                                        HandlingsLength = process.HandlingsLength,
+                                        HandlingsLength = handling.HandlingsLength,
                                         //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
                                         //AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
                                     };
