@@ -348,8 +348,8 @@ namespace JDE_API.Controllers
                               from components in comps.DefaultIfEmpty()
                               join s in db.JDE_Sets on pl.SetId equals s.SetId
                               join a in db.JDE_Areas on pl.AreaId equals a.AreaId
-                              join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
-                              from ha in hans.DefaultIfEmpty()
+                              //join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
+                              //from ha in hans.DefaultIfEmpty()
                               where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                               orderby p.CreatedOn descending
                               select new Process
@@ -397,9 +397,9 @@ namespace JDE_API.Controllers
                                   LastStatusOn = p.LastStatusOn,
                                   IsResurrected = p.IsResurrected,
                                   HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == p.ProcessId),
-                                  HandlingsLength = (from has in db.JDE_Handlings
-                                                     where has.ProcessId == p.ProcessId
-                                                     select has.FinishedOn == null ? System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value : System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value).Sum(),
+                                  //HandlingsLength = (from has in db.JDE_Handlings
+                                  //                   where has.ProcessId == p.ProcessId
+                                  //                   select has.FinishedOn == null ? System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value : System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value).Sum(),
                               }).ToListAsync(); ;
             }
             catch (Exception ex)
@@ -410,11 +410,11 @@ namespace JDE_API.Controllers
             return await itemsQuery;
         }
 
-        private async Task<List<Process>> GetHandlingsData()
+        private async Task<List<Process>> FetchHandlings()
         {
             using (Models.DbModel _db = new Models.DbModel())
             {
-                var items = _db.JDE_Handlings.Select(h => new
+                var items = _db.JDE_Handlings.Where(x => x.ProcessId > 0 && x.ProcessId !=null).Select(h => new
                 {
                     ProcessId = h.ProcessId,
                     HandlingId = h.HandlingId,
@@ -833,7 +833,7 @@ namespace JDE_API.Controllers
                     var processesTask = FetchProcessesWithoutGroupings(tenants.FirstOrDefault().TenantId, (DateTime)dFrom, (DateTime)dTo, GivenTime, FinishRate, handlingsLength);
                     tasks.Add(processesTask);
 
-                    var handlingsTask = GetHandlingsData();
+                    var handlingsTask = FetchHandlings();
                     tasks.Add(handlingsTask);
 
                     //Set up optional AbandonReasons fetching
@@ -894,7 +894,8 @@ namespace JDE_API.Controllers
                     }
 
                     var processes = from process in items
-                                    join handling in handlings on process.ProcessId equals handling.ProcessId
+                                    join handling in handlings on process.ProcessId equals handling.ProcessId into Handlings
+                                    from handling in Handlings.DefaultIfEmpty()
                                     join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
                                     join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
                                     join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes
