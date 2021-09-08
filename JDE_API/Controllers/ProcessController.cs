@@ -508,7 +508,7 @@ namespace JDE_API.Controllers
             }
         }
 
-        private IHttpActionResult PrepareResponse(IQueryable<IProcessable> items, int page, int total, int? PageSize=null)
+        private IHttpActionResult PrepareResponse(IEnumerable<IProcessable> items, int page, int total, int? PageSize=null)
         {
             if (total == 0 && page > 0)
             {
@@ -893,104 +893,109 @@ namespace JDE_API.Controllers
                         finishRates = await finishRateTask;
                     }
 
-                    var processes = from process in items
-                                    join handling in handlings on process.ProcessId equals handling.ProcessId into Handlings
-                                    from handling in Handlings.DefaultIfEmpty()
-                                    join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
-                                    join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
-                                    join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes
-                                    join finishRate in finishRates on process.ProcessId equals finishRate.ProcessId into FinishRates
-                                    from fRates in FinishRates.DefaultIfEmpty()
-                                    select new Process
-                                    {
-                                        ProcessId = process.ProcessId,
-                                        Description = process.Description,
-                                        StartedOn = process.StartedOn,
-                                        StartedBy = process.StartedBy,
-                                        StartedByName = process.StartedByName,
-                                        FinishedOn = process.FinishedOn,
-                                        FinishedBy = process.FinishedBy,
-                                        FinishedByName = process.FinishedByName,
-                                        ActionTypeId = process.ActionTypeId,
-                                        ActionTypeName = process.ActionTypeName,
-                                        IsActive = process.IsActive,
-                                        IsFrozen = process.IsFrozen,
-                                        IsCompleted = process.IsCompleted,
-                                        IsSuccessfull = process.IsSuccessfull,
-                                        PlaceId = process.PlaceId,
-                                        PlaceName = process.PlaceName,
-                                        PlaceImage = process.PlaceImage,
-                                        SetId = process.SetId,
-                                        SetName = process.SetName,
-                                        AreaId = process.AreaId,
-                                        AreaName = process.AreaName,
-                                        Output = process.Output,
-                                        TenantId = process.TenantId,
-                                        TenantName = process.TenantName,
-                                        CreatedOn = process.CreatedOn,
-                                        CreatedBy = process.CreatedBy,
-                                        CreatedByName = process.CreatedByName,
-                                        MesId = process.MesId,
-                                        InitialDiagnosis = process.InitialDiagnosis,
-                                        RepairActions = process.RepairActions,
-                                        Reason = process.Reason,
-                                        MesDate = process.MesDate,
-                                        Comment = process.Comment,
-                                        ComponentId = process.ComponentId,
-                                        ComponentName = process.ComponentName,
-                                        PlannedStart = process.PlannedStart,
-                                        PlannedFinish = process.PlannedFinish,
-                                        LastStatus = process.LastStatus,
-                                        LastStatusBy = process.LastStatusBy,
-                                        LastStatusByName = process.LastStatusByName,
-                                        LastStatusOn = process.LastStatusOn,
-                                        IsResurrected = process.IsResurrected,
-                                        OpenHandlings = handling.OpenHandlings,
-                                        AllHandlings = handling.AllHandlings,
-                                        AssignedUsers = ProcessAssigns.Select(x => x.UserName).AsQueryable(),
-                                        GivenTime = GivenTimes.Sum(x => x.GivenTime),
-                                        FinishRate = fRates == null ? null : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
-                                        HasAttachments = process.HasAttachments,
-                                        HandlingsLength = handling.HandlingsLength,
-                                        //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
-                                        //AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
-                                    };
-
-                    if (items.Any())
+                    try
                     {
-                        IQueryable<Process> nItems = processes.AsQueryable();
-
-                        if (query != null)
+                        var processes = from process in items
+                                        join handling in handlings on process.ProcessId equals handling.ProcessId into Handlings
+                                        from handling in Handlings.DefaultIfEmpty()
+                                        join abandon in abandons on process.ProcessId equals abandon.ProcessId into ProcessAbandons
+                                        join assign in assigns on process.ProcessId equals assign.ProcessId into ProcessAssigns
+                                        join givenTime in givenTimes on process.ProcessId equals givenTime.ProcessId into GivenTimes
+                                        join finishRate in finishRates on process.ProcessId equals finishRate.ProcessId into FinishRates
+                                        from fRates in FinishRates.DefaultIfEmpty()
+                                        select new Process
+                                        {
+                                            ProcessId = process.ProcessId,
+                                            Description = process.Description,
+                                            StartedOn = process.StartedOn,
+                                            StartedBy = process.StartedBy,
+                                            StartedByName = process.StartedByName,
+                                            FinishedOn = process.FinishedOn,
+                                            FinishedBy = process.FinishedBy,
+                                            FinishedByName = process.FinishedByName,
+                                            ActionTypeId = process.ActionTypeId,
+                                            ActionTypeName = process.ActionTypeName,
+                                            IsActive = process.IsActive,
+                                            IsFrozen = process.IsFrozen,
+                                            IsCompleted = process.IsCompleted,
+                                            IsSuccessfull = process.IsSuccessfull,
+                                            PlaceId = process.PlaceId,
+                                            PlaceName = process.PlaceName,
+                                            PlaceImage = process.PlaceImage,
+                                            SetId = process.SetId,
+                                            SetName = process.SetName,
+                                            AreaId = process.AreaId,
+                                            AreaName = process.AreaName,
+                                            Output = process.Output,
+                                            TenantId = process.TenantId,
+                                            TenantName = process.TenantName,
+                                            CreatedOn = process.CreatedOn,
+                                            CreatedBy = process.CreatedBy,
+                                            CreatedByName = process.CreatedByName,
+                                            MesId = process.MesId,
+                                            InitialDiagnosis = process.InitialDiagnosis,
+                                            RepairActions = process.RepairActions,
+                                            Reason = process.Reason,
+                                            MesDate = process.MesDate,
+                                            Comment = process.Comment,
+                                            ComponentId = process.ComponentId,
+                                            ComponentName = process.ComponentName,
+                                            PlannedStart = process.PlannedStart,
+                                            PlannedFinish = process.PlannedFinish,
+                                            LastStatus = process.LastStatus,
+                                            LastStatusBy = process.LastStatusBy,
+                                            LastStatusByName = process.LastStatusByName,
+                                            LastStatusOn = process.LastStatusOn,
+                                            IsResurrected = process.IsResurrected,
+                                            OpenHandlings = handling == null ? null : handling.OpenHandlings,
+                                            AllHandlings = handling == null ? null : handling.AllHandlings,
+                                            AssignedUsers = ProcessAssigns.Select(x => x.UserName).AsQueryable(),
+                                            GivenTime = GivenTimes.Sum(x => x.GivenTime),
+                                            FinishRate = fRates == null ? null : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
+                                            HasAttachments = process.HasAttachments,
+                                            HandlingsLength = handling == null ? null : handling.HandlingsLength,
+                                            //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
+                                            //AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
+                                        };
+                        if (items.Any())
                         {
-                            if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0 || query.IndexOf("TimingStatus") >= 0 || query.IndexOf("TimingVsPlan") >= 0 || query.IndexOf("HandlingsLength") >= 0 || query.IndexOf("ProcessLength") >= 0)
-                            {
-                                ProcessQuery pq = new ProcessQuery(query);
-                                length = pq.Length;
-                                status = pq.Status;
-                                assignedUserNames = pq.AssignedUserNames;
-                                timingStatus = pq.TimingStatus;
-                                timingVsPlan = pq.TimingVsPlan;
-                                _handlingsLength = pq.HandlingsLength;
-                                processLength = pq.ProcessLength;
-                                query = pq.Query;
+                            IQueryable<Process> nItems = processes.AsQueryable();
 
-                            }
-                            if (!string.IsNullOrEmpty(query))
+                            if (query != null)
                             {
-                                nItems = nItems.Where(query);
+                                if (query.IndexOf("Length") >= 0 || query.IndexOf("Status") >= 0 || query.IndexOf("AssignedUserNames") >= 0 || query.IndexOf("TimingStatus") >= 0 || query.IndexOf("TimingVsPlan") >= 0 || query.IndexOf("HandlingsLength") >= 0 || query.IndexOf("ProcessLength") >= 0)
+                                {
+                                    ProcessQuery pq = new ProcessQuery(query);
+                                    length = pq.Length;
+                                    status = pq.Status;
+                                    assignedUserNames = pq.AssignedUserNames;
+                                    timingStatus = pq.TimingStatus;
+                                    timingVsPlan = pq.TimingVsPlan;
+                                    _handlingsLength = pq.HandlingsLength;
+                                    processLength = pq.ProcessLength;
+                                    query = pq.Query;
 
+                                }
+                                if (!string.IsNullOrEmpty(query))
+                                {
+                                    nItems = nItems.Where(query);
+
+                                }
                             }
+
+                            IQueryable<IProcessable> nnItems = AdvancedFilter(nItems, length, status, assignedUserNames, timingStatus, timingVsPlan, processLength, _handlingsLength);
+
+                            return PrepareResponse(nnItems, page, total, pageSize);
                         }
-
-                        IQueryable<IProcessable> nnItems = AdvancedFilter(nItems, length, status, assignedUserNames, timingStatus, timingVsPlan, processLength, _handlingsLength);
-
-                        return PrepareResponse(nItems, page, total, pageSize);
+                        else
+                        {
+                            return NotFound();
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        return NotFound();
+                        return InternalServerError(ex);
                     }
-
                 }
                 else
                 {
