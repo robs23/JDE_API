@@ -348,8 +348,6 @@ namespace JDE_API.Controllers
                               from components in comps.DefaultIfEmpty()
                               join s in db.JDE_Sets on pl.SetId equals s.SetId
                               join a in db.JDE_Areas on pl.AreaId equals a.AreaId
-                              //join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
-                              //from ha in hans.DefaultIfEmpty()
                               where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                               orderby p.CreatedOn descending
                               select new Process
@@ -397,9 +395,6 @@ namespace JDE_API.Controllers
                                   LastStatusOn = p.LastStatusOn,
                                   IsResurrected = p.IsResurrected,
                                   HasAttachments = db.JDE_FileAssigns.Any(f => f.ProcessId == p.ProcessId),
-                                  //HandlingsLength = (from has in db.JDE_Handlings
-                                  //                   where has.ProcessId == p.ProcessId
-                                  //                   select has.FinishedOn == null ? System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value : System.Data.Entity.SqlServer.SqlFunctions.DateDiff("n", has.StartedOn, has.FinishedOn).Value).Sum(),
                               }).ToListAsync(); ;
             }
             catch (Exception ex)
@@ -561,8 +556,8 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetProcesses")]
-        public async Task<IHttpActionResult> GetProcesses(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate=null, int? pageSize=null, bool? handlingsLength=null)
+        [Route("GetProcessesOld")]
+        public async Task<IHttpActionResult> GetProcessesOld(string token, int page=0, int total=0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate=null, int? pageSize=null, bool? handlingsLength=null)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -812,8 +807,8 @@ namespace JDE_API.Controllers
         }
 
         [HttpGet]
-        [Route("GetProcessesWithoutGroupings")]
-        public async Task<IHttpActionResult> GetProcessesWithoutGroupings(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate = null, int? pageSize = null, bool? handlingsLength = null, bool? AssignedUsers = null, bool? AbandonReasons = null)
+        [Route("GetProcesses")]
+        public async Task<IHttpActionResult> GetProcesses(string token, int page = 0, int total = 0, DateTime? dFrom = null, DateTime? dTo = null, string query = null, string length = null, string status = null, bool? GivenTime = null, bool? FinishRate = null, int? pageSize = null, bool? handlingsLength = null, bool? AssignedUsers = true, bool? AbandonReasons = true)
         {
             //if ext=true then there's more columns in the result sent
             if (token != null && token.Length > 0)
@@ -947,11 +942,11 @@ namespace JDE_API.Controllers
                                             LastStatusByName = process.LastStatusByName,
                                             LastStatusOn = process.LastStatusOn,
                                             IsResurrected = process.IsResurrected,
-                                            OpenHandlings = handling == null ? null : handling.OpenHandlings,
-                                            AllHandlings = handling == null ? null : handling.AllHandlings,
+                                            OpenHandlings = handling == null ? 0 : handling.OpenHandlings,
+                                            AllHandlings = handling == null ? 0 : handling.AllHandlings,
                                             AssignedUsers = ProcessAssigns.Select(x => x.UserName).AsQueryable(),
-                                            GivenTime = GivenTimes.Sum(x => x.GivenTime),
-                                            FinishRate = fRates == null ? null : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
+                                            GivenTime = GivenTimes.Sum(x => x.GivenTime) == 0 ? null : GivenTimes.Sum(x => x.GivenTime),
+                                            FinishRate = fRates == null ? 100 : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
                                             HasAttachments = process.HasAttachments,
                                             HandlingsLength = handling == null ? null : handling.HandlingsLength,
                                             //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
