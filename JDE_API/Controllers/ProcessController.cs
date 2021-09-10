@@ -949,8 +949,8 @@ namespace JDE_API.Controllers
                                             FinishRate = fRates == null ? 100 : fRates.FinishRate, //fRates.Where(f=>f.ProcessId == process.ProcessId).Any() ? finishRates.FirstOrDefault(f => f.ProcessId == process.ProcessId).FinishRate : null ,
                                             HasAttachments = process.HasAttachments,
                                             HandlingsLength = handling == null ? null : handling.HandlingsLength,
-                                            //AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
-                                            //AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
+                                            AbandonReasons = ProcessAbandons.Select(x => x.AbandonReasonName).AsQueryable(),
+                                            AbandonReasonNames = string.Join(",", ProcessAbandons.Select(x => x.AbandonReasonName))
                                         };
                         if (items.Any())
                         {
