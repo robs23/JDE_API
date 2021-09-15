@@ -40,7 +40,7 @@ namespace JDE_API.Controllers
                                  {
                                      OrderId = x.OrderId,
                                      OrderNo = x.OrderNo,
-                                     SupplierOrderNo = x.SuppliersOrderNo,
+                                     SuppliersOrderNo = x.SuppliersOrderNo,
                                      DeliveryOn = x.DeliveryOn,
                                      SupplierId = x.SupplierId,
                                      SupplierName = s.Name,
