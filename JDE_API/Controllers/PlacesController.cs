@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
@@ -289,6 +290,114 @@ namespace JDE_API.Controllers
                     }
 
                     
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetPlacesStats")]
+        public IHttpActionResult GetPlacesStats(string token, DateTime dateFrom, DateTime dateTo)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    try
+                    {
+                        using (SqlConnection Con = new SqlConnection(Secrets.ApiConnectionString))
+                        {
+                            string sql = $@"SELECT s.SetId, s.Name as [SetName],
+                                            CASE WHEN at.ShowOnDashboard = 1 THEN at.Name ELSE 'Pozostałe' END as [ActionTypeName], SUM(DATEDIFF(MI, h.StartedOn, h.FinishedOn)) as [Length]
+                                            FROM JDE_Handlings h 
+	                                            LEFT JOIN JDE_Processes p ON h.ProcessId = p.ProcessId
+	                                            LEFT JOIN JDE_Places pl ON p.PlaceId = pl.PlaceId
+	                                            LEFT JOIN JDE_Sets s ON pl.SetId = s.SetId
+	                                            LEFT JOIN JDE_ActionTypes at ON p.ActionTypeId = at.ActionTypeId
+                                            WHERE h.StartedOn >= @dateFrom AND h.FinishedOn < @dateTo 
+                                            GROUP BY s.SetId, s.Name, CASE WHEN at.ShowOnDashboard = 1 THEN at.Name ELSE 'Pozostałe' END
+                                            ORDER BY ActionTypeName, Length DESC";
+                            SqlParameter[] parameters = new SqlParameter[2];
+                            parameters[0] = new SqlParameter("@dateFrom", dateFrom);
+                            parameters[1] = new SqlParameter("@dateTo", dateTo);
+
+                            SqlCommand command = new SqlCommand(sql, Con);
+                            command.Parameters.AddRange(parameters);
+
+                            if (Con.State == ConnectionState.Closed || Con.State == ConnectionState.Broken)
+                            {
+                                Con.Open();
+                            }
+
+                            List<dynamic> places = new List<dynamic>();
+                            List<dynamic> newPlaces = new List<dynamic>();
+
+                            SqlDataReader reader = command.ExecuteReader();
+                            int totalResult = 0;
+
+                            while (reader.Read())
+                            {
+                                int hs = 0;
+                                bool parsable = int.TryParse(reader["Length"].ToString(), out hs);
+
+                                var item = new
+                                {
+                                    SetId = reader["SetId"],
+                                    Name = reader["SetName"],
+                                    Length = hs
+                                };
+                                places.Add(item);
+                                if (places.Any())
+                                {
+                                    foreach(var place in places)
+                                    {
+                                        if (!newPlaces.Any(p => p.SetId))
+                                        {
+                                            int SetId = place.SetId;
+                                            List<dynamic> Handlings = new List<dynamic>();
+
+                                            foreach(var pl in places)
+                                            {
+                                                if(pl.SetId == SetId)
+                                                {
+                                                    var actionType = new
+                                                    {
+                                                        Name = pl.ActionTypeName,
+                                                        Length = pl.Length
+                                                    };
+                                                    Handlings.Add(actionType);
+                                                }
+                                                
+                                            }
+
+                                            var nItem = new
+                                            {
+                                                SetId = place.SetId,
+                                                Name = place.Name,
+                                                Handlings = Handlings
+                                            };
+                                            newPlaces.Add(nItem);
+                                        }
+                                    }
+                                }
+                            }
+
+                            return Ok(newPlaces);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        return InternalServerError(ex);
+                    }
                 }
                 else
                 {
