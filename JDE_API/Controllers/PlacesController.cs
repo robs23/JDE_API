@@ -348,49 +348,58 @@ namespace JDE_API.Controllers
                                 int hs = 0;
                                 bool parsable = int.TryParse(reader["Length"].ToString(), out hs);
 
-                                var item = new
+                                if (!reader.IsDBNull(reader.GetOrdinal("SetId")))
                                 {
-                                    SetId = reader["SetId"],
-                                    Name = reader["SetName"],
-                                    Length = hs
-                                };
-                                places.Add(item);
-                                if (places.Any())
-                                {
-                                    foreach(var place in places)
+                                    var item = new
                                     {
-                                        if (!newPlaces.Any(p => p.SetId))
-                                        {
-                                            int SetId = place.SetId;
-                                            List<dynamic> Handlings = new List<dynamic>();
+                                        SetId = reader["SetId"],
+                                        SetName = reader["SetName"],
+                                        ActionTypeName = reader["ActionTypeName"],
+                                        Length = hs
+                                    };
+                                    places.Add(item);
+                                } 
+                                
+                            }
+                            if (places.Any())
+                            {
+                                foreach (var place in places)
+                                {
+                                    if (!newPlaces.Any(p => p.SetId == place.SetId))
+                                    {
+                                        int SetId = place.SetId;
+                                        List<dynamic> Handlings = new List<dynamic>();
 
-                                            foreach(var pl in places)
+                                        totalResult = 0;
+
+                                        foreach (var pl in places)
+                                        {
+                                            if (pl.SetId == SetId)
                                             {
-                                                if(pl.SetId == SetId)
+                                                var actionType = new
                                                 {
-                                                    var actionType = new
-                                                    {
-                                                        Name = pl.ActionTypeName,
-                                                        Length = pl.Length
-                                                    };
-                                                    Handlings.Add(actionType);
-                                                }
-                                                
+                                                    Name = pl.ActionTypeName,
+                                                    Length = pl.Length
+                                                };
+                                                totalResult += pl.Length;
+                                                Handlings.Add(actionType);
                                             }
 
-                                            var nItem = new
-                                            {
-                                                SetId = place.SetId,
-                                                Name = place.Name,
-                                                Handlings = Handlings
-                                            };
-                                            newPlaces.Add(nItem);
                                         }
+
+                                        var nItem = new
+                                        {
+                                            SetId = place.SetId,
+                                            SetName = place.SetName,
+                                            Handlings = Handlings,
+                                            TotalTime = totalResult
+                                        };
+                                        newPlaces.Add(nItem);
                                     }
                                 }
                             }
 
-                            return Ok(newPlaces);
+                            return Ok(newPlaces.OrderByDescending(p=>p.TotalTime));
                         }
                     }
                     catch (Exception ex)
