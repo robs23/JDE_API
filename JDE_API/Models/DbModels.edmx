@@ -245,6 +245,7 @@
           <Property Name="LmBy" Type="int" />
           <Property Name="LmOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_Orders">
           <Key>
@@ -260,6 +261,7 @@
           <Property Name="LmOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
           <Property Name="TenantId" Type="int" />
+          <Property Name="IsArchived" Type="bit" />
         </EntityType>
         <EntityType Name="JDE_PartPrices">
           <Key>
@@ -717,6 +719,7 @@
           <Property Name="Unit" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="Price" Type="Decimal" Precision="10" Scale="4" />
           <Property Name="Currency" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="IsArchived" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_Orders">
           <Key>
@@ -732,6 +735,7 @@
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="IsArchived" Type="Boolean" />
         </EntityType>
         <EntityType Name="JDE_CompanyTypes">
           <Key>
@@ -1211,6 +1215,7 @@
           <EntitySetMapping Name="JDE_OrderItems">
             <EntityTypeMapping TypeName="DbModels.JDE_OrderItems">
               <MappingFragment StoreEntitySet="JDE_OrderItems">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
                 <ScalarProperty Name="Currency" ColumnName="Currency" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Unit" ColumnName="Unit" />
@@ -1229,6 +1234,7 @@
           <EntitySetMapping Name="JDE_Orders">
             <EntityTypeMapping TypeName="DbModels.JDE_Orders">
               <MappingFragment StoreEntitySet="JDE_Orders">
+                <ScalarProperty Name="IsArchived" ColumnName="IsArchived" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />

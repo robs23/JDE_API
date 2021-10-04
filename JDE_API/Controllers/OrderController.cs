@@ -51,7 +51,8 @@ namespace JDE_API.Controllers
                                      LmBy = x.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = x.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = x.IsArchived
                                  });
                     if (items.Any())
                     {
@@ -141,7 +142,8 @@ namespace JDE_API.Controllers
                                      LmBy = x.LmBy,
                                      LmByName = mb.Name + " " + mb.Surname,
                                      TenantId = x.TenantId,
-                                     TenantName = t.TenantName
+                                     TenantName = t.TenantName,
+                                     IsArchived = x.IsArchived
                                  });
 
                     if (items.Any())
@@ -206,6 +208,64 @@ namespace JDE_API.Controllers
             }
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [HttpGet]
+        [Route("ArchiveOrder")]
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage ArchiveOrder(string token, int id, int UserId)
+        {
+            if (token != null && token.Length > 0)
+            {
+                var tenants = db.JDE_Tenants.Where(t => t.TenantToken == token.Trim());
+                if (tenants.Any())
+                {
+                    var items = db.JDE_Orders.AsNoTracking().Where(u => u.TenantId == tenants.FirstOrDefault().TenantId && u.OrderId == id);
+                    if (items.Any())
+                    {
+                        JDE_Orders orgItem = items.FirstOrDefault();
+
+                        orgItem.IsArchived = true;
+                        JDE_Logs Log = new JDE_Logs { UserId = UserId, Description = "Archiwizacja zamówienia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(items.FirstOrDefault()), NewValue = "" };
+                        db.JDE_Logs.Add(Log);
+                        db.Entry(orgItem).State = EntityState.Modified;
+
+                        //Archive child OrderItems
+                        var orderItems = db.JDE_OrderItems.Where(i => i.OrderId == orgItem.OrderId);
+                        if (orderItems.Any())
+                        {
+                            foreach(var item in orderItems)
+                            {
+                                item.IsArchived = true;
+                                JDE_Logs ItemLog = new JDE_Logs { UserId = UserId, Description = "Archiwizacja pozycji zamówienia", TenantId = tenants.FirstOrDefault().TenantId, Timestamp = DateTime.Now, OldValue = new JavaScriptSerializer().Serialize(orderItems.FirstOrDefault()), NewValue = new JavaScriptSerializer().Serialize(item) };
+                                db.JDE_Logs.Add(Log);
+                                db.Entry(item).State = EntityState.Modified;
+                            }
+                        }
+
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!JDE_OrderExists(id))
+                            {
+                                return Request.CreateResponse(HttpStatusCode.NotFound);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                        }
+                    }
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         [HttpPost]

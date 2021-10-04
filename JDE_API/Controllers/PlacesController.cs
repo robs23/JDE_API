@@ -304,7 +304,7 @@ namespace JDE_API.Controllers
 
         [HttpGet]
         [Route("GetPlacesStats")]
-        public IHttpActionResult GetPlacesStats(string token, DateTime dateFrom, DateTime dateTo)
+        public IHttpActionResult GetPlacesStats(string token, DateTime dateFrom, DateTime dateTo, int? itemsCount = null)
         {
             if (token != null && token.Length > 0)
             {
@@ -399,7 +399,14 @@ namespace JDE_API.Controllers
                                 }
                             }
 
-                            return Ok(newPlaces.OrderByDescending(p=>p.TotalTime));
+                            if (itemsCount == null)
+                            {
+                                return Ok(newPlaces.OrderByDescending(p => p.TotalTime));
+                            }
+                            else
+                            {
+                                return Ok(newPlaces.OrderByDescending(p => p.TotalTime).Take((int)itemsCount));
+                            }
                         }
                     }
                     catch (Exception ex)

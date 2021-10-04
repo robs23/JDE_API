@@ -26,5 +26,6 @@ namespace JDE_API.Models
         public string Unit { get; set; }
         public Nullable<decimal> Price { get; set; }
         public string Currency { get; set; }
+        public Nullable<bool> IsArchived { get; set; }
     }
 }
