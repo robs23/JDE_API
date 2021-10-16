@@ -505,6 +505,7 @@ namespace JDE_API.Controllers
 
         private IHttpActionResult PrepareResponse(IEnumerable<IProcessable> items, int page, int total, int? PageSize=null)
         {
+
             if (total == 0 && page > 0)
             {
                 int pageSize = RuntimeSettings.PageSize;
@@ -921,18 +922,18 @@ namespace JDE_API.Controllers
                                             SetName = process.SetName,
                                             AreaId = process.AreaId,
                                             AreaName = process.AreaName,
-                                            Output = process.Output,
+                                            Output = process.Output ?? "",
                                             TenantId = process.TenantId,
                                             TenantName = process.TenantName,
                                             CreatedOn = process.CreatedOn,
                                             CreatedBy = process.CreatedBy,
                                             CreatedByName = process.CreatedByName,
                                             MesId = process.MesId,
-                                            InitialDiagnosis = process.InitialDiagnosis,
-                                            RepairActions = process.RepairActions,
-                                            Reason = process.Reason,
+                                            InitialDiagnosis = process.InitialDiagnosis ?? "",
+                                            RepairActions = process.RepairActions ?? "",
+                                            Reason = process.Reason ?? "",
                                             MesDate = process.MesDate,
-                                            Comment = process.Comment,
+                                            Comment = process.Comment ?? "",
                                             ComponentId = process.ComponentId,
                                             ComponentName = process.ComponentName,
                                             PlannedStart = process.PlannedStart,
