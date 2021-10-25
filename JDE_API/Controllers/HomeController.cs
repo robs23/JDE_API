@@ -3,18 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Web;
+using System.Web.Http.Description;
 using System.Web.Mvc;
 
 namespace JDE_API.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        [Route(""), HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public RedirectResult Index()
         {
-            ViewBag.Title = "Home Page";
-
-            return View();
+            return Redirect("/swagger/");
         }
+
+        //public ActionResult Index()
+        //{
+        //    ViewBag.Title = "Home Page";
+        //    return View();
+        //}
 
         public ActionResult GenerateUniqueTokens(int NumberOfItems)
         {
