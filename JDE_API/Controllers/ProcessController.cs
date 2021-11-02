@@ -343,11 +343,14 @@ namespace JDE_API.Controllers
                               from star in started.DefaultIfEmpty()
                               join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                               from lStat in lastStatus.DefaultIfEmpty()
-                              join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
+                              join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId into places
+                              from pla in places.DefaultIfEmpty()
                               join comp in db.JDE_Components on p.ComponentId equals comp.ComponentId into comps
                               from components in comps.DefaultIfEmpty()
-                              join s in db.JDE_Sets on pl.SetId equals s.SetId
-                              join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                              join s in db.JDE_Sets on pla.SetId equals s.SetId into sets
+                              from set in sets.DefaultIfEmpty()
+                              join a in db.JDE_Areas on pla.AreaId equals a.AreaId into areas
+                              from area in areas.DefaultIfEmpty()
                               where p.TenantId == TenantId && p.CreatedOn >= dFrom && p.CreatedOn <= dTo
                               orderby p.CreatedOn descending
                               select new Process
@@ -367,12 +370,12 @@ namespace JDE_API.Controllers
                                   IsCompleted = p.IsCompleted,
                                   IsSuccessfull = p.IsSuccessfull,
                                   PlaceId = p.PlaceId,
-                                  PlaceName = pl.Name,
-                                  PlaceImage = pl.Image,
-                                  SetId = pl.SetId,
-                                  SetName = s.Name,
-                                  AreaId = pl.AreaId,
-                                  AreaName = a.Name,
+                                  PlaceName = pla.Name,
+                                  PlaceImage = pla.Image,
+                                  SetId = pla.SetId,
+                                  SetName = set.Name,
+                                  AreaId = pla.AreaId,
+                                  AreaName = area.Name,
                                   Output = p.Output,
                                   TenantId = p.TenantId,
                                   TenantName = t.TenantName,
@@ -916,12 +919,12 @@ namespace JDE_API.Controllers
                                             IsCompleted = process.IsCompleted,
                                             IsSuccessfull = process.IsSuccessfull,
                                             PlaceId = process.PlaceId,
-                                            PlaceName = process.PlaceName,
-                                            PlaceImage = process.PlaceImage,
+                                            PlaceName = process.PlaceName ?? "",
+                                            PlaceImage = process.PlaceImage ?? "",
                                             SetId = process.SetId,
-                                            SetName = process.SetName,
+                                            SetName = process.SetName ?? "",
                                             AreaId = process.AreaId,
-                                            AreaName = process.AreaName,
+                                            AreaName = process.AreaName ?? "",
                                             Output = process.Output ?? "",
                                             TenantId = process.TenantId,
                                             TenantName = process.TenantName,
@@ -1027,9 +1030,12 @@ namespace JDE_API.Controllers
                                  from star in started.DefaultIfEmpty()
                                  join lsu in db.JDE_Users on p.LastStatusBy equals lsu.UserId into lastStatus
                                  from lStat in lastStatus.DefaultIfEmpty()
-                                 join pl in db.JDE_Places on p.PlaceId equals pl.PlaceId
-                                 join s in db.JDE_Sets on pl.SetId equals s.SetId
-                                 join a in db.JDE_Areas on pl.AreaId equals a.AreaId
+                                 join pla in db.JDE_Places on p.PlaceId equals pla.PlaceId into places
+                                 from place in places.DefaultIfEmpty()
+                                 join s in db.JDE_Sets on place.SetId equals s.SetId into sets
+                                 from set in sets.DefaultIfEmpty()
+                                 join a in db.JDE_Areas on place.AreaId equals a.AreaId into areas
+                                 from area in areas.DefaultIfEmpty()
                                  join h in db.JDE_Handlings on p.ProcessId equals h.ProcessId into hans
                                  from ha in hans.DefaultIfEmpty()
                                  join pa in db.JDE_ProcessAssigns on p.ProcessId equals pa.ProcessId into pas
@@ -1038,7 +1044,7 @@ namespace JDE_API.Controllers
                                  && ((ha.UserId == UserId && (ha.IsCompleted == false || ha.IsCompleted == null)) 
                                  || (p.LastStatusBy==UserId && p.IsCompleted==false && (p.IsActive==true || p.IsFrozen==true))
                                  || (p.LastStatus==(int)ProcessStatus.Planned && p.PlannedStart <= DateTime.Now && ppas.UserId==UserId))
-                                 group new { p, fin, t, u, at, started, lastStatus, lStat, pl, s, a, ha }
+                                 group new { p, fin, t, u, at, started, lastStatus, lStat, place, set, area, ha }
                                  by new
                                  {
                                      p.ProcessId,
@@ -1050,11 +1056,11 @@ namespace JDE_API.Controllers
                                      p.PlannedFinish,
                                      p.PlannedStart,
                                      p.PlaceId,
-                                     pl.SetId,
-                                     SetName = s.Name,
-                                     pl.AreaId,
-                                     AreaName = a.Name,
-                                     pl.Image,
+                                     place.SetId,
+                                     SetName = set.Name,
+                                     place.AreaId,
+                                     AreaName = area.Name,
+                                     place.Image,
                                      p.Reason,
                                      p.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -1076,7 +1082,7 @@ namespace JDE_API.Controllers
                                      ActionTypeName = at.Name,
                                      FinishedByName = fin.Name + " " + fin.Surname,
                                      StartedByName = star.Name + " " + star.Surname,
-                                     PlaceName = pl.Name,
+                                     PlaceName = place.Name,
                                      LastStatus = p.LastStatus == null ? (ProcessStatus?)null : (ProcessStatus)p.LastStatus, // Nullable enums handled
                                      p.LastStatusBy,
                                      LastStatusByName = lStat.Name + " " + lStat.Surname,
