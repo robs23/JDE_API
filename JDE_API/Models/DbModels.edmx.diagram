@@ -37,6 +37,7 @@
         <EntityTypeShape EntityType="DbModels.JDE_AbandonReasons" Width="1.5" PointX="17.375" PointY="12.75" />
         <EntityTypeShape EntityType="DbModels.JDE_Processes" Width="1.5" PointX="9.25" PointY="0.5" />
         <AssociationConnector Association="DbModels.JDE_ProcessesJDE_Handlings" />
+        <EntityTypeShape EntityType="DbModels.JDE_UserLogs" Width="1.5" PointX="6.375" PointY="7.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

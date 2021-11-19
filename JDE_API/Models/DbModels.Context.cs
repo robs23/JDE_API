@@ -56,5 +56,6 @@ namespace JDE_API.Models
         public virtual DbSet<JDE_StockTakings> JDE_StockTakings { get; set; }
         public virtual DbSet<JDE_AbandonReasons> JDE_AbandonReasons { get; set; }
         public virtual DbSet<JDE_Processes> JDE_Processes { get; set; }
+        public virtual DbSet<JDE_UserLogs> JDE_UserLogs { get; set; }
     }
 }

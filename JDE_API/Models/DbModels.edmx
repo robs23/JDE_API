@@ -481,6 +481,23 @@
           <Property Name="TenantFullName" Type="nvarchar(max)" />
           <Property Name="TenantToken" Type="nvarchar(max)" />
         </EntityType>
+        <EntityType Name="JDE_UserLogs">
+          <Key>
+            <PropertyRef Name="UserLogId" />
+          </Key>
+          <Property Name="UserLogId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Platform" Type="nvarchar" MaxLength="100" />
+          <Property Name="Device" Type="nvarchar" MaxLength="100" />
+          <Property Name="LogName" Type="nvarchar" MaxLength="100" />
+          <Property Name="HasTheAppCrashed" Type="bit" />
+          <Property Name="OnRequest" Type="bit" />
+          <Property Name="Comment" Type="nvarchar" MaxLength="1000" />
+          <Property Name="CreatedBy" Type="int" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="LmBy" Type="int" />
+          <Property Name="LmOn" Type="datetime" />
+          <Property Name="TenantId" Type="int" />
+        </EntityType>
         <EntityType Name="JDE_Users">
           <Key>
             <PropertyRef Name="UserId" />
@@ -529,6 +546,7 @@
           <EntitySet Name="JDE_StockTakings" EntityType="Self.JDE_StockTakings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_StorageBins" EntityType="Self.JDE_StorageBins" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Tenants" EntityType="Self.JDE_Tenants" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="JDE_UserLogs" EntityType="Self.JDE_UserLogs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JDE_Users" EntityType="Self.JDE_Users" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -647,6 +665,7 @@
           <EntitySet Name="JDE_StockTakings" EntityType="DbModels.JDE_StockTakings" />
           <EntitySet Name="JDE_AbandonReasons" EntityType="DbModels.JDE_AbandonReasons" />
           <EntitySet Name="JDE_Processes" EntityType="DbModels.JDE_Processes" />
+          <EntitySet Name="JDE_UserLogs" EntityType="DbModels.JDE_UserLogs" />
         </EntityContainer>
         <EntityType Name="JDE_Boms">
           <Key>
@@ -1060,6 +1079,23 @@
           <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ComponentId" Type="Int32" />
           <Property Name="IsResurrected" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="JDE_UserLogs">
+          <Key>
+            <PropertyRef Name="UserLogId" />
+          </Key>
+          <Property Name="UserLogId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Platform" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Device" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LogName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="HasTheAppCrashed" Type="Boolean" />
+          <Property Name="OnRequest" Type="Boolean" />
+          <Property Name="Comment" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="Int32" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="LmBy" Type="Int32" />
+          <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="TenantId" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1588,6 +1624,24 @@
                 <ScalarProperty Name="StartedOn" ColumnName="StartedOn" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="ProcessId" ColumnName="ProcessId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JDE_UserLogs">
+            <EntityTypeMapping TypeName="DbModels.JDE_UserLogs">
+              <MappingFragment StoreEntitySet="JDE_UserLogs">
+                <ScalarProperty Name="TenantId" ColumnName="TenantId" />
+                <ScalarProperty Name="LmOn" ColumnName="LmOn" />
+                <ScalarProperty Name="LmBy" ColumnName="LmBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="OnRequest" ColumnName="OnRequest" />
+                <ScalarProperty Name="HasTheAppCrashed" ColumnName="HasTheAppCrashed" />
+                <ScalarProperty Name="LogName" ColumnName="LogName" />
+                <ScalarProperty Name="Device" ColumnName="Device" />
+                <ScalarProperty Name="Platform" ColumnName="Platform" />
+                <ScalarProperty Name="UserLogId" ColumnName="UserLogId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
