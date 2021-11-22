@@ -49,6 +49,7 @@ namespace JDE_API.Controllers
                                      PartId = fa.PartId,
                                      PlaceId = fa.PlaceId,
                                      ProcessId = fa.ProcessId,
+                                     UserLogId = fa.UserLogId,
                                      CreatedOn = fa.CreatedOn,
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -129,6 +130,8 @@ namespace JDE_API.Controllers
                                  from prts in parts.DefaultIfEmpty()
                                  join pl in db.JDE_Places on fa.PlaceId equals pl.PlaceId into places
                                  from plcs in places.DefaultIfEmpty()
+                                 join ul in db.JDE_UserLogs on fa.UserLogId equals ul.UserLogId into userLogs
+                                 from logs in userLogs.DefaultIfEmpty()
                                  join u in db.JDE_Users on fa.CreatedBy equals u.UserId
                                  join t in db.JDE_Tenants on fa.TenantId equals t.TenantId
                                  where fa.TenantId == tenants.FirstOrDefault().TenantId
@@ -143,6 +146,8 @@ namespace JDE_API.Controllers
                                      PlaceId = plcs.PlaceId,
                                      PlaceName = plcs.Name,
                                      ProcessId = fa.ProcessId,
+                                     UserLogId = fa.UserLogId,
+                                     UserLogName = logs.LogName,
                                      CreatedOn = fa.CreatedOn,
                                      CreatedBy = fa.CreatedBy,
                                      CreatedByName = u.Name + " " + u.Surname,
@@ -338,7 +343,7 @@ namespace JDE_API.Controllers
 
         [HttpPost]
         [Route("CreateFile")]
-        public HttpResponseMessage CreateFile(string token, string FileJson, int UserId, int? PlaceId=null, int? PartId=null, int? ProcessId=null)
+        public HttpResponseMessage CreateFile(string token, string FileJson, int UserId, int? PlaceId=null, int? PartId=null, int? ProcessId=null, int? UserLogId=null)
         {           
             if (token != null && token.Length > 0)
             {
@@ -383,7 +388,7 @@ namespace JDE_API.Controllers
                         }
                     }
 
-                    JDE_FileAssigns FileAssing = new JDE_FileAssigns { FileId = item.FileId, CreatedBy = UserId, CreatedOn = DateTime.Now, TenantId = tenants.FirstOrDefault().TenantId, PartId = PartId, PlaceId = PlaceId, ProcessId = ProcessId };
+                    JDE_FileAssigns FileAssing = new JDE_FileAssigns { FileId = item.FileId, CreatedBy = UserId, CreatedOn = DateTime.Now, TenantId = tenants.FirstOrDefault().TenantId, PartId = PartId, PlaceId = PlaceId, ProcessId = ProcessId, UserLogId = UserLogId };
                     string word = "";
                     if (PlaceId != null)
                     {
@@ -392,9 +397,13 @@ namespace JDE_API.Controllers
                     {
                         word = "części";
                     }
-                    else
+                    else if(ProcessId != null)
                     {
                         word = "zgłoszenia";
+                    }
+                    else
+                    {
+                        word = "logu użytkownika";
                     }
                     db.JDE_FileAssigns.Add(FileAssing);
                     db.SaveChanges();
@@ -417,7 +426,7 @@ namespace JDE_API.Controllers
         [HttpPost]
         [Route("CreateFile")]
         [ResponseType(typeof(JDE_Files))]
-        public IHttpActionResult CreateFile(string token, JDE_Files item, int UserId, int? PlaceId = null, int? PartId = null, int? ProcessId = null)
+        public IHttpActionResult CreateFile(string token, JDE_Files item, int UserId, int? PlaceId = null, int? PartId = null, int? ProcessId = null, int? UserLogId = null)
         {
             if (token != null && token.Length > 0)
             {
@@ -436,7 +445,7 @@ namespace JDE_API.Controllers
                         db.JDE_Logs.Add(Log);
                         db.SaveChanges();
 
-                        JDE_FileAssigns FileAssing = new JDE_FileAssigns { FileId = item.FileId, CreatedBy = UserId, CreatedOn = DateTime.Now, TenantId = tenants.FirstOrDefault().TenantId, PartId = PartId, PlaceId = PlaceId, ProcessId = ProcessId };
+                        JDE_FileAssigns FileAssing = new JDE_FileAssigns { FileId = item.FileId, CreatedBy = UserId, CreatedOn = DateTime.Now, TenantId = tenants.FirstOrDefault().TenantId, PartId = PartId, PlaceId = PlaceId, ProcessId = ProcessId, UserLogId = UserLogId };
                         string word = "";
                         if (PlaceId != null)
                         {
@@ -446,9 +455,13 @@ namespace JDE_API.Controllers
                         {
                             word = "części";
                         }
-                        else
+                        else if(ProcessId != null)
                         {
                             word = "zgłoszenia";
+                        }
+                        else
+                        {
+                            word = "logu użytkownika";
                         }
                         db.JDE_FileAssigns.Add(FileAssing);
                         db.SaveChanges();
@@ -799,7 +812,7 @@ namespace JDE_API.Controllers
 
         [HttpDelete]
         [Route("DeleteFile")]
-        public IHttpActionResult DeleteFile(string token, int id, int UserId, int? PlaceId = null, int? PartId = null, int? ProcessId = null)
+        public IHttpActionResult DeleteFile(string token, int id, int UserId, int? PlaceId = null, int? PartId = null, int? ProcessId = null, int? UserLogId = null)
         {
             //File should only be deleted if we're deleting last fileAssign
             //otherwise we're deleting only fileAssign
@@ -815,7 +828,7 @@ namespace JDE_API.Controllers
                         if (items.Any())
                         {
                             JDE_Files item = items.FirstOrDefault();
-                            if (PlaceId == null && PartId == null && ProcessId == null)
+                            if (PlaceId == null && PartId == null && ProcessId == null && UserLogId == null)
                             {
                                 //well, we don't care for fileAssigns whatsover, just delete the file and all assigns pointing to it
                                 //such a request must come from uploadKeeper
@@ -828,7 +841,7 @@ namespace JDE_API.Controllers
                                 {
                                     //at least 1 fileAssign
                                     //otherwise it would be weird
-                                    _DeleteFileAssigns(id, UserId, (int)fileAssigns.FirstOrDefault().TenantId, PlaceId, PartId, ProcessId);
+                                    _DeleteFileAssigns(id, UserId, (int)fileAssigns.FirstOrDefault().TenantId, PlaceId, PartId, ProcessId, UserLogId);
                                     if (fileAssigns.Count() == 1)
                                     {
                                         //there's only 1 assigns so more it's the last one
@@ -905,7 +918,7 @@ namespace JDE_API.Controllers
             }
         }
 
-        private void _DeleteFileAssigns(int fileId, int UserId, int tenantId, int? PlaceId = null, int? PartId = null, int? ProcessId = null)
+        private void _DeleteFileAssigns(int fileId, int UserId, int tenantId, int? PlaceId = null, int? PartId = null, int? ProcessId = null, int? UserLogId = null)
         {
             try
             {

@@ -178,6 +178,7 @@
           <Property Name="ProcessId" Type="int" />
           <Property Name="PartId" Type="int" />
           <Property Name="PlaceId" Type="int" />
+          <Property Name="UserLogId" Type="int" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="TenantId" Type="int" />
@@ -782,6 +783,7 @@
           <Property Name="TenantId" Type="Int32" />
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
+          <Property Name="UserLogId" Type="Int32" />
         </EntityType>
         <EntityType Name="JDE_Actions">
           <Key>
@@ -1300,6 +1302,7 @@
           <EntitySetMapping Name="JDE_FileAssigns">
             <EntityTypeMapping TypeName="DbModels.JDE_FileAssigns">
               <MappingFragment StoreEntitySet="JDE_FileAssigns">
+                <ScalarProperty Name="UserLogId" ColumnName="UserLogId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
