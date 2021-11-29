@@ -492,7 +492,10 @@
           <Property Name="LogName" Type="nvarchar" MaxLength="100" />
           <Property Name="HasTheAppCrashed" Type="bit" />
           <Property Name="OnRequest" Type="bit" />
+          <Property Name="Message" Type="nvarchar(max)" />
+          <Property Name="StackTrace" Type="nvarchar(max)" />
           <Property Name="Comment" Type="nvarchar" MaxLength="1000" />
+          <Property Name="ErrorTime" Type="datetime" />
           <Property Name="CreatedBy" Type="int" />
           <Property Name="CreatedOn" Type="datetime" />
           <Property Name="LmBy" Type="int" />
@@ -1098,6 +1101,9 @@
           <Property Name="LmBy" Type="Int32" />
           <Property Name="LmOn" Type="DateTime" Precision="3" />
           <Property Name="TenantId" Type="Int32" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StackTrace" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ErrorTime" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1633,6 +1639,9 @@
           <EntitySetMapping Name="JDE_UserLogs">
             <EntityTypeMapping TypeName="DbModels.JDE_UserLogs">
               <MappingFragment StoreEntitySet="JDE_UserLogs">
+                <ScalarProperty Name="ErrorTime" ColumnName="ErrorTime" />
+                <ScalarProperty Name="StackTrace" ColumnName="StackTrace" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
                 <ScalarProperty Name="TenantId" ColumnName="TenantId" />
                 <ScalarProperty Name="LmOn" ColumnName="LmOn" />
                 <ScalarProperty Name="LmBy" ColumnName="LmBy" />
